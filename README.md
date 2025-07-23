@@ -4,7 +4,7 @@ a set of tools, known issues (and workarounds), as well as other locations to ge
 
 
 # INSTALLING
-please follow along with our [guides here](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#select-an-installation-method) as DCS has many issues and the guides are there to mitigate the problems, both with DCS, and the installation method itself sometimes
+please follow along with our [guides here](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation), and select an installation method. DCS has many issues and the guides are there to mitigate the current known issues, both with DCS, and the installation method itself sometimes
 
 
 
