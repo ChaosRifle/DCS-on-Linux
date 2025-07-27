@@ -2,6 +2,16 @@
 # edit the following path to your DCS core game directory.
 DCS_INSTALL="/run/media/$USER/SN850X 2TB/games/dcs-world/drive_c/Program Files/Eagle Dynamics/DCS World OpenBeta/"
 
+
+# documentation/explanation
+
+# texturefixer.sh repairs ED's faulty textures - dependency of ImageMagick (usually pre-installed in most distro)
+# This works by re-saving the files
+# Long story, ED screwed up and got off-by-one's in some, others.. we're not really sure why it fixes them, but it does
+
+
+
+
 # ensure our scripts are never run as root
 if [ "$(id -u)" -eq 0 ]; then
     echo "Please do not run scripts off the internet as root"
