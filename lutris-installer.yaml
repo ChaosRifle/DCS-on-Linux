@@ -65,3 +65,4 @@ results:
       wine:
         overrides:
           wbemprox: n
+          WINE_SIMULATE_WRITECOPY: 1
