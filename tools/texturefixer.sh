@@ -11,7 +11,7 @@ DCS_INSTALL="/run/media/$USER/SN850X 2TB/games/dcs-world/drive_c/Program Files/E
 # you from joining servers blocking that type, if already broken, or kick you to menu if you break it on-server.
 # there are zero punishments for breaking IC, it is just there to keep files normal. restart your game client
 # and you will be able to rejoin just fine. if you want to fly that aircraft on IC servers, uninstall your mods and 
-# repair the game files, then reinstall your mods.
+# repair the game files, then reinstall your mods
 
 # This works by re-saving the files. This means any time you update/repair the game, you must run the script
 # Long story, ED screwed up and got off-by-one's in some, others.. we're not really sure why it fixes those, but it does
