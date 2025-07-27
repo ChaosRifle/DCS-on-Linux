@@ -14,8 +14,8 @@
 
 
 
-# INSTALLING
-please [follow along with our guides](https://github.com/ChaosRifle/DCS-on-Linux/wiki), and select an installation method. DCS has many issues and the guides are there to mitigate the current known issues, both with DCS, and the installation method itself sometimes.
+# INSTALLING AND TROUBLESHOOTING
+please [follow along with our guides](https://github.com/ChaosRifle/DCS-on-Linux/wiki), and select an installation method. DCS has many issues and the guides are there to mitigate the current known issues, both with DCS, and the installation method itself sometimes. This link also provides troubleshooting pages.
 
 
 
