@@ -2,6 +2,12 @@
 # edit the following path to your DCS core game directory.
 DCS_INSTALL="/run/media/$USER/SN850X 2TB/games/dcs-world/drive_c/Program Files/Eagle Dynamics/DCS World OpenBeta/"
 
+# ensure our scripts are never run as root
+if [ "$(id -u)" -eq 0 ]; then
+    echo "Please do not run scripts off the internet as root"
+    exit 1
+fi
+
 BROKEN_FILES="Mods/aircraft/AH-64D/Cockpit/IndicationResources/Displays/MPD/FontMPD_64.tga
 Mods/aircraft/AH-64D/Cockpit/IndicationResources/Displays/MPD/FontMPD_64_bold.tga
 Mods/aircraft/AH-64D/Cockpit/IndicationResources/Displays/MPD/FontMPD_64_inv.tga
