@@ -1,4 +1,4 @@
-# WARNING - under construction, please refer to the Budderpard [guide](https://github.com/budderpard/DCS_Standalone_on_linux/tree/master) for now.
+# WARNING - under construction, please refer to the Budderpard [guide](https://github.com/budderpard/DCS_Standalone_on_linux/tree/master).
 
 #
 
