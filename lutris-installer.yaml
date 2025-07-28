@@ -1,23 +1,20 @@
-results:
-  0:
-    #id: 15226
-    #game_id: 3219
-    game_slug: "dcs-world"
-    name: "DCS World"
-    #year: 2008
-    user: "chaos"
-    runner: "wine"
-    slug: "dcs-sa-ob-latest-(DoL)"
-    version: "SA-OB Latest (DoL)"
-    description: "community Open Beta branch of DCS World standalone."
-    notes: ''
-    credits: "chaos"
-    draft: false
-    published: true
+id: 15226
+game_id: 3219
+game_slug: "dcs-world"
+name: "DCS World"
+year: 2008
+user: "chaos"
+runner: "wine"
+slug: "dcs-sa-ob-latest-(DoL)"
+version: "SA-OB Latest (DoL)"
+description: "community Open Beta branch of DCS World standalone."
+notes: ''
+credits: "chaos"
+draft: false
+published: true
 
-    script:
-
-      files:
+  script:
+    files:
       - client: https://www.digitalcombatsimulator.com/upload/iblock/722/10xqudpzyvruo62jw9830unu8qst3kes/DCS_World_OpenBeta_web.exe
       game:
         arch: win64
