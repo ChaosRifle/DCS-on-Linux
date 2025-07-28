@@ -1,4 +1,4 @@
-results:	
+results:
   0:
     id:	15226
     game_id: 3219
@@ -9,7 +9,7 @@ results:
     runner:	"wine"
     slug:	"dcs-sa-ob-latest-(DoL)"
     version: "SA-OB Latest (DoL)"
-    description:	"community Open Beta branch of DCS World standalone."
+    description: "community Open Beta branch of DCS World standalone."
     notes: ''
     credits: "chaos"
     draft: false
