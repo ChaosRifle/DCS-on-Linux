@@ -13,50 +13,60 @@ credits: "chaos"
 draft: false
 published: true
 
-  script:
-  
-    files:
-      - client: https://www.digitalcombatsimulator.com/upload/iblock/722/10xqudpzyvruo62jw9830unu8qst3kes/DCS_World_OpenBeta_web.exe
-      # - client: https://www.digitalcombatsimulator.com/upload/iblock/959/d33ul8g3arxnzc1ejgdaa8uev8gvmew2/DCS_World_web.exe
-      game:
-        arch: win64
-        args: --no-launcher
-        exe: drive_c/Program Files/Eagle Dynamics/DCS World OpenBeta/bin/DCS.exe
-        launch_configs:
-        - args: update
-          exe: drive_c/Program Files/Eagle Dynamics/DCS World OpenBeta/bin/DCS_updater.exe
-          name: DCS updater
-        - args: repair
-          exe: drive_c/Program Files/Eagle Dynamics/DCS World OpenBeta/bin/DCS_updater.exe
-          name: DCS repair
-        prefix: $GAMEDIR
-      install_complete_text: Please check the git repo at https://github.com/ChaosRifle/DCS-on-Linux for more information
-        on fixing current problems with the game that lutris cant solve, as well as additional
-        tools for modding the game (ie, srs and other)
-      installer:
-      - task:
-          arch: win64
-          description: Creating Wine prefix
-          name: create_prefix
-          prefix: $GAMEDIR
-      - task:
-          app: corefonts xact_x64 d3dcompiler_47 vcrun2022 win10
-          arch: win64
-          description: Installing dlls and deps
-          name: winetricks
-          prefix: $GAMEDIR
-      - task:
-          arch: win64
-          args: /S
-          description: Installing client
-          executable: client
-          name: wineexec
-          prefix: $GAMEDIR
-      system:
-        env:
-          __GL_SHADER_DISK_CACHE: 1
-          __GL_SHADER_DISK_CACHE_PATH: $GAMEDIR
-      wine:
-        overrides:
-          wbemprox: n
-          WINE_SIMULATE_WRITECOPY: 1
+script:
+files:
+- installer-openbeta: https://www.digitalcombatsimulator.com/upload/iblock/722/10xqudpzyvruo62jw9830unu8qst3kes/DCS_World_OpenBeta_web.exe
+- installer-stable: https://www.digitalcombatsimulator.com/upload/iblock/959/d33ul8g3arxnzc1ejgdaa8uev8gvmew2/DCS_World_web.exe
+- installer-custom: N/A:Select the game's setup file
+game:
+  arch: win64
+  args: --no-launcher
+  exe: drive_c/Program Files/Eagle Dynamics/DCS World OpenBeta/bin/DCS.exe
+  launch_configs:
+  - args: update
+    exe: drive_c/Program Files/Eagle Dynamics/DCS World OpenBeta/bin/DCS_updater.exe
+    name: DCS updater
+  - args: repair
+    exe: drive_c/Program Files/Eagle Dynamics/DCS World OpenBeta/bin/DCS_updater.exe
+    name: DCS repair
+  prefix: $GAMEDIR
+install_complete_text: Please check the git repo at [replaceme] for more information
+  on fixing current problems with the game that lutris cant solve, as well as additional
+  tools for modding the game (ie, srs and other)
+installer:
+- input_menu:
+    description: 'select installer type (both are currently the same as ED deleted
+      OB):'
+    id: INSTALLER
+    options:
+    - Stable: installer-stable
+    - OpenBeta: installer-openbeta
+    - Custom: installer-custom
+    preselect: Stable
+- task:
+    arch: win64
+    description: Creating Wine prefix
+    name: create_prefix
+    prefix: $GAMEDIR
+- task:
+    app: corefonts xact_x64 d3dcompiler_47 vcrun2022 win10
+    arch: win64
+    description: Installing dlls and deps
+    name: winetricks
+    prefix: $GAMEDIR
+- task:
+    arch: win64
+    args: /S
+    description: Installing client
+    executable: $INPUT_INSTALLER
+    name: wineexec
+    prefix: $GAMEDIR
+system:
+  env:
+    __GL_SHADER_DISK_CACHE: 1
+    __GL_SHADER_DISK_CACHE_PATH: $GAMEDIR
+wine:
+  overrides:
+    WINE_SIMULATE_WRITECOPY: 1
+    wbemprox: n
+
