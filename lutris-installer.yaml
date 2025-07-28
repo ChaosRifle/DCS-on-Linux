@@ -1,10 +1,10 @@
 results:
   0:
-    id: 15226
-    game_id: 3219
+    #id: 15226
+    #game_id: 3219
     game_slug: "dcs-world"
     name: "DCS World"
-    year: 2008
+    #year: 2008
     user: "chaos"
     runner: "wine"
     slug: "dcs-sa-ob-latest-(DoL)"
