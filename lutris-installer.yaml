@@ -17,7 +17,6 @@ script:
   files:
   - installer-openbeta: https://www.digitalcombatsimulator.com/upload/iblock/722/10xqudpzyvruo62jw9830unu8qst3kes/DCS_World_OpenBeta_web.exe
   - installer-stable: https://www.digitalcombatsimulator.com/upload/iblock/959/d33ul8g3arxnzc1ejgdaa8uev8gvmew2/DCS_World_web.exe
-  - installer-custom: N/A:Select the game's setup file
   game:
     arch: win64
     args: --no-launcher
@@ -39,10 +38,9 @@ script:
         OB):'
       id: INSTALLER
       options:
-      - Stable: installer-stable
-      - OpenBeta: installer-openbeta
-      - Custom: installer-custom
-      preselect: Stable
+      - installer-stable: Stable
+      - installer-openbeta: OpenBeta
+      preselect: installer-stable
   - task:
       arch: win64
       description: Creating Wine prefix
@@ -69,4 +67,3 @@ script:
     overrides:
       WINE_SIMULATE_WRITECOPY: 1
       wbemprox: n
-
