@@ -14,6 +14,7 @@ draft: false
 published: true
 
   script:
+  
     files:
       - client: https://www.digitalcombatsimulator.com/upload/iblock/722/10xqudpzyvruo62jw9830unu8qst3kes/DCS_World_OpenBeta_web.exe
       # - client: https://www.digitalcombatsimulator.com/upload/iblock/959/d33ul8g3arxnzc1ejgdaa8uev8gvmew2/DCS_World_web.exe
