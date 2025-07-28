@@ -15,8 +15,8 @@ published: true
 
 script:
   files:
-  - installer-openbeta: https://www.digitalcombatsimulator.com/upload/iblock/722/10xqudpzyvruo62jw9830unu8qst3kes/DCS_World_OpenBeta_web.exe
   - installer-stable: https://www.digitalcombatsimulator.com/upload/iblock/959/d33ul8g3arxnzc1ejgdaa8uev8gvmew2/DCS_World_web.exe
+  - installer-openbeta: https://www.digitalcombatsimulator.com/upload/iblock/722/10xqudpzyvruo62jw9830unu8qst3kes/DCS_World_OpenBeta_web.exe
   game:
     arch: win64
     args: --no-launcher
@@ -29,9 +29,9 @@ script:
       exe: drive_c/Program Files/Eagle Dynamics/DCS World OpenBeta/bin/DCS_updater.exe
       name: DCS repair
     prefix: $GAMEDIR
-  install_complete_text: Please check the git repo at [replaceme] for more information
-    on fixing current problems with the game that lutris cant solve, as well as additional
-    tools for modding the game (ie, srs and other)
+  install_complete_text: Please check https://github.com/ChaosRifle/DCS-on-Linux for
+    more information on fixing current problems with the game that lutris cant solve,
+    as well as additional tools
   installer:
   - input_menu:
       description: 'select installer type (both are currently the same as ED deleted
