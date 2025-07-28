@@ -1,20 +1,20 @@
 results:
   0:
-    id:	15226
+    id: 15226
     game_id: 3219
     game_slug: "dcs-world"
-    name:	"DCS World"
-    year:	2008
-    user:	"chaos"
-    runner:	"wine"
-    slug:	"dcs-sa-ob-latest-(DoL)"
+    name: "DCS World"
+    year: 2008
+    user: "chaos"
+    runner: "wine"
+    slug: "dcs-sa-ob-latest-(DoL)"
     version: "SA-OB Latest (DoL)"
     description: "community Open Beta branch of DCS World standalone."
     notes: ''
     credits: "chaos"
     draft: false
     published: true
-    published_by:	1
+    published_by: 1
 
 
     script:
