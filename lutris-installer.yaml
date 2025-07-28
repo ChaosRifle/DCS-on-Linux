@@ -5,9 +5,9 @@ name: "DCS World"
 year: 2008
 user: "chaos"
 runner: "wine"
-slug: "dcs-sa-ob-latest-(DoL)"
-version: "SA-OB Latest (DoL)"
-description: "community Open Beta branch of DCS World standalone."
+slug: "DoL-Community-Choice-(Latest)"
+version: "DoL Community Choice (Latest)"
+description: "Please follow along with https://github.com/ChaosRifle/DCS-on-Linux before using this installer"
 notes: ''
 credits: "chaos"
 draft: false
