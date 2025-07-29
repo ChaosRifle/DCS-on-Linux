@@ -15,18 +15,18 @@ published: true
 
 script:
   files:
-  - installer-stable: https://www.digitalcombatsimulator.com/upload/iblock/959/d33ul8g3arxnzc1ejgdaa8uev8gvmew2/DCS_World_web.exe
-  - installer-openbeta: https://www.digitalcombatsimulator.com/upload/iblock/722/10xqudpzyvruo62jw9830unu8qst3kes/DCS_World_OpenBeta_web.exe
+  - stable: https://www.digitalcombatsimulator.com/upload/iblock/959/d33ul8g3arxnzc1ejgdaa8uev8gvmew2/DCS_World_web.exe
+  - openbeta: https://www.digitalcombatsimulator.com/upload/iblock/722/10xqudpzyvruo62jw9830unu8qst3kes/DCS_World_OpenBeta_web.exe
   game:
     arch: win64
     args: --no-launcher
-    exe: drive_c/Program Files/Eagle Dynamics/DCS World OpenBeta/bin/DCS.exe
+    exe: drive_c/Program Files/Eagle Dynamics/DCS World/bin/DCS.exe
     launch_configs:
     - args: update
-      exe: drive_c/Program Files/Eagle Dynamics/DCS World OpenBeta/bin/DCS_updater.exe
+      exe: drive_c/Program Files/Eagle Dynamics/DCS World/bin/DCS_updater.exe
       name: DCS updater
     - args: repair
-      exe: drive_c/Program Files/Eagle Dynamics/DCS World OpenBeta/bin/DCS_updater.exe
+      exe: drive_c/Program Files/Eagle Dynamics/DCS World/bin/DCS_updater.exe
       name: DCS repair
     prefix: $GAMEDIR
   install_complete_text: Please check https://github.com/ChaosRifle/DCS-on-Linux for
@@ -38,8 +38,8 @@ script:
         OB):'
       id: INSTALLER
       options:
-      - installer-stable: Stable
-      - installer-openbeta: OpenBeta
+      - installer-stable: stable
+      - installer-openbeta: openbeta
       preselect: installer-stable
   - task:
       arch: win64
@@ -67,3 +67,4 @@ script:
     overrides:
       WINE_SIMULATE_WRITECOPY: 1
       wbemprox: n
+    version: wine-10.8-staging-tkg-ntsync-x86_64
