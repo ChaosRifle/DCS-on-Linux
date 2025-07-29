@@ -38,9 +38,9 @@ script:
         OB):'
       id: INSTALLER
       options:
-      - installer-stable: stable
-      - installer-openbeta: openbeta
-      preselect: installer-stable
+      - stable: stable
+      - openbeta: openbeta
+      preselect: stable
   - task:
       arch: win64
       description: Creating Wine prefix
