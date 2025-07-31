@@ -1,10 +1,3 @@
-# WARNING - under construction, please refer to the Budderpard [guide](https://github.com/budderpard/DCS_Standalone_on_linux/tree/master).
-
-#
-
-
-
-
 # DCS-on-Linux
 - a set of tools, known issues (and workarounds), as well as other locations to get the best, up to date, advice for running dcs on linux, in an attempt to defragment the whole experience
 - **If you have any questions this repo did not explain or link to a source on, *please*, open an issue / go to the matrix server and ping(@) a contributer, and *ask the question while also noting that the repo did not explain it!*** 
