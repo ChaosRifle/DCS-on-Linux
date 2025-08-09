@@ -1,0 +1,7 @@
+# DCS on Linux Joystick Udev Rules
+
+# Virpil
+ACTION=="add", \
+  ATTRS{idVendor}=="3344", ATTRS{idProduct}=="*", \
+  MODE="0664", ENV{ID_INPUT_JOYSTICK}="1", TAG+="uaccess", \
+  RUN+="/usr/bin/evdev-joystick --e %E{DEVNAME} --d 0"
