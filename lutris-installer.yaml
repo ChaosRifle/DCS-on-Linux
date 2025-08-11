@@ -1,18 +1,13 @@
-id: 15226
-game_id: 3219
-game_slug: "dcs-world"
-name: "DCS World"
-year: 2008
-user: "chaos"
-runner: "wine"
-slug: "DoL-Community-Choice-(Latest)"
-version: "DoL Community Choice (Latest)"
-description: "Please follow along with https://github.com/ChaosRifle/DCS-on-Linux before using this installer"
-notes: ''
-credits: "chaos"
-draft: false
-published: true
-
+description: Please follow along with https://github.com/ChaosRifle/DCS-on-Linux before
+  using this installer
+game_slug: dcs-world
+gogslug: ''
+humblestoreid: ''
+installer_slug: dcs-world-dol-community-choice
+name: DCS World
+notes: Please follow along with https://github.com/ChaosRifle/DCS-on-Linux for further
+  instructions on fixing issues that cant be resolved with lutris alone.
+runner: wine
 script:
   files:
   - stable: https://www.digitalcombatsimulator.com/upload/iblock/959/d33ul8g3arxnzc1ejgdaa8uev8gvmew2/DCS_World_web.exe
@@ -58,3 +53,7 @@ script:
   wine:
     overrides:
       wbemprox: n
+slug: dcs-world-dol-community-choice
+steamid: 223750
+version: DoL Community Choice (Latest)
+year: 2008
