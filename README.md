@@ -16,3 +16,13 @@ This is meant to be a community hub (and eventually wiki) for the current best w
 ### guidelines
 - linking: mentions of locations on the wiki should always link to said location. usage of terminology or abreviations should follow wikipedia standards of the first occurance linking to the relevent terminology page
 - troubleshooting sections: all problems will be encased in a note block. All notes must be date-stamped for the day that became an issue (yyyy/mm/dd). Old problems will be grandfathered in under "date unknown" due to the work involved for minimal gains, however, going forward new problems should require it where feesable.
+
+# CREDIT
+This guide very much stands on the backs of giants, without the people listed below, or the contributors on the right panel, this guide would not be anything close to what it is.
+
+- [TheZoq2](https://github.com/TheZoq2) - original dcs on linux guide, maker of the matrix channel, and important collaboration on the proton issues page for dcs from bug reports to custom scripts to fix bugs. [ information, community ambassador, reporting, solutions ]
+- [Deleterium](https://github.com/deleterium) - revamp of TheZoq2's guide that carried it forward [ information ]
+- [Budderpard](https://github.com/budderpard) - the modern dcs on linux guide post 2.9 [ information ]
+- onno - maintaining the hoggit wiki page [ information ]
+- the countless contributors on the [proton issue](https://github.com/ValveSoftware/Proton/issues/1722) - thank you to everyone for their work there! [ information, reporting, solutions ]
+- [Chaos](https://github.com/ChaosRifle) - collating data for the initial creation of this guide, initial lutris yaml [ information, reporting, scripts ]
