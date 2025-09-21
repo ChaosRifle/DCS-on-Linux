@@ -1,0 +1,7 @@
+# DCS on Linux Joystick Udev Rules
+
+# turtle beach pedals
+ACTION=="add", \
+  ATTRS{idVendor}=="10f5", ATTRS{idProduct}=="7012", \
+  MODE="0664", ENV{ID_INPUT_JOYSTICK}="1", TAG+="uaccess", \
+  RUN+="/usr/bin/evdev-joystick --e %E{DEVNAME} --d 0"
