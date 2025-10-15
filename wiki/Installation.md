@@ -267,7 +267,8 @@ ACTION=="add", \
 - 4: reload your rules by running ``udevadm control --reload && udevadm trigger`` in terminal. you will need to replug your devices. Alternatively, restart your system.
 
 > [!tip]
-Some joysticks may only work partially to fix them you must run `protontricks -c "wine control" appid`, then Game Controllers, then click on the joystick and Override them.
+> If you experience further issues with input devices, check [joystick troubleshooting](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#joystick-issues) for more info
+
 # You are now done, enjoy your flights! You may opt to check out [Optional Extras](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#optional-extras)
 
 
@@ -278,6 +279,7 @@ Some joysticks may only work partially to fix them you must run `protontricks -c
 - [Voice activation](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#voice-activation) [ incomplete ]
 - [joystick utilities](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#joystick-utilities) [ incomplete ]
 - [VR](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#vr) [ incomplete ]
+
 ## Voice Activation
 > [!note]
 > this segment is incomplete
@@ -302,4 +304,14 @@ linVAM is a community project, housed [here](https://github.com/stele95/LinVAM)
 ## VR
 > [!note]
 > this segment is incomplete
+#### contents:
+- [Envision with WiVRn](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#envision-with-wivrn) [ recommended ]
+- [ALVR](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#ALVR) [ incomplete ]
+- [OpenXR](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#OpenXR) [ incomplete ]
+
+#### Envision with WiVRn
 We recommend the usage of wivrn using [envision](https://lvra.gitlab.io/docs/fossvr/envision/). And the usage of these launch args `WINEJOYSTICK=0 WINEDLLOVERRIDES='wbemprox=n' PRESSURE_VESSEL_IMPORT_OPENXR_1_RUNTIMES=1  %command% --no-launcher --force_enable_VR --force_OpenXR`.
+
+#### ALVR
+
+#### OpenXR
