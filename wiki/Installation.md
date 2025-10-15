@@ -14,7 +14,7 @@
 > - If you do not have runners you like, use [Proton Plus](https://github.com/Vysp3r/protonplus) to manage runners easily.
 > - Alternatively, drop runners in ```~/.local/share/lutris/runners/``` if you know what you are doing
 
-- 2: by [website](https://lutris.net/games/dcs-world/) or lutris app, browse for add a game, 'DCS World', then select the '```wine``` **DoL Community Choice (Latest)**' version and press install. 
+- 2: by [website](https://lutris.net/games/dcs-world/) or lutris app, browse for add a game, 'DCS World', then select the '```wine``` **DoL Community Choice (Latest)**' version and press install.
 <img alt="lutris install game instructions" src="https://github.com/user-attachments/assets/e6a76fbe-7c05-4651-9099-20636fa3fb8a" />
 
 - 3: set your path here in the lutris menu, and absolutely nowhere else. DCS installer will ask if you want to change it later, you will leave the value as default.
@@ -77,7 +77,7 @@
 > [!important]
 > (date unknown) **Opentrack requires the game be installed to your home-folder drive**
 > - opentrack proton appid hooking only works on the home-folder drive. it does **not** check other drives with steam app-manifests.
-- X: right click the game in steam > ``Properties`` > ``General`` and set your launch options to ``WINE_SIMULATE_WRITECOPY=1 WINEDLLOVERRIDES='wbemprox=n' %command% --no-launcher`` 
+- X: right click the game in steam > ``Properties`` > ``General`` and set your launch options to ``WINE_SIMULATE_WRITECOPY=1 WINEDLLOVERRIDES='wbemprox=n' %command% --no-launcher``
 - X: go to [Finalizing install](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#finalizing-install), you are now nearly done!
 
 
@@ -98,7 +98,7 @@
 
 
 ## Mod Manager
-We recommend [Limo](https://github.com/limo-app/limo). The flatpak will work just fine and has no known regressions over native. Limo is arguably the future of modding games on linux, and has a ton of functionality not used in this guide. For additional information, see their [wiki](https://github.com/limo-app/limo/wiki). 
+We recommend [Limo](https://github.com/limo-app/limo). The flatpak will work just fine and has no known regressions over native. Limo is arguably the future of modding games on linux, and has a ton of functionality not used in this guide. For additional information, see their [wiki](https://github.com/limo-app/limo/wiki).
 
 - 1: create a New Application [1]
 <img alt="limo1" src="https://github.com/user-attachments/assets/4a652c54-57a9-4bf7-9489-959bf9e0966c" />
@@ -142,7 +142,7 @@ We recommend [Limo](https://github.com/limo-app/limo). The flatpak will work jus
 
 ## SRS
 > [!caution]
-> SRS v2.1.1.0 is the latest known working verion on linux, check [troubleshooting for info](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20250525-srs-version-22xx-and-up-do-not-function). 
+> SRS v2.1.1.0 is the latest known working verion on linux, check [troubleshooting for info](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20250525-srs-version-22xx-and-up-do-not-function).
 
 > [!warning]
 > to get SRS to run, Wine-GE-8.26 is known to work extremely reliably. Versions 9.x and 10.x have been very problematic for many users
@@ -226,12 +226,12 @@ We recommend [Limo](https://github.com/limo-app/limo). The flatpak will work jus
 > this segment is incomplete
 
 > [!tip]
-> this method has significant overhead compared to native, especially for cpu heavy stuff like ai-track. 
+> this method has significant overhead compared to native, especially for cpu heavy stuff like ai-track.
 > if you *must* use this because native is somehow broken *and* you want to use cpu-heavy features, running both native and windows in prefix by using UDP input on windows and UDP output on native will actually be lighter weight overall and thus your game will run with higher fps. we recommend avoiding in-prefix windows opentrack where possible but acknowledge native does break, necessitating this
 
 - 1: download windows opentrack installer from the [releases](https://github.com/opentrack/opentrack/releases)
 - 2: run the installer exe inside the prefix of your game install
-- 3: [ incomplete ] 
+- 3: [ incomplete ]
 
 [you are now done with headtracking, handy link to next section](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#udev-rules)
 
@@ -246,7 +246,7 @@ We recommend [Limo](https://github.com/limo-app/limo). The flatpak will work jus
 ## UDEV rules
 udev rules are used to set permissions and operation mode of a device.
 
-- 1: use a premade udev rule, or, create a new file named ``97-yournamehere.rules`` (the number defines load order, just set it in the 90's) 
+- 1: use a premade udev rule, or, create a new file named ``97-yournamehere.rules`` (the number defines load order, just set it in the 90's)
 > [!tip]
 > the repo contains pre-made rules in the repo's ``udev`` folder
 - 2: edit the rule to work for your device if needed (please let us know if pre-made rules do not work on your hardware), where idVendor & idProduct are your $VID & $PID. documentation for udev [here](https://www.man7.org/linux/man-pages/man7/udev.7.html). If you need help, join the [matrix](https://matrix.to/#/#dcs-on-linux:matrix.org) server. your file contents should look similar to the following:
@@ -266,7 +266,8 @@ ACTION=="add", \
 - 3: move the file into ``/etc/udev/rules.d/``
 - 4: reload your rules by running ``udevadm control --reload && udevadm trigger`` in terminal. you will need to replug your devices. Alternatively, restart your system.
 
-
+> [!tip]
+Some joysticks may only work partially to fix them you must run `protontricks -c "wine control" appid`, then Game Controllers, then click on the joystick and Override them.
 # You are now done, enjoy your flights! You may opt to check out [Optional Extras](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#optional-extras)
 
 
@@ -277,7 +278,6 @@ ACTION=="add", \
 - [Voice activation](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#voice-activation) [ incomplete ]
 - [joystick utilities](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#joystick-utilities) [ incomplete ]
 - [VR](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#vr) [ incomplete ]
-
 ## Voice Activation
 > [!note]
 > this segment is incomplete
@@ -302,3 +302,4 @@ linVAM is a community project, housed [here](https://github.com/stele95/LinVAM)
 ## VR
 > [!note]
 > this segment is incomplete
+We recommend the usage of wivrn using [envision](https://lvra.gitlab.io/docs/fossvr/envision/). And the usage of these launch args `WINEJOYSTICK=0 WINEDLLOVERRIDES='wbemprox=n' PRESSURE_VESSEL_IMPORT_OPENXR_1_RUNTIMES=1  %command% --no-launcher --force_enable_VR --force_OpenXR`.
