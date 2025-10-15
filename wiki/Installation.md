@@ -162,9 +162,9 @@ We recommend [Limo](https://github.com/limo-app/limo). The flatpak will work jus
 
 ## Headtracking
 #### Choose your headtracker:
-- [opentrack linux](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#opentrack-linux) [ recommended ]
+- [opentrack linux](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#opentrack-linux) [ recommended for NON trackIR5 users ]
 - [opentrack windows](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#opentrack-windows-inside-dcs-prefix) inside dcs prefix [ incomplete, sub-optimal ]
-- [linuxtrack](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#linuxtrack) [ incomplete ]
+- [linuxtrack](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#linuxtrack) [ recommended for trackIR5 users ]
 - other: the star-citizen Linux User Group maintains an excellent wiki on headtrackers, more info can be found on their wiki, [here](https://github.com/starcitizen-lug/knowledge-base/wiki/Head-Tracking)
 
 ### opentrack linux
@@ -239,6 +239,17 @@ We recommend [Limo](https://github.com/limo-app/limo). The flatpak will work jus
 ### linuxtrack
 > [!note]
 > this segment is incomplete
+
+- 1: download or build the appimage of fwfa123's fork of uglydwarf's linuxtrack [here](https://gitlab.com/fwfa123/linuxtrackx-ir/-/releases)
+- 2: edit the properties of the appimage file with ```alt+enter``` or ```chmod``` and make the file ```executable```
+- 3: run the appimage. You will be prompted if you have your trackir5 plugged in to authorize it to automatically create udev rules for the device if you currently lack them, and ask you to enter your sudo password. If you are not comfortable with this, skip to the [UDEV rules](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#udev-rules) section to import our rules or create your own. 
+- 4: under the ```gaming``` tab, you will see the ```prerequisites``` section with [trackir firmware](https://www.trackir.com/downloads/) and [mfc42 libraries](https://download.microsoft.com/download/vc60pro/Update/2/W9XNT4/EN-US/VC6RedistSetup_deu.exe), you will need both. go through the install proccess for these. 
+> [!note]
+> the links provided for tir and mfc42 are correct at time of writing, however may be subject to change. If they do, the information in linuxtrack should help you.
+- 5: STUB FIXME choose your installation method inside linuxtrack
+- 6: Configure linuxtrack with your respective hardware under ```device setup``` and ```model setup```
+> [!tip]
+> if you are having tracking issues, adjust the settings in device setup, lowering blob size minimum to ~30 helps immensely
 
 [you are now done with headtracking, handy link to next section](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#udev-rules)
 
