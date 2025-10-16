@@ -3,6 +3,7 @@
 - [Lutris issues](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#lutris-install-issues)
 - [Wine issues](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#wine-install-issues)
 - [Steam issues](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#steam-install-issues)
+- [Joystick issues](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#joystick-issues)
 - [Headtracking issues](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#headtracking-issues)
 - [SRS issues](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#srs-issues)
 - [Linux issues](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#linux-issues)
@@ -21,11 +22,6 @@
 > <img width="285" height="208" alt="image" src="https://github.com/user-attachments/assets/934fb4bc-166b-473c-b02c-beea9830f731" />
 
 # Wine install issues
-> [!important]
-> #### (date unknown) **my devices are showing as xinput (xbox controllers)**
-> - device is not using dinput (direct input) on wine, it is defaulted to xinput because the PID/VID has not explicitly been recognized. 
-> - open Wine Control Panel > Game Controllers > in joystick tab, click the override button to move the devices from xinput to connected. it should now register in the DInput tab.
-
 
 # Steam install issues
 > [!important]
@@ -44,6 +40,13 @@
 > [!important]
 > #### (date unknown) **module disabled by user**
 > - caused by porting a standalone config to steam. ``$CONFIG_DIR/enabled.lua`` as reported by deleterium, just delete it for steam use.
+
+# Joystick issues
+> [!important]
+> #### (date unknown) **joysticks report as xinput / only partially work**
+> - cause: device is not using dinput (direct input) on wine, it is defaulted to xinput because the PID/VID has not explicitly been recognized. this is an issue in wine, and thus, proton too
+> - open Wine Control Panel > Game Controllers > in joystick tab, click the 'override' button to move the devices from 'xinput' to 'connected'. it should now register in the DInput tab. to open this on the steam version ```protontricks -c "wine control" 223750```, on lutris open the ```Wine Control Panel```
+> - if this happens to you, please also run ```lsusb``` and give the results for that device as well as the devices name and brand to a maintainer so we can be fix it for you and other users in future versions of Wine.
 
 # Headtracking issues
 > [!important]
