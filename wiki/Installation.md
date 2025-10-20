@@ -1,3 +1,5 @@
+# If you encounter issues please check the [troubleshooting area](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting)
+
 # Select an installation method:
 - [Lutris](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Lutris) [ recommended ]
 - [Wine](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Wine) [ incomplete ]
