@@ -30,6 +30,9 @@
 linux is case sensitive, while windows is case IN-sensitive. This means we can have file.txt and File.txt in the same folder
 See [Troubleshooting](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#19700101-case-folding) for solutions.
 
+### LTS (Long Term Support)
+in linux distros, long term support means less updates and staying on major versions longer, but more support from the distro maintainers or less likely to need to update packages to keep your software working. This also means you will not even have newer packages most of the time, so you may just not be able to run things relying on new package updates.
+
 # Limo terms:
 
 # Lutris terms:
