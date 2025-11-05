@@ -16,6 +16,9 @@
 > - If you do not have runners you like, use [Proton Plus](https://github.com/Vysp3r/protonplus) to manage runners easily.
 > - Alternatively, drop runners in ```~/.local/share/lutris/runners/``` if you know what you are doing
 
+> [!caution]
+> - once the runner is selected and install has begun, do not change major versions (ie, wine to proton, or 9.x to 10.x, or vice versa. this can corrupt the prefix, so minor version changes only. you will need to reinstall (though you can copy the game files to not need to download it all again) to change major versions
+
 - 2: by [website](https://lutris.net/games/dcs-world/) or lutris app, browse for add a game, 'DCS World', then select the '```wine``` **DoL Community Choice (Latest)**' version and press install.
 <img alt="lutris install game instructions" src="https://github.com/user-attachments/assets/e6a76fbe-7c05-4651-9099-20636fa3fb8a" />
 
@@ -117,16 +120,23 @@ We recommend [Limo](https://github.com/limo-app/limo). The flatpak will work jus
 - 5: create a Core Files deployer. name it how you like. Case matching unless case-folded FS. I strongly recommend Copy deployment method as accidental overwrite is a very real possibility by updating the game without un-modding it. File sizes for core files mods are usually pretty small (texture packs, sound packs, small tweaks). This points to the DCS core game files root folder (in program files), the screenshot shows the open beta version Saved Games folder.
 <img alt="limo 6 6" src="https://github.com/user-attachments/assets/72eeccfa-2705-444b-a45a-e7b565fd5954" />
 
-- 6: installing mods can be done by drag and dropping the files into the Limo window. SRS hooks mod is supplied in this repo's code. You should install SRS hooks now if you intend to play multiplayer. Limo mods are just a containing folder to name them, and within are the files that are laid out such that copying the files inside the naming folder will function properly. When installing a mod, you will be able to choose the display name in limo, version, Root Level [7], and Add to Deployer [8]. Root Level [7] just refers to how the mod is packaged. Red text means that folder will be stripped off the top, and its contents used instead. For SavedGames, this should be first green for Mods, Scripts, etc. For Core Files mods, this should be first green on CoreMods, Data, API, bin, Mods, Scripts, etc.
+> [!note]
+> srs hooks mod contains an Export.lua, if you plan to use a custom one, you should edit that now before installing it in the next step example. If you dont know what that is, ignore this.
 
 > [!note]
-> srs hooks mod contains an Export.lua, if you plan to use a custom one, you should edit that now.
-<img alt="limo 7" src="https://github.com/user-attachments/assets/6bc84962-b56d-4ce3-9b9d-bbf1345f2ab4" />
+> You should install SRS hooks now if you intend to play multiplayer and use/hear voip, and are not going to put srs in your dcs prefix. The preferred way to install srs is to have its own prefix (not the dcs prefix).
 
-> optionally, due to DCS [IC](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Knowledge-Base#ic-integrity-check), you may want multiple modlists. These are called Profiles in limo, at the top center of the main window. When you add a mod to a deployer, you are doing that action on a per-profile basis. Profiles allow you to have any permutation of IC pass or fail to mod to your hearts content.
+- 6: installing mods can be done by drag and dropping the files into the Limo window. We will use the SRS hooks mod is supplied in this repo's code (``mods/srs hooks``) as a demo. When installing a mod, you will be able to choose the display-name [7] in limo, version [8], Root Level [9], Deployers [10] to add it to, and confirm [11]. Root Level [9] just refers to how the mod is packaged. Red text means that folder will be stripped off the top, and the green contents used instead. For SavedGames, this should be first green for Mods, Scripts, etc. For Core Files mods, this should be first green on CoreMods, Data, API, bin, Mods, Scripts, etc. 
+> For the SRS hook supplied, that should be version ``2.1.1.0``, root level ``0``, deployer is only``Savedgames``(or whatever you named it). Note that the picture data is correct apart from version number, which may change in the future
+<img alt="limo 7-11" src="https://github.com/user-attachments/assets/7cda1920-6729-4c5a-b9c2-e811689fcf16" />
 
- - usage: enabling or disabling mods can be done by switching to the Deployers tab and clicking ``Deploy`` or ``Undeploy``. Best practice is to undeploy before running a game update, **especially** if you have Core Files mods.
+> [!note]
+> optionally, due to DCS [IC](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Knowledge-Base#ic-integrity-check), you may want multiple modlists if a mod denotes its breaks IC, and which IC it breaks. These are called Profiles in limo, at the top center of the main window. When you add a mod to a Deployer, you are doing that action on a per-Profile basis. Profiles allow you to have any permutation of IC pass or fail, or multiple modlists for playing with different groups. To add a new Profile, click the plus icon to the right of the Profile selection dropdown. To change Profiles, use the Profile select dropdown.
 
+ - 7: enabling or disabling mods can be done by switching to the Deployers [12] tab and clicking ``Deploy`` or ``Undeploy`` [13]. Best practice is to undeploy before running a game update, **especially** if you have Core Files mods, and then deploy it once patched. DCS updates can corrupt mods, or modify them in ways that a mod manager wont expect. Typically savedgames mods are fine, however have been corrupted by updates rarely in the past.
+<img alt="limo 12-13" src="https://github.com/user-attachments/assets/136bdddd-c8d1-4da5-a766-5286ced1d432" />
+
+> creating a Limo mod: Limo mods are just a containing folder to name them, and within are the files that are laid out such that copying the files inside the naming folder to the install directory will function properly. so if ``modded file`` goes in ``/game/mods`` then you would make ``myfirstmod/modded file`` as the limo mod if your deployer pointed at the ``/game/mods`` folder
 
 ## Fixer scripts
 > [!note]
@@ -153,11 +163,11 @@ We recommend [Limo](https://github.com/limo-app/limo). The flatpak will work jus
 > while not created by DoL, there is a lutris installer that lets you skip to step3 and luckily the runner SRS likes is native to lutris, so they were able to force its use. if you would like to try the automated installer for SRS, it is [here](https://lutris.net/games/dcs-simpleradio-standalone/). We provide no support for use of this, however it should work if you install the hooks from step3
 
 - 1: download SRS's installer.exe from the SRS [releases](https://github.com/ciribob/DCS-SimpleRadioStandalone/releases)
-- 2: choose to either use lutris to install it (remembering to set lutris' default wine runner), or wine standalone, and run the installer like normal
-- 3: use the readme from srs to manually craft the hooks, or, download the 'srs-hooks' folder from this repo
+- 2: choose to either use lutris to install it (remembering to set lutris' default wine runner), or wine standalone, and run the installer noting to UNCHECK the ``install dcs client scripts`` box if using a standalone prefix. This checkbox will work for same prefix, and if that is your method, you will want to keep it enabled
+- 3: use the readme from srs to manually craft the hooks, or, download the ``mods/srs hooks`` folder from this repo
 > [!note]
 > use of a custom export.lua file will be overwritten by this. if you use a custom one, put those changes into this scripts/export.lua file now
-- 4: install the hook files to your DCS 'saved games' folder, preferably with a mod manager.
+- 4: if using a standalone prefix, install the hook files to your DCS 'saved games' folder, preferably with a mod manager. if you have done so in the mod manager guides previously, skip this step.
 > [!caution]
 > manual installation (no mod manager) is NOT recommended due to casefolding issues, and the rare dcs oddity. Please use a [mod manager](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#mod-manager).
 
@@ -241,12 +251,14 @@ We recommend [Limo](https://github.com/limo-app/limo). The flatpak will work jus
 ### linuxtrack
 - 1: download or build the appimage of fwfa123's fork of uglydwarf's linuxtrack [here](https://gitlab.com/fwfa123/linuxtrackx-ir/-/releases)
 - 2: edit the properties of the appimage file with ```alt+enter``` or ```chmod``` and make the file ```executable```
-- 3: run the appimage. You will be prompted if you have your trackir5 plugged in to authorize it to automatically create udev rules for the device if you currently lack them, and ask you to enter your sudo password. If you are not comfortable with this, skip to the [UDEV rules](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#udev-rules) section to import our rules or create your own. 
+- 3: run the appimage. You will be prompted if you have your trackir5 plugged in to authorize it to automatically create udev rules for the device if you currently lack them, and ask you to enter your sudo password. If you are not comfortable with this, Linuxtrack should provide information on doing this manually as well, or jump to the [UDEV rules](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#udev-rules) section to import our TrackIR rules or create your own.
 - 4: under the ```gaming``` tab, you will see the ```prerequisites``` section with [trackir firmware](https://www.trackir.com/downloads/) and [mfc42 libraries](https://download.microsoft.com/download/vc60pro/Update/2/W9XNT4/EN-US/VC6RedistSetup_deu.exe), you will need both. go through the install proccess for these.
 - 5: in the ```Gaming``` tab, select ```Custom Prefix``` and point to your game prefix. At time of writing, Steam and Lutris did not work correctly (please notify a maintainer if this has changed)
 - 6: Configure linuxtrack with your respective hardware under ```device setup``` and ```model setup```, ensuring to save changes at the bottom right.
+- 7: Configure profiles in the ``Tracking Setup`` tab. be warned linuxtrack creates new profiles per game, so you will want to edit the default and then remember to ``copy from default`` on that game profile later when you run the game, or your changes here will be ignored.
 > [!tip]
 > if you are having tracking issues, adjust the settings in device setup, lowering blob size minimum to ~30 helps immensely
+> if you are having connetivity issues to the game, try launching and starting linuxtrack before the game is running. Some games only hook headtrackers at launch.
 
 [you are now done with headtracking, handy link to next section](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#udev-rules)
 
@@ -310,15 +322,15 @@ linVAM is a community project, housed [here](https://github.com/stele95/LinVAM)
 > this segment is incomplete
 
 ## VR
-> [!note]
-> this segment is incomplete
+> [!warning]
+> this segment is incomplete and highly volatile, what works for one headset may not work for others. Here be dragons. Please report and successes or failures to maintainers via an issue or matrix server ping. If you would like to help work on this section, please refer to the [issue](https://github.com/ChaosRifle/DCS-on-Linux/issues/2) for vr data.
 #### contents:
-- [Envision with WiVRn](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#envision-with-wivrn) [ recommended ]
+- [Envision with WiVRn](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#envision-with-wivrn) [ inccomplete, recommended ]
 - [ALVR](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#ALVR) [ incomplete ]
 - [OpenXR](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#OpenXR) [ incomplete ]
 
 #### Envision with WiVRn
-We recommend the usage of wivrn using [envision](https://lvra.gitlab.io/docs/fossvr/envision/). And the usage of these launch args `WINEJOYSTICK=0 WINEDLLOVERRIDES='wbemprox=n' PRESSURE_VESSEL_IMPORT_OPENXR_1_RUNTIMES=1  %command% --no-launcher --force_enable_VR --force_OpenXR`.
+some of our penguins recommend the usage of wivrn using [envision](https://lvra.gitlab.io/docs/fossvr/envision/). And the usage of these launch args `WINEJOYSTICK=0 WINEDLLOVERRIDES='wbemprox=n' PRESSURE_VESSEL_IMPORT_OPENXR_1_RUNTIMES=1  %command% --no-launcher --force_enable_VR --force_OpenXR`.
 
 #### ALVR
 
