@@ -13,7 +13,7 @@
 <img alt="lutris runner swap" src="https://github.com/user-attachments/assets/0388f8be-028b-4881-90cb-f6fe54a4a8ca" />
 
 > [!note]
-> - If you do not have runners you like, use [Proton Plus](https://github.com/Vysp3r/protonplus) to manage runners easily.
+> - If you do not have runners you like, use [Proton Plus](https://github.com/Vysp3r/protonplus) or [ProtonUp-QT](https://davidotek.github.io/protonup-qt/) to install and manage runners easily.
 > - Alternatively, drop runners in ```~/.local/share/lutris/runners/``` if you know what you are doing
 
 > [!caution]
@@ -126,8 +126,8 @@ We recommend [Limo](https://github.com/limo-app/limo). The flatpak will work jus
 > [!note]
 > You should install SRS hooks now if you intend to play multiplayer and use/hear voip, and are not going to put srs in your dcs prefix. The preferred way to install srs is to have its own prefix (not the dcs prefix).
 
-- 6: installing mods can be done by drag and dropping the files into the Limo window. We will use the SRS hooks mod is supplied in this repo's code (``mods/srs hooks``) as a demo. When installing a mod, you will be able to choose the display-name [7] in limo, version [8], Root Level [9], Deployers [10] to add it to, and confirm [11]. Root Level [9] just refers to how the mod is packaged. Red text means that folder will be stripped off the top, and the green contents used instead. For SavedGames, this should be first green for Mods, Scripts, etc. For Core Files mods, this should be first green on CoreMods, Data, API, bin, Mods, Scripts, etc. 
-> For the SRS hook supplied, that should be version ``2.1.1.0``, root level ``0``, deployer is only``Savedgames``(or whatever you named it). Note that the picture data is correct apart from version number, which may change in the future
+- 6: installing mods can be done by drag and dropping the files into the Limo ``Mods`` tab (next to the ``Deployers`` tab). When installing a mod, you will be able to choose the display-name [7] in limo, version [8], Root Level [9], Deployers [10] to add it to, and confirm [11]. Root Level [9] just refers to how the mod is packaged. Red text means that folder will be stripped off the top, and the green contents used instead. For SavedGames, this should be first green for Mods, Scripts, etc. For Core Files mods, this should be first green on CoreMods, Data, API, bin, Mods, Scripts, etc. 
+> We will use the SRS hooks mod supplied in this repo's code (``mods/srs hooks``) as a demo. First, drag and drop the entire ``srs hooks`` directory into the ``Mods`` tab in Limo. Now fill in the details: choose any name you want ("srs hooks" in this example), version: ``2.1.1.0``, root level: ``0``, deployer is only: ``Savedgames``(or whatever you named it). Note that the picture data is correct apart from version number, which may change in the future
 <img alt="limo 7-11" src="https://github.com/user-attachments/assets/7cda1920-6729-4c5a-b9c2-e811689fcf16" />
 
 > [!note]
@@ -199,6 +199,9 @@ We recommend [Limo](https://github.com/limo-app/limo). The flatpak will work jus
 - 6: set esync and fsync[6] to be identical to your game installs configuration (usually both enabled)
 - 7: select the output protocol[7] that your game should see. (usually this is ``Both``)
 <img alt="opentrack wine" src="https://github.com/user-attachments/assets/63b2e1ef-6506-4cda-b41a-cfcc312384a9" />
+
+> [!warning]
+> Selecting "Custom path to Wine executable" from the "Wine version/prefix"[4] dropdown menu and navigating to the path (via "Browse Wine Path") will not work. Opentrack itself may detect your input, but head movement in-game will not work. 
 
 [you are now done with headtracking, handy link to next section](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#udev-rules)
 
