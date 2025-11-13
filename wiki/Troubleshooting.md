@@ -80,11 +80,14 @@
 > - this is the launcher, it doesn't render properly. use launch parameter '--no-launcher' or an options.lua 
 
 > [!important]
-> #### (date unknown) **game launches to a black screen entirely**
+> #### (date unknown) **game launches to a black screen entirely or multiplayer crashes on connect, dcs.log cites voice chat related things**
 > - this is the native voice chat. uncommon issue, fix must be reapplied every time the file(not the game) gets an update. this will disable your vanilla voip entirely, but its crap and everyone uses SRS so its no real loss
-> - comment out ``../drive_c/Program Files/Eagle Dynamics/DCS World/MissionEditor/modules/Options/optionsDb.lua`` lines 118-131 (``local function getVoiceChatDevices``) and line 455 (``sound('voice_chat'):setValue(true):checkbox()``). if these numbers change, please notify a maintainer.
+> - for the on-boot issue: comment out ``../drive_c/Program Files/Eagle Dynamics/DCS World/MissionEditor/modules/Options/optionsDb.lua`` lines 118-131 (``local function getVoiceChatDevices``) and line 455 (``sound('voice_chat'):setValue(true):checkbox()``). if these numbers change, please notify a maintainer.
 > <img alt="voip bug" src="https://github.com/user-attachments/assets/450e4fe8-4b64-42eb-a099-a117cc646aa6" />
 > <img alt="voip bug 2" src="https://github.com/user-attachments/assets/2a3fae47-9dfd-415d-8229-3b995a627164" />
+> - for the on-mp-connect issue: comment out ``../drive_c/Program Files/Eagle Dynamics/DCS World OpenBeta/MissionEditor/modules/mul_voicechat.lua`` line 2440 (``voice_chat.onPeerConnect(connectData)``)
+> <img alt="voip bug 3" src="https://github.com/user-attachments/assets/114949a1-2069-4892-9ed6-60452ded3a73" />
+> please note this information was derived itteratively with two different bugs on an uncommon issue that cant be reproduced, this may require both actions performed to rectify one or both of these issues. Please notify a maintainer with your results if you are affected.
 
 
 > [!important]
