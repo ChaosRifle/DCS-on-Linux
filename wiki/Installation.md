@@ -3,7 +3,7 @@
 # Select an installation method:
 - [Lutris](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Lutris) [ recommended ]
 - [Wine](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Wine) [ incomplete ]
-- [Steam](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Steam) [ partially incomplete ]
+- [Steam](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Steam) [ partially incomplete, not recommended, mildly more vr compatible ]
 
 
 
@@ -51,7 +51,7 @@
 
 
 #### choose an install method:
-- [standalone via steam](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#standalone-via-steam-add-non-steam-game) (add non-steam game)
+- [standalone via steam](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#standalone-via-steam-add-non-steam-game) (add non-steam game) [ no gains but some prefer it, recommend using lutris or wine instead ]
 - [dcs world steam edition](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#dcs-world-steam-edition-the-actual-steam-game) (the actual steam game) [incomplete]
 
 
@@ -78,6 +78,9 @@
 ## dcs world steam edition (the actual steam game)
 > [!note]
 > this segment is incomplete
+
+> [!warning]
+> Latest versions of proton have broken the client. Using anything newer than ~ 10.17 appears to not work for most users.
 
 > [!important]
 > (date unknown) **Opentrack requires the game be installed to your home-folder drive**
@@ -111,7 +114,7 @@ We recommend [Limo](https://github.com/limo-app/limo). The flatpak will work jus
 - 2: fill in the red mandatory fields - you want a Name[2] (your pick), and a Staging Directory[3]. Your staging directory will be where the mods are stored and limo holds its data to be able to cleanly un-mod your games. This should be unique per-game. you may want it on the same drive as your game if you intend to use hardlinks. Mine is ``../modding - limo/dcs staging`` for example, on the same drive as dcs is installed. Command[4] is optional and is used to launch the game. shown in the screenshot is the command to launch lutris and run the game. your number will be different, you can in-lutris, create a desktop icon and edit it to get the values. For steam installs, you would use the steam appid launch if you wanted this.
 <img alt="limo2-3-4" src="https://github.com/user-attachments/assets/378e891a-8ab3-4a06-933b-22cd193ddb0c" />
 
-- 3: select your Deployers tab [5], and then create a New Deployer[6]. This is how and where a mod gets put into the games files. We will make two of them, in steps 4 and 5. Deployers have types. For our purposes, Case Matching or Simple is of note. Case Matching solves the [case-folding](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#19700101-case-folding) problems, where simple treats it like you just dumped the files in raw. If you use a case-folded game install, it is safe to use simple to slightly speed up mod deployment, otherwise you should use Case-Matching. Deployment type can be Symlink, Hardlink, or Copy. Copy just copies the files over and increases file footprint, however if the files in the game dir are mistakenly modified (ex: you updated the game without uninstalling mods), copy will protect your mods from being mangled.
+- 3: select your ``Deployers`` tab [5], and then create a New Deployer[6]. This is how and where a mod gets put into the games files, effectively the directory to "copy" them to and method of doing so. We will make two of them, in steps 4 and 5. Deployers have types. For our purposes, ``Case Matching`` or ``Simple`` is of note. ``Case Matching`` solves the [case-folding](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#19700101-case-folding) problems, where simple treats it like you just copied the files in raw. If you use a case-folded game install (ext4 users, you would know if you have done this), it is safe to use simple to slightly speed up mod deployment - otherwise you should use Case-Matching. Deployment type can be Symlink, Hardlink, or Copy. Copy just copies the files over and increases file footprint, however if the files in the game dir are mistakenly modified (ex: you updated the game without uninstalling mods), copy will protect your mods from being mangled.
 <img alt="limo 5-6" src="https://github.com/user-attachments/assets/a0893b39-e214-4753-b0be-bd743dbea84f" />
 
 - 4: create a Saved Games deployer. name it how you like. Case matching unless case-folded FS. any Deployment Method here is acceptable, as accidental overwrite of the file is unlikely. I personally use Hard Link. This points to the DCS Saved Games root folder (in user), the screenshot shows the open beta version Saved Games folder.
@@ -126,7 +129,7 @@ We recommend [Limo](https://github.com/limo-app/limo). The flatpak will work jus
 > [!note]
 > You should install SRS hooks now if you intend to play multiplayer and use/hear voip, and are not going to put srs in your dcs prefix. The preferred way to install srs is to have its own prefix (not the dcs prefix).
 
-- 6: installing mods can be done by drag and dropping the files into the Limo ``Mods`` or ``Deployers`` tab. When installing a mod, you will be able to choose the display-name [7] in limo, version [8], Root Level [9], Deployers [10] to add it to, and confirm [11]. Root Level [9] just refers to how the mod is packaged. Red text means that folder will be stripped off the top, and the green contents used instead. For SavedGames, this should be first green for Mods, Scripts, etc. For Core Files mods, this should be first green on CoreMods, Data, API, bin, Mods, Scripts, etc. 
+- 6: installing mods can be done by drag and dropping the files into the Limo ``Mods`` or ``Deployers`` tab. When installing a mod, you will be able to choose the display-name [7] in limo, version [8], Root Level [9], Deployers [10] to add it to, and confirm [11]. Root Level [9] is a depth index, for how many folders deep to remove off the top (like lua's table.unpack()), effectively choosing which depth of sub-folder to "copy" to your deployment folder. With a deployer targeting /savedGames/dcs/ and a mod whos root folder is Liveries, this is the similar to copy pasting the Liveries folder to the /savedgames/dcs/. Red text in the folder tree UI means those files/folders will be stripped off the top, and the green will be used ("copied"). This is for mods that wrap themselves in a self-named folder that must be removed before placement in the game files. For SavedGames mods, the root level should corrospond such that the first green folder name would be a folder in /savedgames/dcs/, like ``Mods``, ``Scripts``, ``Liveries``, ``Kneeboard``, etc. For Core Files mods, this should be something like ``CoreMods``, ``Data``, ``API``, ``bin``, ``Mods``, ``Scripts``, etc. 
 > We will use the SRS hooks mod supplied in this repo's code (``mods/srs hooks``) as a demo. First, drag and drop the entire ``srs hooks`` directory into the ``Mods`` or ``Deployers`` tab in Limo. Now fill in the details: choose any name you want ("srs hooks" in this example), version: ``2.1.1.0``, root level: ``0``, deployer is only: ``Savedgames``(or whatever you named it). Click "OK" to save it and move on to step 7. Note that the picture data is correct apart from version number, which may change in the future
 <img alt="limo 7-11" src="https://github.com/user-attachments/assets/7cda1920-6729-4c5a-b9c2-e811689fcf16" />
 
