@@ -100,6 +100,10 @@
 > - this all uses a separate .exe running an overlay, see [currently required launch args](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#current-required-launch-arguments).
 
 > [!important]
+> #### (2025/11/28) **Full fidelity MiG-29 Flanker crashes on startup**
+> - Install `vcrun2015`
+
+> [!important]
 > #### (date unknown) **error 500 when launching the game**
 > - this is caused by system clock being off from what is expected by looking at your IP address. 
 > - If you duel-boot, set your bios to use UTC and ensure windows uses offset to UTC instead of the bios clock. (search for "How to Fix Windows and Linux Showing Different Times" if you don't know how to)
