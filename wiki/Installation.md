@@ -11,7 +11,7 @@
 # Lutris
 > [!warning]
 > Something recently (2025-11-29) has broken lutris alternate launch args, so the DoL autoinstaller must use the dcs launcher for updates. Ensure you are not launching the game with ``--no-launcher``
-> Currently, the launcher is only working with recent builds of wine staging, and confirmed with GE-10.25 as working. Note that it may still launch black and recover after 1-3 minutes waiting on some configs.
+> Currently, the launcher is only working with recent builds of wine staging, and confirmed with 10.15staging as working. Note that it may still launch black and recover after 1-3 minutes waiting on some configs.
 
 - 1: we ***must*** select a lutris default runner before installation. Open 'Lutris Settings' [1] > 'preferences' [2] > 'Runners' [3] > 'Wine Options' [4] > set 'wine version' to a [known working runner](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#known-working-runners) [5] > 'save' [6]. Unfortunately, the YAML lutris uses will not allow us to define versions that are not in the API (or on your machine), so you must do this to ensure a functional version is used. Lutris needs to add more, and relevant, runners to wine in their API.
 <img alt="lutris runner swap" src="https://github.com/user-attachments/assets/0388f8be-028b-4881-90cb-f6fe54a4a8ca" />
