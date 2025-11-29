@@ -13,7 +13,6 @@ script:
   - stable: https://www.digitalcombatsimulator.com/upload/iblock/959/d33ul8g3arxnzc1ejgdaa8uev8gvmew2/DCS_World_web.exe
   game:
     arch: win64
-    args: --no-launcher
     exe: drive_c/Program Files/Eagle Dynamics/DCS World/bin/DCS.exe
     launch_configs:
     - args: update
