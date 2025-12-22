@@ -1,0 +1,27 @@
+# Custom Joystick Udev Rules
+
+KERNEL=="hidraw*", ATTRS{idVendor}=="3344", ATTRS{idProduct}=="*", MODE="0664", TAG+="uaccess"
+
+# Virpil Throttle
+#ACTION=="add", \
+#  ATTRS{idVendor}=="3344", ATTRS{idProduct}=="0197", \
+#  MODE="0664", ENV{ID_INPUT_JOYSTICK}="1", TAG+="uaccess", \
+#  RUN+="/usr/bin/evdev-joystick --e %E{DEVNAME} --d 0"
+
+# Virpil Right Stick
+#ACTION=="add", \
+#  ATTRS{idVendor}=="3344", ATTRS{idProduct}=="40cb", \
+#  MODE="0664", ENV{ID_INPUT_JOYSTICK}="1", TAG+="uaccess", \
+#  RUN+="/usr/bin/evdev-joystick --e %E{DEVNAME} --d 0"
+
+# Virpil Left Stick
+#ACTION=="add", \
+#  ATTRS{idVendor}=="3344", ATTRS{idProduct}=="80cb", \
+#  MODE="0664", ENV{ID_INPUT_JOYSTICK}="1", TAG+="uaccess", \
+#  RUN+="/usr/bin/evdev-joystick --e %E{DEVNAME} --d 0"
+
+# Virpil Rudder Pedals
+#ACTION=="add", \
+#  ATTRS{idVendor}=="3344", ATTRS{idProduct}=="01f8", \
+#  MODE="0664", ENV{ID_INPUT_JOYSTICK}="1", TAG+="uaccess", \
+#  RUN+="/usr/bin/evdev-joystick --e %E{DEVNAME} --d 0"
