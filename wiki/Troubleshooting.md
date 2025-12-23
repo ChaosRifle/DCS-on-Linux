@@ -76,6 +76,11 @@
 
 # DCS issues
 > [!important]
+> #### (2025/01/21) **fails to launch the updater with "a debugger has been found running in your system. please, unload it from memory and restart your program."**
+> - this is an issue using using wine 10.x+ stable, you must use wine staging. [according to Alexandre Julliard (wine lead dev)](https://bugs.winehq.org/show_bug.cgi?id=58043) this is due to it using a new code path.
+> - switching to staging will fix this issue entirely.
+
+> [!important]
 > #### (2024/07/12) **game launches to a black window**
 > - this is the launcher, it doesn't render properly. use launch parameter '--no-launcher' or an options.lua 
 
