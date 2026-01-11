@@ -68,7 +68,7 @@
 - 2: in steam, click 'Add a Game' in the bottom left corner > 'Add non-steam game' > select your installer.exe. use a [known working runner](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#known-working-runners)
 - 3: once it is done install, close it.
 - 4: run [protontricks](https://github.com/Matoking/protontricks) to install ``d3dcompiler_47.dll`` to the prefix, or copy one from a windows box manually (vm's work for this)
-- 5: inside winecfg, in the `Staging` tab, check `Hide Wine version from application` to fix the `A debugger has been found running in your system` error when updating/playing
+- 5: if using wine staging 10.14+, inside winecfg, in the `Staging` tab, check `Hide Wine version from application` to fix the [debugger detected](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20250121-fails-to-launch-the-updater-with-a-debugger-has-been-found-running-in-your-system-please-unload-it-from-memory-and-restart-your-program) error
 - 6: in steam, set the working directory to the ``bin`` folder and edit the exe to use dcs.exe over dcs_updater.exe. The C drive will be found inside your primary storage `compatdata` folder (`/home/your_username/.local/share/Steam/steamapps/compatdata/2526263394/pfx/drive_c/Program Files/Eagle Dynamics/DCS World/`)
 
 > [!important]
