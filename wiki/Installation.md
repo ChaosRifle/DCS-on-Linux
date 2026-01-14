@@ -160,11 +160,45 @@ We recommend [Limo](https://github.com/limo-app/limo). The flatpak will work jus
 
 
 ## SRS
-> [!caution]
-> SRS v2.1.1.0 is the latest known working verion on linux, check [troubleshooting for info](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20250525-srs-version-22xx-and-up-do-not-function).
+### SRS v2.3.4.0 (+)
+> [!note]
+> SRS v2.3.4.0 seems to work for some people, but it has not been throughouly tested. If the following does not work for you, revert to [v2.1.1.0](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#srs-v2110). Assuming you've installed Wine Staging 10.20 on your system, follow the below steps:
 
+- 1: Create a new wine prefix (e.g. dcs-srs)
+- 2: Download [.NET Desktop Runtime v 9.X](dotnet.microsoft.com/en-us/download/dotnet/9.0) - As of January 2026, 9.0.12 is the latest 9.X version.
+- 3: Install the downloaded .NET Desktop Runtime
+```bash 
+WINEPREFIX=/path/to/new-prefix/dcs-srs wine /path/to/winedesktop-runtime-9.x.x-win-x64.exe
+```
+- 4: Download [SRS v2.3.4.0 installer](https://github.com/ciribob/DCS-SimpleRadioStandalone/releases) and extract it
+- 5: Install SRS
+```bash
+WINEPREFIX=/path/to/new-prefix/dcs-srs wine /path/to/DCS-SimpleRadioStandalone-2.3.x.x/Installer.exe
+```
+- **UNCHECK the ``Install DCS Client Scripts`` box**
+- 6: Open the ``prefix configuration`` [1] and go to ``Libraries`` [2]
+```bash
+WINEPREFIX=/path/to/new-prefix/dcs-srs winecfg
+```
+<img alt="srs-prefix-config" src="https://github.com/user-attachments/assets/9a3bb6f9-6c17-4904-9c9d-03491a84de93" />
+
+- 7: From the ``New Override for Library`` [3],``add`` [4] the following libraries: ``icu``, ``icuin``, and ``icuuc`` [5].
+- 8: For each ``library`` [6], ``edit`` [7] it, and make them  ``Native (Windows)`` [8-9]
+<img alt="srs-set-libraries-native" src="https://github.com/user-attachments/assets/1f7504d1-8757-4a3d-9a92-52232ad6bf75" />
+
+- 9: All the libraries should now show ``(native)`` [10], ``apply`` [11] the changes and ``ok`` [12] it.
+<img alt="srs-all-library-overrides" src="https://github.com/user-attachments/assets/73117fb5-f3d0-4b60-a50a-977156f22c68" />
+
+- 10: Install the hook files to your DCS "Saved Games" folder, preferably with a mod manager. If you have done so in the mod manager guides previously, skip this step.
+- 11: Run SRS as normal either as normal wine program or add it to Lutris as a "Locally Installed Game". If using Lutris, set the runner as Wine, select the appropriate prefix from previous step and use "10.20 (Staging)" as Runner Options: Wine Version.
+[you are now done with SRS, handy link to next section](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#Headtracking)
+
+### SRS v2.1.1.0
+> [!caution]
+> SRS v2.1.1.0 is the latest known working version for all people on linux, check [troubleshooting for info](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20250525-srs-version-22xx-and-up-do-not-function)
+> 
 > [!warning]
-> to get SRS to run, Wine-GE-8.26 is known to work extremely reliably. Versions 9.x and 10.x have been very problematic for many users
+> to get SRS v2.1.1.0 or earlier to run, Wine-GE-8.26 is known to work extremely reliably. Versions 9.x and 10.x have been very problematic for many users
 
 > [!note]
 > while not created by DoL, there is a lutris installer that lets you skip to step3 and luckily the runner SRS likes is native to lutris, so they were able to force its use. if you would like to try the automated installer for SRS, it is [here](https://lutris.net/games/dcs-simpleradio-standalone/). We provide no support for use of this, however it should work if you install the hooks from step3
