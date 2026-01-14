@@ -187,17 +187,17 @@ We recommend [Limo](https://github.com/limo-app/limo). The flatpak will work jus
 2. Download [.NET Desktop Runtime v 9.X](dotnet.microsoft.com/en-us/download/dotnet/9.0) - As of the January 2026, 9.0.12 is the latest 9.X version.
 3. Install the downloaded .NET Desktop Runtime
 ```bash 
-wine /path/to/winedesktop-runtime-9.x.x-win-x64.exe
+WINEPREFIX=/path/to/new-prefix/dcs-srs wine /path/to/winedesktop-runtime-9.x.x-win-x64.exe
 ```
 4. Download [SRS v2.3.4.0 installer](https://github.com/ciribob/DCS-SimpleRadioStandalone/releases) and extract it
 5. Install SRS
 ```bash
-wine /path/to/DCS-SimpleRadioStandalone-2.3.x.x/Installer.exe
+WINEPREFIX=/path/to/new-prefix/dcs-srs wine /path/to/DCS-SimpleRadioStandalone-2.3.x.x/Installer.exe
 ```
-- UNCHECK the ``Install DCS Client Scripts`` box
+- **UNCHECK the ``Install DCS Client Scripts`` box**
 6. Open the [1] prefix configuration and go to [2] "Libraries"
 ```bash
-winecfg
+WINEPREFIX=/path/to/new-prefix/dcs-srs winecfg
 ```
 <img alt="srs-prefix-config" src="https://github.com/user-attachments/assets/9a3bb6f9-6c17-4904-9c9d-03491a84de93" />
 
