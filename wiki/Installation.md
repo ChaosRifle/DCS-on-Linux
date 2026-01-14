@@ -199,9 +199,15 @@ wine /path/to/DCS-SimpleRadioStandalone-2.3.x.x/Installer.exe
 ```bash
 winecfg
 ```
+<img alt="srs-prefix-config" src="https://github.com/user-attachments/assets/9a3bb6f9-6c17-4904-9c9d-03491a84de93" />
+
 7. From the [3] "New Override for Library", [4] add the following libraries: [5] **icu**, **icuin**, and **icuuc**.
 8. For each [6] library, [7] edit it, and make them [8-9] "Native (Windows)"
+<img alt="srs-set-libraries-native" src="https://github.com/user-attachments/assets/1f7504d1-8757-4a3d-9a92-52232ad6bf75" />
+
 9. All the libraries should now [10] show (native), [11] apply the changes and [12] save it.
+<img alt="srs-all-library-overrides" src="https://github.com/user-attachments/assets/73117fb5-f3d0-4b60-a50a-977156f22c68" />
+
 10. Install the hook files to your DCS "Saved Games" folder, preferably with a mod manager. If you have done so in the mod manager guides previously, skip this step.
 11. Run SRS as normal either as normal wine program or add it to Lutris as a "Locally Installed Game". If using Lutris, set the runner as Wine, select the appropriate prefix from previous step and use "10.20 (Staging)" as Runner Options: Wine Version.
 
