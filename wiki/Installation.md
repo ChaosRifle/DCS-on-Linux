@@ -162,7 +162,7 @@ We recommend [Limo](https://github.com/limo-app/limo). The flatpak will work jus
 ## SRS
 ### SRS v2.3.4.0 (+)
 > [!note]
-> SRS v2.3.4.0 seems to work for some people, but it has not been throughouly tested. If the following does not work for you, revert to [v2.1.1.0](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#srs-v2110). Assuming you've installed Wine Staging 10.20 on your system, follow the below steps:
+> SRS v2.3.4.0 seems to work for some people, but it has not been thoroughly tested. If the following does not work for you, revert to [v2.1.1.0](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#srs-v2110). Assuming you've installed Wine Staging 10.20 on your system, follow the below steps:
 
 - 1: Create a new wine prefix (e.g. dcs-srs)
 - 2: Download [.NET Desktop Runtime v 9.X](dotnet.microsoft.com/en-us/download/dotnet/9.0) - As of January 2026, 9.0.12 is the latest 9.X version.
