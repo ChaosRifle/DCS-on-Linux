@@ -196,7 +196,7 @@ WINEPREFIX=/path/to/new-prefix/dcs-srs winecfg
 ### SRS v2.1.1.0
 > [!caution]
 > SRS v2.1.1.0 is the latest known working version for all people on linux, check [troubleshooting for info](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20250525-srs-version-22xx-and-up-do-not-function)
-> 
+
 > [!warning]
 > to get SRS v2.1.1.0 or earlier to run, Wine-GE-8.26 is known to work extremely reliably. Versions 9.x and 10.x have been very problematic for many users
 
