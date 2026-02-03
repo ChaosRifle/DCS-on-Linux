@@ -71,6 +71,10 @@
 - 5: if using wine staging 10.14+, inside winecfg, in the `Staging` tab, check `Hide Wine version from application` to fix the [debugger detected](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20250121-fails-to-launch-the-updater-with-a-debugger-has-been-found-running-in-your-system-please-unload-it-from-memory-and-restart-your-program) error
 - 6: in steam, set the working directory to the ``bin`` folder and edit the exe to use dcs.exe over dcs_updater.exe. The C drive will be found inside your primary storage `compatdata` folder (`/home/your_username/.local/share/Steam/steamapps/compatdata/2526263394/pfx/drive_c/Program Files/Eagle Dynamics/DCS World/`)
 
+> [!note]
+> you can change the DCS installation folder (proton prefix) with `STEAM_COMPAT_DATA_PATH=path/to/the/folder`.
+> This allow you to install DCS on another drive.
+
 > [!important]
 > you must wrap both paths in double quotes, as they contain spaces
 
