@@ -72,7 +72,7 @@ execution: $0
 [-w] run as wineWayland, must come BEFORE a 'run' argument to function! ex: [-wn] - WARNING: EXPERIMENTAL!
 ";;
       d) echo 'NOT YET IMPLEMENTED, please edit the if statement in the script that says "$0 -n" to have the flag you want as default, by replacing the "n" with another arg, like "l", so it says "$0 -l"'; exit 0 ;; #changing the default run type is WIP - FIXME
-      i) echo $(dirname $(readlink -f $0)); echo "$arg is not implemented!" ;;
+      i) echo "$arg is not implemented!" ;;
       l) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS.exe" ;;
       n) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS.exe" "--no-launcher" ;;
       p) echo "$arg is not implemented!" ;;
