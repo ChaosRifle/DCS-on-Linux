@@ -14,3 +14,9 @@ This is meant to be a community hub (and eventually wiki) for the current best w
 - un-ordered lists should be comma separated for single line or dash beginning for multiple lines (like this list here)
 - number identifiers for images should always be formatted as ``[3]`` (bracket number bracket) and be after the words it is labeling. example: click ``button`` [2] to save.
 - text denoting a button to click should use the buttons name if sensible, and be in double backticks(single inline code block) such as the following ``button example`` here.
+
+
+
+
+### LLM (AI) policy
+absolutely no LLM use for contributions to this repo, be it code or documentation. The questionable legal status of LLM model training and being prone to errors makes it incompatible with this project. 
