@@ -1,6 +1,7 @@
 #!/bin/bash
 # edit the following path to your DCS core game directory.
-DCS_INSTALL="/run/media/$USER/SN850X 2TB/games/dcs-world/drive_c/Program Files/Eagle Dynamics/DCS World OpenBeta/"
+PREFIX="/run/media/$USER/SN850X 2TB/games/dcs-world/"
+DCS_INSTALL_PATH="/drive_c/Program Files/Eagle Dynamics/DCS World/"
 
 
 # documentation/explanation
@@ -9,21 +10,23 @@ DCS_INSTALL="/run/media/$USER/SN850X 2TB/games/dcs-world/drive_c/Program Files/E
 
 # this script breaks Integrity Check for Textures, if you fly that aircraft. IC sounds scary but all it does is prevent
 # you from joining servers blocking that type, if already broken, or kick you to menu if you break it on-server.
-# there are zero punishments for breaking IC, it is just there to keep files normal. restart your game client
-# and you will be able to rejoin just fine. if you want to fly that aircraft on IC servers, uninstall your mods and 
+# there are zero punishments for breaking IC, it is just there to keep files normal. This can happen normally to users by corrupted files. restart your game client
+# and you will be able to rejoin just fine. if you want to undo this script to fly that aircraft on IC servers, uninstall your mods and
 # repair the game files, then reinstall your mods
 
 # This works by re-saving the files. This means any time you update/repair the game, you must run the script
-# Long story, ED screwed up and got off-by-one's in some, others.. we're not really sure why it fixes those, but it does
+# Long story short, ED screwed up and got off-by-one's in some files, others files.. we're not really sure why it fixes those, but it does.
 
 
 
 
-# ensure our scripts are never run as root
-if [ "$(id -u)" -eq 0 ]; then
+if [ "$(id -u)" -eq 0 ]; then # ensure our scripts are never run as root
     echo "Please do not run scripts off the internet as root"
-    exit 1
+    exit 0
 fi
+
+if [ ! $# -eq 0 ]; then PREFIX=$1; fi
+DCS_INSTALL="$PREFIX/$DCS_INSTALL_PATH"
 
 BROKEN_FILES="Mods/aircraft/AH-64D/Cockpit/IndicationResources/Displays/MPD/FontMPD_64.tga
 Mods/aircraft/AH-64D/Cockpit/IndicationResources/Displays/MPD/FontMPD_64_bold.tga

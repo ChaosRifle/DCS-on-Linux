@@ -1,6 +1,7 @@
 #!/bin/bash
 # edit the following path to your DCS savedgames directory. 
-DCS_SAVEDGAMES="/run/media/$USER/SN850X 2TB/games/dcs-world/drive_c/users/$USER/Saved Games/DCS.openbeta"
+PREFIX="/run/media/$USER/SN850X 2TB/games/dcs-world/"
+DCS_INSTALL_PATH="/drive_c/users/$USER/Saved Games/DCS"  #/DCS.openbeta"
 
 
 # documentation/explanation
@@ -11,11 +12,14 @@ DCS_SAVEDGAMES="/run/media/$USER/SN850X 2TB/games/dcs-world/drive_c/users/$USER/
 
 
 
-# ensure our scripts are never run as root
-if [ "$(id -u)" -eq 0 ]; then
+if [ "$(id -u)" -eq 0 ]; then # ensure our scripts are never run as root
     echo "Please do not run scripts off the internet as root"
-    exit 1
+    exit 0
 fi
+
+if [ ! $# -eq 0 ]; then PREFIX=$1; fi
+DCS_SAVEDGAMES="$PREFIX/$DCS_INSTALL_PATH"
+
 
 rm -rf "$DCS_SAVEDGAMES/metashaders2/"
 rm -rf "$DCS_SAVEDGAMES/fxo/"
