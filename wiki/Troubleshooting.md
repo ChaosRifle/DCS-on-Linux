@@ -57,8 +57,8 @@
 # SRS issues
 > [!important]
 > #### (2025/05/25) **srs version 2.2.x.x and up do not function**
-> - the dotnet8 refactor appears to have removed the fix from [issue 621](https://github.com/ciribob/DCS-SimpleRadioStandalone/issues/621), resulting in it no longer working. other info can be found in the srs discord on [this thread](https://discord.com/channels/298054423656005632/1391492248574885918), and the [new issue is here](https://github.com/ciribob/DCS-SimpleRadioStandalone/issues/800).
-> - Possibly fixed as of 2.3.0.1, user reports vary, needs further testing and information
+> - the dotnet8 refactor appears to have removed the fix from [issue 621](https://github.com/ciribob/DCS-SimpleRadioStandalone/issues/621), resulting in it no longer working. other info can be found in the srs discord on [this thread](https://discord.com/channels/298054423656005632/1391492248574885918), and the [new issue is here](https://github.com/ciribob/DCS-SimpleRadioStandalone/issues/800). 
+> - Fixed for some users as of 2.3.0.1, however many other severe issues prevent use for some, not all, users
 
 # Linux issues
 > [!important]
@@ -166,6 +166,7 @@
 #### Lutris / Wine
 - Proton 9.27 GE
 - Wine 10.12
+- Wine 11.1 Staging
 #### Steam
 - Proton Experimental (2025/07/27)
 
@@ -180,10 +181,10 @@
 
 
 # Troubleshooting resources
-### a list of all the recommended information currently available (@ me or make a PR if you find something useful!)
+### a list of all the recommended information currently available (@ chaos or make a PR if you find something useful!)
 If something is missing, it is probably deliberately left out.
+- live chat [matrix](https://matrix.to/#/#dcs-on-linux:matrix.org) community for questions or help
 - Budderpards [guide](https://github.com/budderpard/DCS_Standalone_on_linux/tree/master?tab=readme-ov-file)
-- live chat [matrix](https://matrix.to/#/#dcs-on-linux:matrix.org) community if this page or the above guide does not work
 - Deleterium's [updated](https://github.com/deleterium/dcs_on_linux) version of zoq2's guide
 
 old resources that contain older, less useful, or duplicate information, but may be of use for extended troubleshooting in edge cases.
