@@ -217,7 +217,7 @@ WINEPREFIX=/path/to/new-prefix/dcs-srs winecfg
 #### Choose your headtracker:
 - [opentrack linux](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#opentrack-linux) [ recommended for NON trackIR5 users ]
 - [opentrack windows](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#opentrack-windows-inside-dcs-prefix) inside dcs prefix [ incomplete, sub-optimal ]
-- [linuxtrack](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#linuxtrack) [ recommended for trackIR5 users ]
+- [](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#linuxtrack) [ recommended for trackIR5 users ]
 - other: the star-citizen Linux User Group maintains an excellent wiki on headtrackers, more info can be found on their wiki, [here](https://github.com/starcitizen-lug/knowledge-base/wiki/Head-Tracking)
 
 ### opentrack linux
@@ -297,7 +297,7 @@ WINEPREFIX=/path/to/new-prefix/dcs-srs winecfg
 - 2: edit the properties of the appimage file with ```alt+enter``` or ```chmod``` and make the file ```executable```
 - 3: run the appimage. You will be prompted if you have your trackir5 plugged in to authorize it to automatically create udev rules for the device if you currently lack them, and ask you to enter your sudo password. If you are not comfortable with this, Linuxtrack should provide information on doing this manually as well, or jump to the [UDEV rules](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#udev-rules) section to import our TrackIR rules or create your own. Please remeber to reload udev rules and re-plug your device, or, restart your system, when modifing udev. the changes will not take effect until you do.
 - 4: under the ```gaming``` tab, you will see the ```prerequisites``` section with [trackir firmware](https://www.trackir.com/downloads/) and [mfc42 libraries](https://download.microsoft.com/download/vc60pro/Update/2/W9XNT4/EN-US/VC6RedistSetup_deu.exe), you will need both. go through the install proccess for these.
-- 5: in the ```Gaming``` tab, select ```Custom Prefix``` and point to your game prefix. At time of writing, Steam and Lutris did not work correctly (please notify a maintainer if this has changed)
+- 5: in the ```Gaming``` tab, select ```Custom Prefix``` and point to your game prefix. Alternatively, the ```Steam```(dcs steam edition only) or ```Lutris``` buttons are an easier option if installed with that respective method.
 - 6: Configure linuxtrack with your respective hardware under ```device setup``` and ```model setup```, ensuring to save changes at the bottom right.
 - 7: Configure profiles in the ``Tracking Setup`` tab. be warned linuxtrack creates new profiles per game, so you will want to edit the default and then remember to ``copy from default`` on that game profile later when you run the game, or your changes here will be ignored.
 > [!tip]
