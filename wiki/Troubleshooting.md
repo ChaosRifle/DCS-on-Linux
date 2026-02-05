@@ -97,8 +97,6 @@
 > <img alt="voip bug 4" src="https://github.com/user-attachments/assets/18eaf4ca-74bd-4703-b87f-5bb5a7ac5a13" />
 
 
-
-
 > [!important]
 > #### (date unknown) **puffy non-continuous contrails and smoke trails**
 > - Currently unfixable, however there is a lead on starting opentrack in the same prefix, first, somehow fixing it, but turning the entire game green. Investigation required. Current work to resolve this [here](https://github.com/doitsujin/dxvk/issues/4327#issuecomment-3109439142).
@@ -137,6 +135,12 @@
 > #### (date unknown) **slotting into AH-64D Apache crashes game**
 > - missing font ``seguisym.ttf``, either get a copy from a VM/box/internet (stored in ``C:/Windows/Fonts``) or rename an existing font with the required symbols
 > - install the font file to your prefix's ``drive_c/windows/fonts/`` folder
+
+> [!important]
+> #### (2026/1/27) **Mirage M-2000C VTB appears black**
+> - workaround: go to the mirage special settings page and deactivate ```realistic VTB cone of vision```
+> - unknown cause or fix to allow the setting to be used, please notify a maintainer of you figure it out
+
 
 # AMD issues
 
