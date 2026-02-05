@@ -19,4 +19,4 @@ This is meant to be a community hub (and eventually wiki) for the current best w
 
 
 ### LLM (AI) policy
-absolutely no LLM use for contributions to this repo, be it code or documentation. The questionable legal status of LLM model training and being prone to errors makes it incompatible with this project. 
+Absolutely no LLM use for contributions to this repo, be it code or documentation. This is due to the questionable legal and ethical status of LLM training, and being prone to errors which makes it incompatible with this project. 
