@@ -9,15 +9,11 @@
 
 
 # Lutris
-> [!warning]
-> Something recently (2025-11-29) has broken lutris alternate launch args, so the DoL autoinstaller must use the dcs launcher for updates. Ensure you are not launching the game with ``--no-launcher``
-> Currently, the launcher is only working with recent builds of wine staging, and confirmed with 10.15staging as working. Note that it may still launch black and recover after 1-3 minutes waiting on some configs.
-
-- 1: we ***must*** select a lutris default runner before installation. Open 'Lutris Settings' [1] > 'preferences' [2] > 'Runners' [3] > 'Wine Options' [4] > set 'wine version' to a [known working runner](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#known-working-runners) [5] > 'save' [6]. Unfortunately, the YAML lutris uses will not allow us to define versions that are not in the API (or on your machine), so you must do this to ensure a functional version is used. Lutris needs to add more, and relevant, runners to wine in their API.
+- 1: we ***must*** select a lutris default runner before installation. the default 8.26 has several issues and degraded functionality/performance. Open 'Lutris Settings' [1] > 'preferences' [2] > 'Runners' [3] > 'Wine Options' [4] > set 'wine version' to a [known working runner](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#known-working-runners) [5] > 'save' [6]. Unfortunately, the YAML lutris uses will not allow us to define versions that are not in the API (or on your machine), so you must do this to ensure a functional version is used. Lutris needs to add more, and relevant, runners to wine in their API.
 <img alt="lutris runner swap" src="https://github.com/user-attachments/assets/0388f8be-028b-4881-90cb-f6fe54a4a8ca" />
 
 > [!note]
-> - If you do not have runners you like, use [Proton Plus](https://github.com/Vysp3r/protonplus) or [ProtonUp-QT](https://davidotek.github.io/protonup-qt/) to install and manage runners easily.
+> - If you do not have runners you like, use [Proton Plus](https://github.com/Vysp3r/protonplus) or [ProtonUp-QT](https://davidotek.github.io/protonup-qt/) to install and manage runners easily. Proton plus is our primary recommendation for wine/proton/dxvk management. 
 > - Alternatively, drop runners in ```~/.local/share/lutris/runners/``` if you know what you are doing
 
 > [!caution]
