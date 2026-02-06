@@ -89,6 +89,7 @@ check_dependency() { #startup dep-check
   if [ ! -x "$(command -v touch)" ]; then selftest='fail'; echo 'ERROR: touch missing'; fi
   if [ ! -x "$(command -v mkdir)" ]; then selftest='fail'; echo 'ERROR: mkdir missing'; fi
   if [ ! -x "$(command -v chmod)" ]; then selftest='fail'; echo 'ERROR: chmod missing'; fi
+  if ! grep -q "avx" /proc/cpuinfo; then selftest='fail'; echo 'ERROR: your cpu doesnt support avx'; fi
 
   if [ ! $selftest = 'pass' ]; then echo 'dependency check failed, exiting..' ; exit 0; fi
 
@@ -405,7 +406,7 @@ echo "you are running v$ver of the helper script."
 if [ $# -eq 0 ]; then #default run
   #   $0 -n
   #   exit 1
-  # echo 'default run detected'
+  echo 'default run detected'
 else
   while getopts "ht" arg; do #arg run
     case $arg in
