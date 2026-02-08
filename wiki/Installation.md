@@ -158,7 +158,7 @@ We recommend [Limo](https://github.com/limo-app/limo). The flatpak will work jus
 ## SRS
 ### SRS v2.3.4.0 (+)
 > [!note]
-> SRS v2.3.4.0 seems to work for some people, but it has not been thoroughly tested. If the following does not work for you, revert to [v2.1.1.0](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#srs-v2110). Assuming you've installed Wine Staging 10.20 on your system, follow the below steps:
+> SRS v2.3.4.0 seems to work for some people, but not everyone. If the following does not work for you, revert to [v2.1.1.0](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#srs-v2110). Assuming you've installed Wine Staging 10.20 on your system, follow the below steps:
 
 - 1: Create a new wine prefix (e.g. dcs-srs)
 - 2: Download [.NET Desktop Runtime v 9.X](https://dotnet.microsoft.com/en-us/download/dotnet/9.0) - As of January 2026, 9.0.12 is the latest 9.X version.
@@ -195,9 +195,6 @@ WINEPREFIX=/path/to/new-prefix/dcs-srs winecfg
 
 > [!warning]
 > to get SRS v2.1.1.0 or earlier to run, Wine-GE-8.26 is known to work extremely reliably. Versions 9.x and 10.x have been very problematic for many users
-
-> [!note]
-> while not created by DoL, there is a lutris installer that lets you skip to step3 and luckily the runner SRS likes is native to lutris, so they were able to force its use. if you would like to try the automated installer for SRS, it is [here](https://lutris.net/games/dcs-simpleradio-standalone/). We provide no support for use of this, however it should work if you install the hooks from step3
 
 - 1: download SRS's installer.exe from the SRS [releases](https://github.com/ciribob/DCS-SimpleRadioStandalone/releases)
 - 2: choose to either use lutris to install it (remembering to set lutris' default wine runner), or wine standalone, and run the installer noting to UNCHECK the ``install dcs client scripts`` box if using a standalone prefix. This checkbox will work for same prefix, and if that is your method, you will want to keep it enabled
