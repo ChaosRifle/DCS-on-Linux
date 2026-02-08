@@ -1,7 +1,7 @@
 #!/bin/bash
 # edit the following path to your DCS savedgames directory. 
-PREFIX="/run/media/$USER/SN850X 2TB/games/dcs-world/"
-DCS_INSTALL_PATH="/drive_c/users/$USER/Saved Games/DCS"  #/DCS.openbeta"
+PREFIX="/run/media/$USER/SN850X 2TB/games/dcs-world"
+DCS_INSTALL_PATH="drive_c/users/$USER/Saved Games/DCS"  #/DCS.openbeta"
 
 
 # documentation/explanation

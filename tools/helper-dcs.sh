@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.0.1'
+ver='0.0.2'
 # a small portion of this script was taken from the SC LUG Helper on 26/01/27 and cannot be relicensed until removed. get_latest_release() was taken from their GPLv3 source. The rest was written by Chaos initially.
 
 
@@ -60,17 +60,29 @@ dir_wine_10_staging='wine-10.20-staging-amd64'
 
 url_wine_11='https://github.com/Kron4ek/Wine-Builds/releases/download/11.1/wine-11.1-amd64.tar.xz'
 file_wine_11='wine-11.1-amd64.tar.xz'
-dir_wine_11='wine-11.1-amd64'
+dir_wine_11='wine-11.1-amd64' #known bad due to 'debugger detected'
 
 url_wine_11_staging='https://github.com/Kron4ek/Wine-Builds/releases/download/11.1/wine-11.1-staging-amd64.tar.xz'
 file_wine_11_staging='wine-11.1-staging-amd64.tar.xz'
-dir_wine_11_staging='wine-11.1-staging-amd64'
+dir_wine_11_staging='wine-11.1-staging-amd64' #known good
 
 
 
 url_dol='https://github.com/ChaosRifle/DCS-on-Linux'
 url_troubleshooting='https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting'
 url_matrix='https://matrix.to/#/#dcs-on-linux:matrix.org'
+
+
+###################################################################################################
+#constants
+###################################################################################################
+array_files_dxvk=( # files shipped with dxvk that need to be removed from registry when modifying setup. check latest git release for filenames.
+  "d3d8"
+  "d3d9"
+  "d3d10core"
+  "d3d11"
+  "dxgi"
+)
 
 
 ###################################################################################################
@@ -106,11 +118,11 @@ check_dependency() { #startup dep-check
   fi
 }
 
-stringify_menu() { #TODO for auto generating terminal menus from zenity arrays
+stringify_menu() { #TODO unwritten - for auto generating terminal menus from zenity arrays
   dummy=0
 }
 
-message() { #TODO for dynamically generating menus
+query() { #TODO unwritten - for generating multiple choice menus (and possible checklist menus later?)
   if [ $use_zenity = 1 ]; then
     dummy=0
   else
@@ -118,7 +130,31 @@ message() { #TODO for dynamically generating menus
   fi
 }
 
-format_urls() { #TODO for dynamically generating menu hyperlinks and possibly disk links, in conjunction with message() or others
+query_filepath() { #TODO unwritten - for asking the user for a filepath
+  if [ $use_zenity = 1 ]; then
+    dummy=0
+  else
+    dummy=0
+  fi
+}
+
+notify(){ #TODO unwritten - for generating information click-thorugh (or just an echo for terminal) dialogues
+  if [ $use_zenity = 1 ]; then
+    dummy=0
+  else
+    dummy=0
+  fi
+}
+
+confirm(){ #TODO unwritten - for generating confirmation 'are you sure, this will do X' dialogues
+  if [ $use_zenity = 1 ]; then
+    dummy=0
+  else
+    dummy=0
+  fi
+}
+
+format_urls() { #TODO unwritten - for dynamically generating menu hyperlinks and possibly disk links, in conjunction with message() or others
   local dummy=0
 }
 
@@ -173,7 +209,7 @@ install_dcs(){ #TODO - hardcoded for wine 11, add switching later. Also has issu
     export WINEDLLOVERRIDES='wbemprox=n'
     export WINE="$dir_prefix/runners/$preferred_dir_wine/bin/wine" #for winetricks
     export WINESERVER="$dir_prefix/runners/$preferred_dir_wine/bin/wineserver" #for winetricks
-    winetricks -q corefonts xact_x64 d3dcompiler_47 vcrun2022 win10
+    winetricks -q corefonts xact_x64 d3dcompiler_47 vcrun2022 win10 dxvk
 #"$dir_prefix/runners/$preferred_dir_wine/bin/wineserver" -k #ensure that wine isnt running https://linux.die.net/man/1/wineserver
 
 #TODO message the user about what TO and NOT to do in the coming install. namely, not changing filepath, allowed to remove desktop icon, possibly notify about how to not re-download by using old prefix and make script for it
@@ -188,34 +224,37 @@ install_dcs(){ #TODO - hardcoded for wine 11, add switching later. Also has issu
   menu_main
 }
 
-install_srs(){ #TODO, also add optional hook install
-  menu_main
+install_srs(){ #TODO unwritten - also add optional hook install
+#winetricks dotnet9
+# dll overrides d3d9=n, data from lutris installer
+  dummy=0
 }
 
-install_srs_2.1.1.0(){ #TODO, also add optional hook install
-  menu_main
+install_srs_2.1.1.0(){ #TODO unwritten - also add optional hook install
+  dummy=0
 }
-
 
 menu_main(){
   menu_main=(
     [0]=" exit_script"
     [1]=" install_DCS"
-    [2]=" Install_SRS_2.1.1.0"
-    [3]=" Install_SRS_2.4+_(unreliable)"
+    [2]=" Install_SRS_2.1.1.0"              #
+    [3]=" Install_SRS_2.4+_(unreliable)"    #
     [4]=" change_target_DCS_prefix"
-    [5]=" troubleshooting"
+    [5]=" manage_runners"
+    [6]=" manage_dxvk"
+    [7]=" troubleshooting"
   )
   zen_options=( ${menu_main[@]/#/"FALSE"} )
   menu_type='radiolist'   # 'checklist'
 
   menu_text_zenity="active prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>
-DoL Github: <a href='${url_dol}'>${url_dol}</a>
-DoL Matrix server: <a href='${url_matrix}'>${url_matrix}</a>"
+DoL <a href='${url_dol}'>Github</a>
+DoL <a href='${url_matrix}'>Matrix</a> chat/help server"
 
   menu_text="active prefix: ${dir_prefix}
 DoL Github: ${url_dol}
-DoL Matrix server: ${url_matrix}"
+DoL Matrix chat/help server: ${url_matrix}"
   menu_height='575'
   cancel_label='exit'
   stringify_menu $menu_main
@@ -239,13 +278,15 @@ DoL Matrix server: ${url_matrix}"
     else
       read -p "$menu_text
 
-enter a choice [0-5]:
-[0]=exit_script
-[1]=install_DCS
-[2]=Install_SRS_2.1.1.0
-[3]=Install_SRS_2.4+_(unreliable)
-[4]=change_target_DCS_prefix
-[5]=troubleshooting
+enter a choice [0-7]:
+  [0]=exit_script
+  [1]=install_DCS
+  [2]=Install_SRS_2.1.1.0
+  [3]=Install_SRS_2.4+_(unreliable)
+  [4]=change_target_DCS_prefix
+  [5]=manage_runners
+  [6]=manage_dxvk
+  [7]=troubleshooting
 
 " input
     fi
@@ -255,7 +296,9 @@ enter a choice [0-5]:
       2) install_srs ;;
       3) install_srs_2.1.1.0 ;;
       4) select_prefix ;;
-      5) menu_troubleshooting ;;
+      5) menu_runners ;;
+      6) menu_dxvk ;;
+      7) menu_troubleshooting ;;
       ?) echo "error: option $input is not available, please try again" ;;
     esac
   done
@@ -271,30 +314,29 @@ menu_troubleshooting(){
     [5]=" run_wine_regedit"
     [6]=" run_wineboot_-u_(update_prefix)"
     [7]=" run_fix_textures"
-    [8]=" run_fix_vanilla_voip_crash"
+    [8]=" run_fix_vanilla_voip_crash"       #
     [9]=" run_shaders_delete"
-    [10]=" install/change_alternate_runners"
-    [11]=" install/change_alternate_DXVK"
+    [10]=" kill_wineserver"
   )
   zen_options=( ${menu_troubleshooting[@]/#/"FALSE"} )
   menu_type='radiolist'   # 'checklist'  #'radiolist'
 
-  menu_text_zenity="active prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>
-Troubleshooting resources: <a href='${url_troubleshooting}'>${url_troubleshooting}</a>
-DoL Matrix server: <a href='${url_matrix}'>${url_matrix}</a>"
+  menu_text_zenity="<a href='${url_troubleshooting}'>Troubleshooting resources</a>
+active prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>
+DoL <a href='${url_matrix}'>Matrix</a> chat/help server"
 
-  menu_text="active prefix: ${dir_prefix}
-Troubleshooting resources: ${url_troubleshooting}
-DoL Matrix server: ${url_matrix}"
+  menu_text="Troubleshooting resources: ${url_troubleshooting}
+active prefix: ${dir_prefix}
+DoL Matrix chat/help server: ${url_matrix}"
 
-  menu_height='575'
+  menu_height='600' #575
   cancel_label='main menu'
   stringify_menu $menu_troubleshooting
 
   while true; do
     unset input
     if [ $use_zenity -eq 1 ]; then
-      input="$(zenity --list --"$menu_type" --width="510" --height="$menu_height" --text="$menu_text_zenity" --title="DCS on Linux Community Helper" --hide-header --cancel-label "$cancel_label" --column="" --column="Option" "${zen_options[@]}")"
+      input="$(zenity --list --"$menu_type" --width="510" --height="$menu_height" --text="$menu_text_zenity" --title="DoL - Troubleshooting menu" --hide-header --cancel-label "$cancel_label" --column="" --column="Option" "${zen_options[@]}")"
       #echo $input
       if [ "$input" = "$nil" ] ; then #handle cancel button
         input='1'
@@ -309,19 +351,18 @@ DoL Matrix server: ${url_matrix}"
     else
       read -p "$menu_text
 
-enter a choice [0-11]:
-[0]=exit_script
-[1]=return_to_main_menu
-[2]=run_winetricks
-[3]=run_wine_control_panel
-[4]=run_wine_configuration
-[5]=run_wine_regedit
-[6]=run_wineboot_-u_(update_prefix)
-[7]=run_fix_textures
-[8]=run_fix_vanilla_voip_crash
-[9]=run_shaders_delete
-[10]=install/change_alternate_runners
-[11]=install/change_alternate_DXVK
+enter a choice [0-10]:
+  [0]=exit_script
+  [1]=return_to_main_menu
+  [2]=run_winetricks
+  [3]=run_wine_control_panel
+  [4]=run_wine_configuration
+  [5]=run_wine_regedit
+  [6]=run_wineboot_-u_(update_prefix)
+  [7]=run_fix_textures
+  [8]=run_fix_vanilla_voip_crash
+  [9]=run_shaders_delete
+  [10]=kill_wineserver
 
 " input
     fi
@@ -336,51 +377,163 @@ enter a choice [0-11]:
       7) fixerscript_textures ;;
       8) fixerscript_vanilla_voip_crash ;;
       9) fixerscript_delete_shaders ;;
-      10) echo 'not implemented!' ;;
-      11) echo 'not implemented!' ;;
+      10) kill_wineserver ;;
       ?) echo "error: option $input is not available, please try again" ;;
     esac
   done
 }
 
-run_winetricks() { #TODO untested
+menu_runners(){ #TODO unwritten
+  menu_runners=(
+    [0]=" exit_script"
+    [1]=" return_to_main_menu"
+  )
+  zen_options=( ${menu_runners[@]/#/"FALSE"} )
+  menu_type='radiolist'   # 'checklist'  #'radiolist'
+
+  menu_text_zenity="active prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>"
+
+  menu_text="active prefix: ${dir_prefix}"
+
+  menu_height='575'
+  cancel_label='main menu'
+  stringify_menu $menu_runners
+
+  while true; do
+    unset input
+    if [ $use_zenity -eq 1 ]; then
+      input="$(zenity --list --"$menu_type" --width="510" --height="$menu_height" --text="$menu_text_zenity" --title="DoL - Runner menu" --hide-header --cancel-label "$cancel_label" --column="" --column="Option" "${zen_options[@]}")"
+      #echo $input
+      if [ "$input" = "$nil" ] ; then #handle cancel button
+        input='1'
+      else
+        for key in "${!menu_runners[@]}"; do
+          if [ ${menu_runners[$key]} = $input ]; then
+            input=$key
+            break
+          fi
+        done
+      fi
+    else
+      read -p "$menu_text
+
+enter a choice [0-5]:
+  [0]=exit_script
+  [1]=return_to_main_menu
+
+" input
+    fi
+    case $input in
+      0) exit 1 ; break ;;
+      1) menu_main; break ;;
+      ?) echo "error: option $input is not available, please try again" ;;
+    esac
+  done
+}
+
+menu_dxvk(){
+  menu_dxvk=(
+    [0]=" exit_script"
+    [1]=" return_to_main_menu"
+    [2]=" remove_all_dxvk"
+    [3]=" install_dxvk_standard"
+    [4]=" install_dxvk_nvapi"
+    [5]=" install_dxvk_git"                 #
+  )
+  zen_options=( ${menu_dxvk[@]/#/"FALSE"} )
+  menu_type='radiolist'   # 'checklist'  #'radiolist'
+
+  menu_text_zenity="active prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>"
+
+  menu_text="active prefix: ${dir_prefix}"
+
+  menu_height='575'
+  cancel_label='main menu'
+  stringify_menu $menu_dxvk
+
+  while true; do
+    unset input
+    if [ $use_zenity -eq 1 ]; then
+      input="$(zenity --list --"$menu_type" --width="510" --height="$menu_height" --text="$menu_text_zenity" --title="DoL - DXVK menu" --hide-header --cancel-label "$cancel_label" --column="" --column="Option" "${zen_options[@]}")"
+      #echo $input
+      if [ "$input" = "$nil" ] ; then #handle cancel button
+        input='1'
+      else
+        for key in "${!menu_dxvk[@]}"; do
+          if [ ${menu_dxvk[$key]} = $input ]; then
+            input=$key
+            break
+          fi
+        done
+      fi
+    else
+      read -p "$menu_text
+
+enter a choice [0-5]:
+  [0]=exit_script
+  [1]=return_to_main_menu
+  [2]=remove_all_dxvk
+  [3]=install_dxvk_standard
+  [4]=install_dxvk_nvapi
+  [5]=install_dxvk_git
+
+" input
+    fi
+    case $input in
+      0) exit 1 ; break ;;
+      1) menu_main; break ;;
+      2) remove_all_dxvk ; menu_dxvk ;;
+      3) install_dxvk_standard ; menu_dxvk ;;
+      4) install_dxvk_nvapi ; menu_dxvk ;;
+      5) install_dxvk_git ; menu_dxvk ;;
+      ?) echo "error: option $input is not available, please try again" ;;
+    esac
+  done
+}
+
+run_winetricks() {
   export WINEPREFIX="$dir_prefix"
   export WINE="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wine"
   export WINESERVER="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wineserver"
   winetricks
 }
 
-run_wine_control_panel() { #TODO untested
+run_wine_control_panel() {
   export WINEPREFIX="$dir_prefix"
   "$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wine" control
 }
 
-run_wine_configuration() { #TODO untested
+run_wine_configuration() {
   export WINEPREFIX="$dir_prefix"
-  "$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wine" winecfg
+  "$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/winecfg" #winecfg
 }
 
-run_wine_regedit() { #TODO untested
+run_wine_regedit() {
   export WINEPREFIX="$dir_prefix"
-  "$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wine" regedit
+  "$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/regedit" #regedit
 }
 
-run_wine_wineboot_update(){ #TODO untested
+run_wine_wineboot_update(){
   export WINEPREFIX="$dir_prefix"
   "$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wineboot" -u
   #wineboot -u
 }
 
-fixerscript_textures(){ #TODO untested
+kill_wineserver(){ #bugfix for non-closing wine windows
+  export WINEPREFIX="$dir_prefix"
+  "$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wineserver" '-k'
+}
+
+fixerscript_textures(){
   "$(dirname $(readlink -f $0))/texturefixer.sh" "$dir_prefix"
 }
 
-fixerscript_vanilla_voip_crash(){ #TODO untested and script literally doesnt exist yet
+fixerscript_vanilla_voip_crash(){ #TODO unwritten script, literally doesnt exist yet
   #"$(dirname $(readlink -f $0))/removevanillavoip.sh" "$dir_prefix"
   echo 'NOT IMPLEMENTED YET'
 }
 
-fixerscript_delete_shaders(){ #TODO untested, needs granularity options added for not just nuking dcs, mesa, AND dxvk every run
+fixerscript_delete_shaders(){ #TODO needs granularity options added for not just nuking dcs, mesa, AND dxvk every run
   rm -rf "$dir_prefix/cache"
   mkdir "$dir_prefix/cache"
   "$(dirname $(readlink -f $0))/deleteshaders.sh" "$dir_prefix"
@@ -396,6 +549,74 @@ get_latest_release() { # TODO - from SCLUG, GPLv3, by TheSane, unused at the mom
   grep '"tag_name":' |                                            # Get tag line
   sed -E 's/.*"([^"]+)".*/\1/'                                    # Pluck JSON value
 }
+
+remove_all_dxvk(){
+  export WINEPREFIX="$dir_prefix"
+  path_wine="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/"
+
+  for value in "${array_files_dxvk[@]}"; do
+    rm -rf "$dir_prefix/drive_c/windows/system32/$value.dll"
+    rm -rf "$dir_prefix/drive_c/windows/syswow64/$value.dll"
+    "$path_wine/wine" reg delete 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v "*$value" /f
+  done
+  rm -rf "$dir_prefix/drive_c/windows/system32/nvapi.dll"
+  rm -rf "$dir_prefix/drive_c/windows/syswow64/nvapi64.dll"
+  rm -rf "$dir_prefix/drive_c/windows/syswow64/nvofapi64.dll"
+  "$path_wine/wine" reg delete 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v '*nvapi' /f
+  "$path_wine/wine" reg delete 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v '*nvapi64' /f
+  "$path_wine/wine" reg delete 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v '*nvofapi64' /f
+# $wine reg delete 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v $1 /f > /dev/null 2>&1 sourced from dxvk installer script from 2.0 and earlier
+  run_wine_wineboot_update #rebuild prefix using default wine data
+  unset $path_wine
+}
+
+install_dxvk_standard(){
+  remove_all_dxvk
+  export WINEPREFIX="$dir_prefix"
+  export WINE="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wine"
+  export WINESERVER="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wineserver"
+  winetricks -f dxvk
+  unset $path_wine
+}
+
+install_dxvk_nvapi(){ #TODO warning, I do not know how to undo this fully when installed from winetricks
+  export WINEPREFIX="$dir_prefix"
+  export WINE="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wine"
+  export WINESERVER="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wineserver"
+  winetricks -f dxvk_nvapi
+  unset $path_wine
+}
+
+install_dxvk_git(){ #TODO FIXME this is totally non functional as it has no input for the url. this is pseudocode that will eventually work.
+echo 'not implemented!'
+#   anchor_dir="$(pwd)"
+#   remove_all_dxvk
+#   export WINEPREFIX="$dir_prefix"
+#   path_wine="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/"
+#
+#   wget https://github.com/doitsujin/dxvk/releases/download/vX.X.X/dxvk-X.X.X.tar.gz
+#   tar -xzf dxvk-X.X.X.tar.gz
+#   cd dxvk-X.X.X
+#
+#   # Copy DLLs to your Wine prefix (replace ~/.wine with your prefix path)
+#   cp x64/*.dll "$dir_prefix/drive_c/windows/system32/"
+#   cp x32/*.dll "$dir_prefix/drive_c/windows/syswow64/"
+#   cd $anchor_dir
+#
+#   if [ $old = '1' ]; then
+#     # Register the DLLs, old method based on dxvk.org install instructions and install script form 2.0 and earlier
+#     #winecfg and manually add native DLL overrides for d3d8, d3d9, d3d10core, d3d11 and dxgi under the Libraries tab
+# #     "$path_wine/wine" reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v d3d11 /d native /f
+# #     "$path_wine/wine" reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v dxgi /d native /f
+#     for value in "${array_files_dxvk[@]}"; do
+#       "$path_wine/wine" reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v $value /d native /f
+#     done
+#   else
+#     # new method, from git readme.md install steps, i think it just opens winecfg for you to manually do it
+#     winecfg
+#   fi
+}
+
 
 ###################################################################################################
 #startup

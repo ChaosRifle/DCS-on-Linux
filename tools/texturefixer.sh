@@ -1,7 +1,7 @@
 #!/bin/bash
 # edit the following path to your DCS core game directory.
-PREFIX="/run/media/$USER/SN850X 2TB/games/dcs-world/"
-DCS_INSTALL_PATH="/drive_c/Program Files/Eagle Dynamics/DCS World/"
+PREFIX="/run/media/$USER/SN850X 2TB/games/dcs-world"
+DCS_INSTALL_PATH="drive_c/Program Files/Eagle Dynamics/DCS World"
 
 
 # documentation/explanation
@@ -16,8 +16,6 @@ DCS_INSTALL_PATH="/drive_c/Program Files/Eagle Dynamics/DCS World/"
 
 # This works by re-saving the files. This means any time you update/repair the game, you must run the script
 # Long story short, ED screwed up and got off-by-one's in some files, others files.. we're not really sure why it fixes those, but it does.
-
-
 
 
 if [ "$(id -u)" -eq 0 ]; then # ensure our scripts are never run as root
