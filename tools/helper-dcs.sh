@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.0.2'
+ver='0.1.0'
 # a small portion of this script was taken from the SC LUG Helper on 26/01/27 and cannot be relicensed until removed. get_latest_release() was taken from their GPLv3 source. The rest was written by Chaos initially.
 
 
@@ -16,13 +16,15 @@ fi
 #variables and config
 ###################################################################################################
 disable_zenity=0
-use_zenity=0
+#use_zenity=0
 dir_cfg="/home/$USER/.config/dcs-on-linux"
 cfg_dir_prefix="prefix.cfg"
 cfg_firstrun="firstrun.cfg"
+cfg_dir_srs_prefix="srs_prefix.cfg"
 cfg_preferred_dir_wine="preferred_wine.cfg"
 
-      dir_prefix="" #/home/$USER/games/dcs-world #set default FIXME ensure this actually works
+#dir_prefix='' #/home/$USER/games/dcs-world #set default FIXME ensure this actually works
+#dir_srs_prefix=''
 
 subdir_dcs_corefiles="drive_c/Program Files/Eagle Dynamics/DCS World"
 subdir_dcs_savedgames="drive_c/users/$USER/Saved Games/DCS"
@@ -35,11 +37,12 @@ url_dcs='https://www.digitalcombatsimulator.com/upload/iblock/959/d33ul8g3arxnzc
 file_dcs='DCS_World_web.exe'
 
 url_srs='https://github.com/ciribob/DCS-SimpleRadioStandalone/releases/download/2.1.1.0/DCS-SimpleRadioStandalone-2.1.1.0.zip'
-file_srs='DCS-SimpleRadioStandalone-2.1.1.0.zip'
+file_srs='SR-ClientRadio.exe'
+archive_srs='DCS-SimpleRadioStandalone-2.1.1.0.zip'
 
 url_srs_latest='https://github.com/ciribob/DCS-SimpleRadioStandalone/releases/download/2.3.4.0/DCS-SimpleRadioStandalone-2.3.4.0.zip'
-file_srs_latest='DCS-SimpleRadioStandalone-2.3.4.0.zip'
-
+file_srs_latest='SR-ClientRadio.exe'
+archive_srs_latest='DCS-SimpleRadioStandalone-2.3.4.0.zip'
 
 
 url_wine_9='https://github.com/Kron4ek/Wine-Builds/releases/download/9.22/wine-9.22-amd64.tar.xz'
@@ -66,6 +69,8 @@ url_wine_11_staging='https://github.com/Kron4ek/Wine-Builds/releases/download/11
 file_wine_11_staging='wine-11.1-staging-amd64.tar.xz'
 dir_wine_11_staging='wine-11.1-staging-amd64' #known good
 
+url_dxvk_gplasync='https://gitlab.com/Ph42oN/dxvk-gplasync/-/jobs/11383149837/artifacts/download?file_type=archive'
+file_dxvk_gpl_async='download?file_type=archive'
 
 
 url_dol='https://github.com/ChaosRifle/DCS-on-Linux'
@@ -88,7 +93,7 @@ array_files_dxvk=( # files shipped with dxvk that need to be removed from regist
 ###################################################################################################
 #function defines
 ###################################################################################################
-check_dependency() { #startup dep-check
+check_dependency(){ #startup dep-check
  selftest='pass'
   if [ ! -x "$(command -v wine)" ]; then selftest='fail'; echo 'ERROR: WINE MISSING'; fi
   #if ! command -v winetricks > /dev/null 2>&1; then selftest='fail'; echo 'ERROR: WINETRICKS MISSING'; fi
@@ -115,14 +120,16 @@ check_dependency() { #startup dep-check
     else #zenity not installed
       use_zenity=0
     fi
+  else
+    use_zenity=0
   fi
 }
 
-stringify_menu() { #TODO unwritten - for auto generating terminal menus from zenity arrays
+stringify_menu(){ #TODO unwritten - for auto generating terminal menus from zenity arrays
   dummy=0
 }
 
-query() { #TODO unwritten - for generating multiple choice menus (and possible checklist menus later?)
+query(){ #TODO unwritten - for generating multiple choice menus (and possible checklist menus later?)
   if [ $use_zenity = 1 ]; then
     dummy=0
   else
@@ -130,67 +137,139 @@ query() { #TODO unwritten - for generating multiple choice menus (and possible c
   fi
 }
 
-query_filepath() { #TODO unwritten - for asking the user for a filepath
+query_filepath(){ #    $1_prompt_text
+  while true; do
+    unset filepath_input
+    if [ $use_zenity = 1 ]; then
+      filepath_input="$(zenity --file-selection --directory --title="$1")"
+      if [ $? -eq 1 ]; then
+        filepath_input="$nil"
+      fi
+    else
+      read -p "
+$1
+" filepath_input
+    fi
+
+    if [ "$filepath_input" = "$nil" ] ; then #user supplied empty path or hit zenity cancel
+      if [ $(confirm 'this will exit the program, are you sure?') == true ]; then
+        exit 1
+      fi
+    else
+      break
+    fi
+  done
+  echo "$filepath_input"
+}
+
+notify(){ #    $1_info_text
   if [ $use_zenity = 1 ]; then
-    dummy=0
+    zenity --info --title="" --text="$1"
   else
-    dummy=0
+    read -p "
+$1
+press [enter] to continue
+" dummy
+#     echo "
+# $1
+# "
   fi
 }
 
-notify(){ #TODO unwritten - for generating information click-thorugh (or just an echo for terminal) dialogues
+confirm(){ #    $1_question_text
+unset confirm_input
   if [ $use_zenity = 1 ]; then
-    dummy=0
+    zenity --question --title="Confirmation" --text="$1"
+    case $? in
+      0) echo true ;;
+      1) echo false ;;
+      ?) echo "error: zenity confirmation returned value $?, terminating"; exit ;;
+    esac
   else
-    dummy=0
+    read -p "
+$1
+[y/n]?
+" confirm_input
+    case $confirm_input in
+      y) echo true ;;
+      yes) echo true ;;
+      n) echo false ;;
+      no) echo false ;;
+      ?) echo "error: confirmation option $confirm_input is not available, terminating"; exit ;;
+    esac
   fi
 }
 
-confirm(){ #TODO unwritten - for generating confirmation 'are you sure, this will do X' dialogues
-  if [ $use_zenity = 1 ]; then
-    dummy=0
-  else
-    dummy=0
-  fi
-}
-
-format_urls() { #TODO unwritten - for dynamically generating menu hyperlinks and possibly disk links, in conjunction with message() or others
+format_urls(){ #TODO unwritten - for dynamically generating menu hyperlinks and possibly disk links, in conjunction with message() or others
   local dummy=0
 }
 
-select_prefix(){ #TODO: fix cancel button returning dir of '' beause cancel just sets empty var. exit script or return to menu if done!. install_dcs() has the same problem. use menu_main() handeling for zenity nil reply
-  if [ $use_zenity = 1 ]; then
-    dir_prefix="$(zenity --file-selection --directory --title="Select your DCS prefix")" #-filename="$wine_prefix/$default_install_path" 2>/dev/null)"
-  else
-    read -p "enter the full path to your DCS prefix
-    " dir_prefix
-    if [ ! -d "$dir_prefix" ]; then echo 'the path you specified could not be found. You should try again..' ; fi
-  fi
+select_target_dcs_prefix(){
+  while true; do
+    dir_prefix=$(query_filepath "enter the full path to your DCS prefix ('path/to/games/dcs-world')")
+    if [ ! -d "$dir_prefix" ]; then
+      if [ ! $(confirm 'the path you specified could not be found. would you like to try again?') == true ]; then
+        break
+      fi
+    else
+      break
+    fi
+  done
   echo $dir_prefix > "$dir_cfg/$cfg_dir_prefix"
-
-  menu_main
+  echo $dir_prefix
 }
 
-install_dcs(){ #TODO - hardcoded for wine 11, add switching later. Also has issues with closing or clicking cancel on the zenity path selection similar to select_prefix()
+select_target_srs_prefix(){
+  while true; do
+    dir_srs_prefix=$(query_filepath "enter the full path to your SRS prefix ('path/to/games/srs(-2.1.1.0)')")
+    if [ ! -d "$dir_srs_prefix" ]; then
+      if [ ! $(confirm 'the path you specified could not be found. would you like to try again?') == true ]; then
+        break
+      fi
+    else
+      break
+    fi
+  done
+  echo $dir_srs_prefix > "$dir_cfg/$cfg_dir_srs_prefix"
+  echo $dir_srs_prefix
+}
+
+install_dcs(){ #TODO - hardcoded for wine 11, add switching later, FIXME in progress conversion for prefix recreation
   preferred_url_wine=$url_wine_11_staging
   preferred_file_wine=$file_wine_11_staging
   preferred_dir_wine=$dir_wine_11_staging
-  echo $preferred_dir_wine > "$dir_prefix/runners/$cfg_preferred_dir_wine"
-
   anchor_dir="$(pwd)"
+  if [ $? -eq 0 ]; then
+    dir_install="$(query_filepath 'Select the directory to install DCS into')"
+  else
+    dir_install=$1
+  fi
 
-  dir_install="$(zenity --file-selection --directory --title="Select the directory to install DCS")"
+  if [ ! -d "$dir_install" ]; then
+    notify 'invalid path, directory doesnt exist!'
+    exit 1
+  fi
+  if [ -d "$dir_install/../dcs-world" ]; then
+    notify 'invalid path, you gave an existing prefix!'
+    exit 1
+  fi
   dir_prefix="$dir_install/dcs-world"
   echo "install path: $dir_install"
   echo "install prefix: $dir_prefix"
-
   echo $dir_prefix > "$dir_cfg/$cfg_dir_prefix"
+  if [ -d "$dir_install/dcs-world" ]; then #ensure no existing prefix before we install to it FIXME will break if given nothing and try to make /dcs-world
+#     if $(confirm 'would you like to rebuild this existing prefix?'); then
+#       mkdir -p "dcs reinstallation files/$subdir_dcs_corefiles" "dcs reinstallation files/$subdir_dcs_savedgames"
+#
+#       mv "$dir_install/dcs-world/$subdir_dcs_corefiles" "$dir_install"  # FIXME UNFINNISHED
+#       subdir_dcs_corefiles="drive_c/Program Files/Eagle Dynamics/DCS World" # DELETEME VAR NAME
+# subdir_dcs_savedgames="drive_c/users/$USER/Saved Games/DCS" #DELETEME
 
-  if [ -d "$dir_install/dcs-world" ]; then #ensure no existing prefix before we install to it FIXME
-    dummy=0
     exit
   else
     mkdir -p "$dir_prefix/cache" "$dir_prefix/runners" "$dir_prefix/files"
+    echo $preferred_dir_wine > "$dir_prefix/runners/$cfg_preferred_dir_wine"
+
 
     if [ ! -f "/files/$file_dcs" ]; then #dcs installer
       cd "$dir_prefix/files"
@@ -212,8 +291,8 @@ install_dcs(){ #TODO - hardcoded for wine 11, add switching later. Also has issu
     winetricks -q corefonts xact_x64 d3dcompiler_47 vcrun2022 win10 dxvk
 #"$dir_prefix/runners/$preferred_dir_wine/bin/wineserver" -k #ensure that wine isnt running https://linux.die.net/man/1/wineserver
 
-#TODO message the user about what TO and NOT to do in the coming install. namely, not changing filepath, allowed to remove desktop icon, possibly notify about how to not re-download by using old prefix and make script for it
-
+    notify 'Do NOT change the default install path!
+Desktop icon checkbox is fine to modify'
     export WINEPREFIX="$dir_prefix"
     export WINEDLLOVERRIDES='wbemprox=n'
     "$dir_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_prefix/files/$file_dcs"
@@ -221,45 +300,137 @@ install_dcs(){ #TODO - hardcoded for wine 11, add switching later. Also has issu
     cd "$anchor_dir"
     echo 'DCS installed.'
   fi
-  menu_main
 }
 
-install_srs(){ #TODO unwritten - also add optional hook install
+install_dcs_from_prefix(){ #FIXME
+  source_prefix=$(query_filepath)
+
+  install_dcs
+  mkdir -p 'temp dcs install files/core' 'temp dcs install files/save'
+  mv "$source_prefix/drive_c/Program Files/Eagle Dynamics/"
+
+}
+
+install_srs(){ #TODO add optional hook install
 #winetricks dotnet9
 # dll overrides d3d9=n, data from lutris installer
-  dummy=0
+  preferred_url_wine=$url_wine_11_staging
+  preferred_file_wine=$file_wine_11_staging
+  preferred_dir_wine=$dir_wine_11_staging
+
+  anchor_dir="$(pwd)"
+
+  dir_srs_install="$(zenity --file-selection --directory --title="Select the directory to install SRS")"
+  dir_srs_prefix="$dir_srs_install/srs"
+  echo "install path: $dir_srs_install"
+  echo "install prefix: $dir_srs_prefix"
+
+  echo $dir_srs_prefix > "$dir_cfg/$cfg_dir_srs_prefix"
+
+  if [ -d "$dir_srs_prefix" ]; then #ensure no existing prefix before we install to it FIXME
+    dummy=0
+    exit
+  else
+    mkdir -p "$dir_srs_prefix/cache" "$dir_srs_prefix/runners" "$dir_srs_prefix/files" "$dir_srs_prefix/drive_c"
+    echo $preferred_dir_wine > "$dir_srs_prefix/runners/$cfg_preferred_dir_wine"
+
+    cd "$dir_srs_prefix/files"
+    wget "$url_srs_latest" --force-progress
+    unzip "$archive_srs_latest"
+
+    if [ ! -d "$dir_srs_prefix/runners/$preferred_dir_wine" ]; then #wine runner
+      cd "$dir_srs_prefix/runners"
+      wget "$preferred_url_wine" --force-progress
+      tar -xvf "$preferred_file_wine"
+      rm -rf "$preferred_file_wine"
+    fi
+
+    cd "$dir_srs_prefix"
+    export WINEPREFIX="$dir_srs_prefix"
+    export WINE="$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" #for winetricks
+    export WINESERVER="$dir_srs_prefix/runners/$preferred_dir_wine/bin/wineserver" #for winetricks
+    winetricks -q dotnetdesktop9 win10
+
+    export WINEPREFIX="$dir_srs_prefix"
+    export WINEDLLOVERRIDES='d3d9=n,icu=n,icuin=n,icuuc=n'
+    "$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/files/Client/$file_srs_latest"
+    cd "$anchor_dir"
+    echo 'SRS installed.'
+  fi
 }
 
-install_srs_2.1.1.0(){ #TODO unwritten - also add optional hook install
-  dummy=0
+install_srs_2.1.1.0(){ #TODO FIXME something is preventing ui elements working properly.. try alternate runner or newer dotnet? add optional hook install
+  preferred_url_wine=$url_wine_11_staging
+  preferred_file_wine=$file_wine_11_staging
+  preferred_dir_wine=$dir_wine_11_staging
+
+  anchor_dir="$(pwd)"
+
+  dir_srs_install="$(zenity --file-selection --directory --title="Select the directory to install SRS")"
+  dir_srs_prefix="$dir_srs_install/srs-2.1.1.0"
+  echo "install path: $dir_srs_install"
+  echo "install prefix: $dir_srs_prefix"
+
+  echo $dir_srs_prefix > "$dir_cfg/$cfg_dir_srs_prefix"
+
+  if [ -d "$dir_srs_prefix" ]; then #ensure no existing prefix before we install to it FIXME
+    dummy=0
+    exit
+  else
+    mkdir -p "$dir_srs_prefix/cache" "$dir_srs_prefix/runners" "$dir_srs_prefix/files" "$dir_srs_prefix/drive_c/srs"
+    echo $preferred_dir_wine > "$dir_srs_prefix/runners/$cfg_preferred_dir_wine"
+
+    cd "$dir_srs_prefix/files"
+    wget "$url_srs" --force-progress
+    unzip "$archive_srs"
+
+    if [ ! -d "$dir_srs_prefix/runners/$preferred_dir_wine" ]; then #wine runner
+      cd "$dir_srs_prefix/runners"
+      wget "$preferred_url_wine" --force-progress
+      tar -xvf "$preferred_file_wine"
+      rm -rf "$preferred_file_wine"
+    fi
+
+    cd "$dir_srs_prefix"
+    export WINEPREFIX="$dir_srs_prefix"
+    export WINE="$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" #for winetricks
+    export WINESERVER="$dir_srs_prefix/runners/$preferred_dir_wine/bin/wineserver" #for winetricks
+    winetricks -q dotnet48 win10
+
+    export WINEPREFIX="$dir_srs_prefix"
+    "$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/files/$file_srs"
+    cd "$anchor_dir"
+    echo 'SRS installed.'
+  fi
 }
 
 menu_main(){
-  menu_main=(
-    [0]=" exit_script"
-    [1]=" install_DCS"
-    [2]=" Install_SRS_2.1.1.0"              #
-    [3]=" Install_SRS_2.4+_(unreliable)"    #
-    [4]=" change_target_DCS_prefix"
-    [5]=" manage_runners"
-    [6]=" manage_dxvk"
-    [7]=" troubleshooting"
-  )
-  zen_options=( ${menu_main[@]/#/"FALSE"} )
-  menu_type='radiolist'   # 'checklist'
+  while true; do
+    unset menu
+    menu=(
+      [0]=" exit_script"
+      [1]=" install_DCS"
+      [2]=" Install_SRS_2.1.1.0"              #
+      [3]=" Install_SRS_2.4+_(beta)"
+      [4]=" change_target_DCS_prefix"
+      [5]=" change_target_SRS_prefix"
+      [6]=" manage_runners"
+      [7]=" manage_dxvk"
+      [8]=" troubleshooting"
+    )
+    zen_options=( ${menu[@]/#/"FALSE"} )
+    menu_type='radiolist'   # 'checklist'
 
-  menu_text_zenity="active prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>
+    menu_text_zenity="active prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>
 DoL <a href='${url_dol}'>Github</a>
 DoL <a href='${url_matrix}'>Matrix</a> chat/help server"
 
-  menu_text="active prefix: ${dir_prefix}
+    menu_text="active prefix: ${dir_prefix}
 DoL Github: ${url_dol}
 DoL Matrix chat/help server: ${url_matrix}"
-  menu_height='575'
-  cancel_label='exit'
-  stringify_menu $menu_main
+    menu_height='575'
+    cancel_label='exit'
 
-  while true; do
     unset input
     if [ $use_zenity -eq 1 ]; then
       input="$(zenity --list --"$menu_type" --width="510" --height="$menu_height" --text="$menu_text_zenity" --title="DCS on Linux Community Helper" --hide-header --cancel-label "$cancel_label" --column="" --column="Option" "${zen_options[@]}")"
@@ -267,9 +438,9 @@ DoL Matrix chat/help server: ${url_matrix}"
       if [ "$input" = "$nil" ] ; then #handle cancel button
         input='0'
       else
-        for key in "${!menu_main[@]}"; do
-          #echo ${menu_main[$key]}
-          if [ ${menu_main[$key]} = $input ]; then
+        for key in "${!menu[@]}"; do
+          #echo ${menu[$key]}
+          if [ ${menu[$key]} = $input ]; then
             input=$key
             break
           fi
@@ -282,23 +453,25 @@ enter a choice [0-7]:
   [0]=exit_script
   [1]=install_DCS
   [2]=Install_SRS_2.1.1.0
-  [3]=Install_SRS_2.4+_(unreliable)
+  [3]=Install_SRS_2.4+_(beta)
   [4]=change_target_DCS_prefix
-  [5]=manage_runners
-  [6]=manage_dxvk
-  [7]=troubleshooting
+  [5]=change_target_SRS_prefix
+  [6]=manage_runners
+  [7]=manage_dxvk
+  [8]=troubleshooting
 
 " input
     fi
     case $input in
-      0) exit 1 ; break ;;
+      0) exit 1 ;;
       1) install_dcs ;;
-      2) install_srs ;;
-      3) install_srs_2.1.1.0 ;;
-      4) select_prefix ;;
-      5) menu_runners ;;
-      6) menu_dxvk ;;
-      7) menu_troubleshooting ;;
+      2) install_srs_2.1.1.0 ;;
+      3) install_srs ;;
+      4) select_target_dcs_prefix ;;
+      5) select_target_srs_prefix ;;
+      6) menu_runners ;;
+      7) menu_dxvk ;;
+      8) menu_troubleshooting ;;
       ?) echo "error: option $input is not available, please try again" ;;
     esac
   done
@@ -383,10 +556,15 @@ enter a choice [0-10]:
   done
 }
 
-menu_runners(){ #TODO unwritten
+menu_runners(){ #TODO FIXME totally nonfunctional at this time
   menu_runners=(
     [0]=" exit_script"
     [1]=" return_to_main_menu"
+    [2]=" remove_an_installed_runner"                   #
+    [3]=" install_a_wine_kron4ek_runner"                #
+    [4]=" change_active_runner_from_installed_runners"  #
+    [5]=" install a proton GE runner (not functional)"  #
+    [6]=" remove an installed runner2"                  #
   )
   zen_options=( ${menu_runners[@]/#/"FALSE"} )
   menu_type='radiolist'   # 'checklist'  #'radiolist'
@@ -491,24 +669,24 @@ enter a choice [0-5]:
   done
 }
 
-run_winetricks() {
+run_winetricks(){
   export WINEPREFIX="$dir_prefix"
   export WINE="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wine"
   export WINESERVER="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wineserver"
   winetricks
 }
 
-run_wine_control_panel() {
+run_wine_control_panel(){
   export WINEPREFIX="$dir_prefix"
   "$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wine" control
 }
 
-run_wine_configuration() {
+run_wine_configuration(){
   export WINEPREFIX="$dir_prefix"
   "$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/winecfg" #winecfg
 }
 
-run_wine_regedit() {
+run_wine_regedit(){
   export WINEPREFIX="$dir_prefix"
   "$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/regedit" #regedit
 }
@@ -519,7 +697,7 @@ run_wine_wineboot_update(){
   #wineboot -u
 }
 
-kill_wineserver(){ #bugfix for non-closing wine windows
+kill_wineserver(){
   export WINEPREFIX="$dir_prefix"
   "$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wineserver" '-k'
 }
@@ -530,16 +708,20 @@ fixerscript_textures(){
 
 fixerscript_vanilla_voip_crash(){ #TODO unwritten script, literally doesnt exist yet
   #"$(dirname $(readlink -f $0))/removevanillavoip.sh" "$dir_prefix"
-  echo 'NOT IMPLEMENTED YET'
+  notify 'NOT IMPLEMENTED YET'
 }
 
-fixerscript_delete_shaders(){ #TODO needs granularity options added for not just nuking dcs, mesa, AND dxvk every run
-  rm -rf "$dir_prefix/cache"
-  mkdir "$dir_prefix/cache"
-  "$(dirname $(readlink -f $0))/deleteshaders.sh" "$dir_prefix"
+fixerscript_delete_shaders(){
+  if [ $(confirm "remove mesa/dxvk cache in '$dir_prefix'?") == true ]; then
+    rm -rf "$dir_prefix/cache"
+    mkdir "$dir_prefix/cache"
+  fi
+  if [ $(confirm "remove dcs shaders in '$dir_prefix'?") == true ]; then
+    "$(dirname $(readlink -f $0))/deleteshaders.sh" "$dir_prefix"
+  fi
 }
 
-get_latest_release() { # TODO - from SCLUG, GPLv3, by TheSane, unused at the moment.
+get_latest_release(){ # TODO - from SCLUG, GPLv3, by TheSane, unused at the moment.
   # Sanity check
   if [ "$#" -lt 1 ]; then
     debug_print exit "Script error: The get_latest_release function expects one argument. Aborting."
@@ -553,7 +735,6 @@ get_latest_release() { # TODO - from SCLUG, GPLv3, by TheSane, unused at the mom
 remove_all_dxvk(){
   export WINEPREFIX="$dir_prefix"
   path_wine="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/"
-
   for value in "${array_files_dxvk[@]}"; do
     rm -rf "$dir_prefix/drive_c/windows/system32/$value.dll"
     rm -rf "$dir_prefix/drive_c/windows/syswow64/$value.dll"
@@ -566,7 +747,7 @@ remove_all_dxvk(){
   "$path_wine/wine" reg delete 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v '*nvapi64' /f
   "$path_wine/wine" reg delete 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v '*nvofapi64' /f
 # $wine reg delete 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v $1 /f > /dev/null 2>&1 sourced from dxvk installer script from 2.0 and earlier
-  run_wine_wineboot_update #rebuild prefix using default wine data
+  run_wine_wineboot_update
   unset $path_wine
 }
 
@@ -579,42 +760,48 @@ install_dxvk_standard(){
   unset $path_wine
 }
 
-install_dxvk_nvapi(){ #TODO warning, I do not know how to undo this fully when installed from winetricks
-  export WINEPREFIX="$dir_prefix"
-  export WINE="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wine"
-  export WINESERVER="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wineserver"
-  winetricks -f dxvk_nvapi
-  unset $path_wine
+install_dxvk_nvapi(){
+  if [ $(confirm 'I (chaos) am unsure if this can be fully uninstalled once installed. this has not been fully tested for removal. Proceed?') == true ]; then
+    export WINEPREFIX="$dir_prefix"
+    export WINE="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wine"
+    export WINESERVER="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wineserver"
+    winetricks -f dxvk_nvapi
+    unset $path_wine
+  fi
 }
 
 install_dxvk_git(){ #TODO FIXME this is totally non functional as it has no input for the url. this is pseudocode that will eventually work.
-echo 'not implemented!'
-#   anchor_dir="$(pwd)"
-#   remove_all_dxvk
-#   export WINEPREFIX="$dir_prefix"
-#   path_wine="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/"
-#
-#   wget https://github.com/doitsujin/dxvk/releases/download/vX.X.X/dxvk-X.X.X.tar.gz
-#   tar -xzf dxvk-X.X.X.tar.gz
-#   cd dxvk-X.X.X
-#
-#   # Copy DLLs to your Wine prefix (replace ~/.wine with your prefix path)
-#   cp x64/*.dll "$dir_prefix/drive_c/windows/system32/"
-#   cp x32/*.dll "$dir_prefix/drive_c/windows/syswow64/"
-#   cd $anchor_dir
-#
-#   if [ $old = '1' ]; then
-#     # Register the DLLs, old method based on dxvk.org install instructions and install script form 2.0 and earlier
-#     #winecfg and manually add native DLL overrides for d3d8, d3d9, d3d10core, d3d11 and dxgi under the Libraries tab
-# #     "$path_wine/wine" reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v d3d11 /d native /f
-# #     "$path_wine/wine" reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v dxgi /d native /f
-#     for value in "${array_files_dxvk[@]}"; do
-#       "$path_wine/wine" reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v $value /d native /f
-#     done
-#   else
-#     # new method, from git readme.md install steps, i think it just opens winecfg for you to manually do it
-#     winecfg
-#   fi
+exit 1
+  unset url_working
+  unset file_working
+  url_working="$url_dxvk_gplasync"
+  file_working="$file_dxvk_gpl_async"
+
+  anchor_dir="$(pwd)"
+  remove_all_dxvk
+  export WINEPREFIX="$dir_prefix"
+  path_wine="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/"
+
+  cd "$dir_prefix/files"
+  wget $url_working #https://github.com/doitsujin/dxvk/releases/download/vX.X.X/dxvk-X.X.X.tar.gz
+  # if tar, then: tar -xzf dxvk-X.X.X.tar.gz
+  #if zip, then:
+  unzip $file_working
+  #cd dxvk-X.X.X
+
+  cp $dir_prefix/files/x64/*.dll "$dir_prefix/drive_c/windows/system32/"
+  cp $dir_prefix/files/x32/*.dll "$dir_prefix/drive_c/windows/syswow64/"
+  cd $anchor_dir
+
+    # Register the DLLs, old method based on dxvk.org install instructions and install script form 2.0 and earlier
+    #winecfg and manually add native DLL overrides for d3d8, d3d9, d3d10core, d3d11 and dxgi under the Libraries tab
+#     "$path_wine/wine" reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v d3d11 /d native /f
+#     "$path_wine/wine" reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v dxgi /d native /f
+  for value in "${array_files_dxvk[@]}"; do
+    "$path_wine/wine" reg add 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v $value /d native /f
+  done
+  unset url_working
+  unset file_working
 }
 
 
@@ -650,6 +837,7 @@ if [ ! -d "$dir_cfg" ]; then # load or create configs
   is_firstrun='true'
   echo $dir_prefix > "$dir_cfg/$cfg_dir_prefix"
   echo $is_firstrun > "$dir_cfg/$cfg_firstrun"
+  echo $dir_srs_prefix > "$dir_cfg/$cfg_dir_srs_prefix"
 else
   if [ -f "$dir_cfg/$cfg_dir_prefix" ]; then #prefix
     dir_prefix="$(cat "$dir_cfg/$cfg_dir_prefix")"
@@ -663,6 +851,12 @@ else
     is_firstrun='true'
     echo $is_firstrun > "$dir_cfg/$cfg_firstrun"
     echo "config file $cfg_firstrun missing, regenerated"
+  fi
+  if [ -f "$dir_cfg/$cfg_dir_srs_prefix" ]; then #prefix
+    dir_srs_prefix="$(cat "$dir_cfg/$cfg_dir_srs_prefix")"
+  else
+    echo $dir_srs_prefix > "$dir_cfg/$cfg_dir_srs_prefix"
+    echo "config file $cfg_dir_srs_prefix missing, regenerated"
   fi
 fi
 
