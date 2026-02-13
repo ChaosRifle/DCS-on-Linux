@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.1.0a'
+ver='0.1.0b'
 
 
 ###################################################################################################
@@ -56,6 +56,7 @@ load_dcs_wine_config() { #in function so it can be modified by switches
 }
 
 launch_srs(){
+  anchor_dir="$(pwd)"
   if [ ! -d "$dir_cfg" ]; then # load configs
     echo "config not found, please run the helper script."
     exit 0
@@ -75,6 +76,7 @@ launch_srs(){
   fi
   echo "srs prefix: $dir_srs_prefix"
   echo "srs runner: "$(cat "$dir_srs_prefix/runners/$cfg_preferred_dir_wine")""
+  cd "$dir_srs_prefix/drive_c/srs"
 
   export WINEPREFIX="$dir_srs_prefix"
   export WINEDEBUG='-all' # clean up terminal spam
@@ -84,6 +86,7 @@ launch_srs(){
   else
     "$dir_srs_wine/wine" "$dir_srs_prefix/drive_c/srs/SR-ClientRadio.exe"
   fi
+  cd $anchor_dir
 }
 
 if [ $# -eq 0 ]; then #default run
@@ -123,8 +126,8 @@ Run-Type switches (mutually exclusive, only the first will function unless other
       n) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS.exe" "--no-launcher" ;;
       o) use_hud='1' ;;
       p) echo "$arg is not implemented!" ;;
-      r) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS_updater.exe" "--repair" ;;
-      u) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS_updater.exe" "--update" ;;
+      r) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS_updater.exe" "repair" ;;
+      u) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS_updater.exe" "update" ;;
       v) $(launch_srs) & ;; #run in subshell and continue execution
       w) export DISPLAY= ;;
       ?) echo "error: option -$OPTARG is not implemented, use -h to see available swithes"; exit ;;

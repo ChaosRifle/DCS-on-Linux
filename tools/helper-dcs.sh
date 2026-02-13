@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.1.0a'
+ver='0.1.0b'
 # a small portion of this script was taken from the SC LUG Helper on 26/01/27 and cannot be relicensed until removed. get_latest_release() was taken from their GPLv3 source. The rest was written by Chaos initially.
 
 
@@ -329,7 +329,7 @@ install_srs(){ #TODO add optional hook install
 
   echo $dir_srs_prefix > "$dir_cfg/$cfg_dir_srs_prefix"
 
-  if [ -d "$dir_srs_prefix" ]; then #ensure no existing prefix before we install to it FIXME
+  if [ -d "$dir_srs_prefix" ]; then
     notify 'srs prefix already exits, terminating'
     exit
   else
@@ -355,13 +355,13 @@ install_srs(){ #TODO add optional hook install
 
     export WINEPREFIX="$dir_srs_prefix"
     export WINEDLLOVERRIDES='d3d9=n,icu=n,icuin=n,icuuc=n'
-"$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/drive_c/srs/Client/$file_srs_latest"
+#"$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/drive_c/srs/Client/$file_srs_latest" # test run
     cd "$anchor_dir"
     echo 'SRS installed.'
   fi
 }
 
-install_srs_2.1.1.0(){ #TODO FIXME something is preventing ui elements working properly.. try alternate runner or newer dotnet? add optional hook install
+install_srs_2.1.1.0(){ #TODO FIXME something is preventing sound working properly.. add optional hook install
   preferred_url_wine=$url_wine_11_staging
   preferred_file_wine=$file_wine_11_staging
   preferred_dir_wine=$dir_wine_11_staging
@@ -375,7 +375,7 @@ install_srs_2.1.1.0(){ #TODO FIXME something is preventing ui elements working p
 
   echo $dir_srs_prefix > "$dir_cfg/$cfg_dir_srs_prefix"
 
-  if [ -d "$dir_srs_prefix" ]; then #ensure no existing prefix before we install to it FIXME
+  if [ -d "$dir_srs_prefix" ]; then
     notify 'srs-2.1.1.0 prefix already exits, terminating'
     exit
   else
@@ -403,7 +403,7 @@ install_srs_2.1.1.0(){ #TODO FIXME something is preventing ui elements working p
     export WINEARCH=win64
     export WINEPREFIX="$dir_srs_prefix"
     export WINEDLLOVERRIDES='d3d9=n,icu=n,icuin=n,icuuc=n'
-"$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/drive_c/srs/SR-ClientRadio.exe"
+#"$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/drive_c/srs/SR-ClientRadio.exe" # test run
     cd "$anchor_dir"
     echo 'SRS installed.'
   fi
@@ -775,7 +775,8 @@ install_dxvk_nvapi(){
   fi
 }
 
-install_dxvk_git(){ #TODO FIXME this is totally non functional as it has no input for the url. this is pseudocode that will eventually work.
+install_dxvk_git(){ #TODO this is totally non functional as it has no input for the url. this is pseudocode that will eventually work.
+notify 'this is unfinished, sorry. exiting.'
 exit 1
   unset url_working
   unset file_working
@@ -809,6 +810,17 @@ exit 1
   unset file_working
 }
 
+firstrun(){
+  if [ $is_firstrun == true ]; then
+    notify "Welcome to the DCS on Linux helper.
+A config has been generated at:
+/home/$USER/.config/dcs-on-linux"
+
+    is_firstrun=false
+    echo $is_firstrun > "$dir_cfg/$cfg_firstrun"
+  fi
+}
+
 
 ###################################################################################################
 #startup
@@ -839,7 +851,7 @@ fi
 if [ ! -d "$dir_cfg" ]; then # load or create configs
   echo "config not found, generating one at $dir_cfg"
   mkdir -p "$dir_cfg"
-  is_firstrun='true'
+  is_firstrun=true
   echo $dir_prefix > "$dir_cfg/$cfg_dir_prefix"
   echo $is_firstrun > "$dir_cfg/$cfg_firstrun"
   echo $dir_srs_prefix > "$dir_cfg/$cfg_dir_srs_prefix"
@@ -853,7 +865,7 @@ else
   if [ -f "$dir_cfg/$cfg_firstrun" ]; then #first run
     is_firstrun="$(cat "$dir_cfg/$cfg_firstrun")"
   else
-    is_firstrun='true'
+    is_firstrun=true
     echo $is_firstrun > "$dir_cfg/$cfg_firstrun"
     echo "config file $cfg_firstrun missing, regenerated"
   fi
@@ -870,4 +882,5 @@ fi
 #main script
 ###################################################################################################
 check_dependency
+firstrun
 menu_main
