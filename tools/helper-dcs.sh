@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.1.0'
+ver='0.1.0a'
 # a small portion of this script was taken from the SC LUG Helper on 26/01/27 and cannot be relicensed until removed. get_latest_release() was taken from their GPLv3 source. The rest was written by Chaos initially.
 
 
@@ -44,6 +44,10 @@ url_srs_latest='https://github.com/ciribob/DCS-SimpleRadioStandalone/releases/do
 file_srs_latest='SR-ClientRadio.exe'
 archive_srs_latest='DCS-SimpleRadioStandalone-2.3.4.0.zip'
 
+
+url_wine_8='https://github.com/Kron4ek/Wine-Builds/releases/download/8.21/wine-8.21-amd64.tar.xz'
+file_wine_8='wine-8.21-amd64.tar.xz'
+dir_wine_8='wine-8.21-amd64'
 
 url_wine_9='https://github.com/Kron4ek/Wine-Builds/releases/download/9.22/wine-9.22-amd64.tar.xz'
 file_wine_9='wine-9.22-amd64.tar.xz'
@@ -312,8 +316,6 @@ install_dcs_from_prefix(){ #FIXME
 }
 
 install_srs(){ #TODO add optional hook install
-#winetricks dotnet9
-# dll overrides d3d9=n, data from lutris installer
   preferred_url_wine=$url_wine_11_staging
   preferred_file_wine=$file_wine_11_staging
   preferred_dir_wine=$dir_wine_11_staging
@@ -328,13 +330,13 @@ install_srs(){ #TODO add optional hook install
   echo $dir_srs_prefix > "$dir_cfg/$cfg_dir_srs_prefix"
 
   if [ -d "$dir_srs_prefix" ]; then #ensure no existing prefix before we install to it FIXME
-    dummy=0
+    notify 'srs prefix already exits, terminating'
     exit
   else
-    mkdir -p "$dir_srs_prefix/cache" "$dir_srs_prefix/runners" "$dir_srs_prefix/files" "$dir_srs_prefix/drive_c"
+    mkdir -p "$dir_srs_prefix/cache" "$dir_srs_prefix/runners" "$dir_srs_prefix/files" "$dir_srs_prefix/drive_c/srs"
     echo $preferred_dir_wine > "$dir_srs_prefix/runners/$cfg_preferred_dir_wine"
 
-    cd "$dir_srs_prefix/files"
+    cd "$dir_srs_prefix/drive_c/srs"
     wget "$url_srs_latest" --force-progress
     unzip "$archive_srs_latest"
 
@@ -353,7 +355,7 @@ install_srs(){ #TODO add optional hook install
 
     export WINEPREFIX="$dir_srs_prefix"
     export WINEDLLOVERRIDES='d3d9=n,icu=n,icuin=n,icuuc=n'
-    "$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/files/Client/$file_srs_latest"
+"$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/drive_c/srs/Client/$file_srs_latest"
     cd "$anchor_dir"
     echo 'SRS installed.'
   fi
@@ -374,13 +376,13 @@ install_srs_2.1.1.0(){ #TODO FIXME something is preventing ui elements working p
   echo $dir_srs_prefix > "$dir_cfg/$cfg_dir_srs_prefix"
 
   if [ -d "$dir_srs_prefix" ]; then #ensure no existing prefix before we install to it FIXME
-    dummy=0
+    notify 'srs-2.1.1.0 prefix already exits, terminating'
     exit
   else
     mkdir -p "$dir_srs_prefix/cache" "$dir_srs_prefix/runners" "$dir_srs_prefix/files" "$dir_srs_prefix/drive_c/srs"
     echo $preferred_dir_wine > "$dir_srs_prefix/runners/$cfg_preferred_dir_wine"
 
-    cd "$dir_srs_prefix/files"
+    cd "$dir_srs_prefix/drive_c/srs"
     wget "$url_srs" --force-progress
     unzip "$archive_srs"
 
@@ -392,13 +394,16 @@ install_srs_2.1.1.0(){ #TODO FIXME something is preventing ui elements working p
     fi
 
     cd "$dir_srs_prefix"
+    export WINEARCH=win64
     export WINEPREFIX="$dir_srs_prefix"
     export WINE="$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" #for winetricks
     export WINESERVER="$dir_srs_prefix/runners/$preferred_dir_wine/bin/wineserver" #for winetricks
-    winetricks -q dotnet48 win10
+    winetricks -q dotnet48 vcrun2022 win10 # dxvk dotnetdesktop9 xact_x64
 
+    export WINEARCH=win64
     export WINEPREFIX="$dir_srs_prefix"
-    "$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/files/$file_srs"
+    export WINEDLLOVERRIDES='d3d9=n,icu=n,icuin=n,icuuc=n'
+"$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/drive_c/srs/SR-ClientRadio.exe"
     cd "$anchor_dir"
     echo 'SRS installed.'
   fi
@@ -410,11 +415,11 @@ menu_main(){
     menu=(
       [0]=" exit_script"
       [1]=" install_DCS"
-      [2]=" Install_SRS_2.1.1.0"              #
-      [3]=" Install_SRS_2.4+_(beta)"
+      [2]=" Install_SRS_2.1.1.0_(incomplete-audio-issues)"
+      [3]=" Install_SRS_latest_(beta)"
       [4]=" change_target_DCS_prefix"
       [5]=" change_target_SRS_prefix"
-      [6]=" manage_runners"
+      [6]=" manage_runners_(NOT_IMPLEMENTED!)"
       [7]=" manage_dxvk"
       [8]=" troubleshooting"
     )
@@ -452,11 +457,11 @@ DoL Matrix chat/help server: ${url_matrix}"
 enter a choice [0-7]:
   [0]=exit_script
   [1]=install_DCS
-  [2]=Install_SRS_2.1.1.0
-  [3]=Install_SRS_2.4+_(beta)
+  [2]=Install_SRS_2.1.1.0_(incomplete-audio-issues)
+  [3]=Install_SRS_latest_(beta)
   [4]=change_target_DCS_prefix
   [5]=change_target_SRS_prefix
-  [6]=manage_runners
+  [6]=manage_runners_(NOT_IMPLEMENTED!)
   [7]=manage_dxvk
   [8]=troubleshooting
 

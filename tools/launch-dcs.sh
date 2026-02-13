@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.1.0'
+ver='0.1.0a'
 
 
 ###################################################################################################
@@ -78,16 +78,17 @@ launch_srs(){
 
   export WINEPREFIX="$dir_srs_prefix"
   export WINEDEBUG='-all' # clean up terminal spam
-  if [ "$(echo "$dir_srs_prefix" | grep "srs-2.1.1.0")" == "$nil" ]; then #check which version is being launched due to file restructures that happened
-    "$dir_srs_wine/wine" "$dir_srs_prefix/files/Client/SR-ClientRadio.exe"
+  if [ "$(echo "$dir_srs_prefix" | grep "srs-2.1.1.0")" == "$nil" ]; then #check which version is being launched due to file restructures that happened. "if lacking -2.1.1.0 then do"
+     export WINEDLLOVERRIDES='d3d9=n,icu=n,icuin=n,icuuc=n'
+    "$dir_srs_wine/wine" "$dir_srs_prefix/drive_c/srs/Client/SR-ClientRadio.exe"
   else
-    "$dir_srs_wine/wine" "$dir_srs_prefix/files/SR-ClientRadio.exe"
+    "$dir_srs_wine/wine" "$dir_srs_prefix/drive_c/srs/SR-ClientRadio.exe"
   fi
 }
 
 if [ $# -eq 0 ]; then #default run
   echo "you are running v$ver of the launcher script."
-  $0 -on
+  $0 -vaon
   exit 1
 else
   while getopts "hadilnopruvw" arg; do #arg run
@@ -96,22 +97,22 @@ else
 execution: $0
 Other Commands:
   [-h] help (this message)
-  [-d] set script default switches (arguments) used when run with no switches. must be used with another switch, ex: [-d -n] - NOT IMPLEMENTED!
-  [-p] run with custom prefix path not defined by config - NOT IMPLEMENTED!
-  [-v] launch SRS, can be used with or without a run-type command - NOT IMPLEMENTED!
+  [-d] reconfigure the default run switches           - NOT IMPLEMENTED! must be used with another switch, ex: [-d -n]
 
-Modifier-type switches (must be before Run-type, ex [-wn] would be correct, [-nw] would be wrong):
-  [-a] enable async if installed dxvk supports it (asyncgpl only)
-  [-o] enable hud overlays like dxvk/manguhud
-  [-w] run as wineWayland, must come BEFORE a 'run' argument to function! ex: [-wn] - WARNING: EXPERIMENTAL!
+Modifier-Type switches (must be placed before Run-type, may be 'consumed' on use):
+  [-a] enable async                                   - only works if installed dxvk supports it
+  [-o] enable hud overlays like dxvk/manguhud         - config changed by editing this scripts 'DXVK_HUD' & 'MANGOHUD'
+  [-p] manually provide prefix not defined by config  - NOT IMPLEMENTED!
+  [-w] run as wineWayland                             - EXPERIMENTAL!
 
-Run-type switches (mutually exclusive, use only one of these):
-  [-l] run DCS with launcher enabled - WARNING: only works if you do not disable launcher in options.lua / ingame settings
+Run-Type switches (mutually exclusive, only the first will function unless otherwise noted):
+  [-v] launch SRS                                     - can be used with other Run-Types, if first. ex: [-vaon]
+  [-l] run DCS with launcher enabled                  - only works if not disabled in options.lua / ingame settings
   [-n] run DCS with launcher disabled
 
   [-r] repair DCS game files
   [-u] update DCS game files
-  [-i] run updater with arguments to install a module - NOT IMPLEMENTED!
+  [-i] run updater with arguments to install specific modules   - NOT IMPLEMENTED!
 
 
 ";;
@@ -124,7 +125,7 @@ Run-type switches (mutually exclusive, use only one of these):
       p) echo "$arg is not implemented!" ;;
       r) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS_updater.exe" "--repair" ;;
       u) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS_updater.exe" "--update" ;;
-      v) `launch_srs` ;;
+      v) $(launch_srs) & ;; #run in subshell and continue execution
       w) export DISPLAY= ;;
       ?) echo "error: option -$OPTARG is not implemented, use -h to see available swithes"; exit ;;
     esac
