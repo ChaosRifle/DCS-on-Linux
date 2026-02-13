@@ -1,9 +1,9 @@
 # If you encounter issues please check the [troubleshooting area](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting)
 
 # Select an installation method:
-- [Lutris](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Lutris) [ recommended ]
-- [Wine](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Wine) [ incomplete ]
-- [Steam](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Steam) [ partially incomplete, not recommended, mildly more vr compatible ]
+- [Lutris](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Lutris) [ previous recommendation ]
+- [Wine](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Wine) [ via automation, beta, soon to be recommended ]
+- [Steam](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Steam) [ partially incomplete, not recommended, mildly more vr compatible than lutris ]
 
 
 
@@ -40,9 +40,14 @@
 
 # Wine
 > [!note]
-> this segment is incomplete
+> This script is in beta. While it should function, and no prefix-breaking changes will be made to it, be aware that certain functions may not fully work. 
+> If you encounter problems, PLEASE report them in a git issue or on matrix ping Chaos, as it will exit beta and be the recommendation if no issues are reported soon.
 
-- X: go to [Finalizing install](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#finalizing-install), you are now nearly done!
+- 1: Download this repo's ``tools`` folder, you may rename the folder and place it anywhere, but keep the scripts all in the same folder
+- 2: ``chmod +x`` all of the scripts in the ``tools`` folder
+- 3: run ``helper-dcs.sh`` to begin a mostly automated installation, select ``install dcs``. please follow the prompts carefully in case user action is required
+- 4: to launch dcs, just run ``launch-dcs.sh`` after installing. running ``launch-dcs.sh -h`` can give more info on available options
+- 5: go to [Finalizing install](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#finalizing-install). you can skip SRS, and Fixerscripts as they are included in the helper, you are now nearly done!
 
 
 
@@ -139,11 +144,14 @@ We recommend [Limo](https://github.com/limo-app/limo). The flatpak will work jus
  - 7: enabling or disabling mods can be done by switching to the Deployers [12] tab and clicking ``Deploy`` or ``Undeploy`` [13]. Best practice is to undeploy before running a game update, **especially** if you have Core Files mods, and then deploy it once patched. DCS updates can corrupt mods, or modify them in ways that a mod manager wont expect. Typically savedgames mods are fine, however have been corrupted by updates rarely in the past.
 <img alt="limo 12-13" src="https://github.com/user-attachments/assets/136bdddd-c8d1-4da5-a766-5286ced1d432" />
 
-> creating a Limo mod: Limo mods are just a containing folder to name them, and within are the files that are laid out such that copying the files inside the naming folder to the install directory will function properly. so if ``modded file`` goes in ``/game/mods`` then you would make ``myfirstmod/modded file`` as the limo mod if your deployer pointed at the ``/game/mods`` folder
+> creating a Limo mod: Limo mods are just a containing folder to name them, and within are the files & folders that are laid out such that copying the files & folders inside the mod naming folder to the install directory will function properly. so if ``modded file`` goes in ``/game/mods/somefolder`` then you would make ``myfirstmod/somefolder/modded file`` as the limo mod if your deployer pointed at the ``/game/mods`` folder, as limo would create/place files into the ``somefolder``.
 
 ## Fixer scripts
 > [!note]
-> if you would like to know more about the scripts, they have documentation inside them. Best practice is to read scripts you download before executing them.
+> if you would like to know more about the scripts, they have documentation inside them. Best practice is to read scripts you download before executing them
+
+> [!note]
+> if using the ``helper-dcs.sh`` script from this repo, execution of all scripts can be done by entering the ``troubleshooting`` menu
 
 - 1: Under this repo's /tools folder, you will find the above scripts/fonts. download them or git clone the repo
 - 2: ***edit the scripts*** to use your game paths
@@ -196,7 +204,7 @@ WINEPREFIX=/path/to/new-prefix/dcs-srs winecfg
 > [!warning]
 > to get SRS v2.1.1.0 or earlier to run, Wine-GE-8.26 is known to work extremely reliably. Versions 9.x and 10.x have been very problematic for many users
 
-- 1: download SRS's installer.exe from the SRS [releases](https://github.com/ciribob/DCS-SimpleRadioStandalone/releases)
+- 1: download SRS's installer.exe from the SRS [releases](https://github.com/ciribob/DCS-SimpleRadioStandalone/releases/tag/2.1.1.0)
 - 2: choose to either use lutris to install it (remembering to set lutris' default wine runner), or wine standalone, and run the installer noting to UNCHECK the ``install dcs client scripts`` box if using a standalone prefix. This checkbox will work for same prefix, and if that is your method, you will want to keep it enabled
 - 3: use the readme from srs to manually craft the hooks, or, download the ``mods/srs hooks`` folder from this repo
 > [!note]
@@ -209,8 +217,8 @@ WINEPREFIX=/path/to/new-prefix/dcs-srs winecfg
 ## Headtracking
 #### Choose your headtracker:
 - [opentrack linux](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#opentrack-linux) [ recommended for NON trackIR5 users ]
-- [opentrack windows](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#opentrack-windows-inside-dcs-prefix) inside dcs prefix [ incomplete, sub-optimal ]
-- [](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#linuxtrack) [ recommended for trackIR5 users ]
+- [opentrack windows](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#opentrack-windows-inside-dcs-prefix) inside dcs prefix [ incomplete, highly sub-optimal ]
+- [linuxtrack](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#linuxtrack) [ recommended for trackIR5 users ]
 - other: the star-citizen Linux User Group maintains an excellent wiki on headtrackers, more info can be found on their wiki, [here](https://github.com/starcitizen-lug/knowledge-base/wiki/Head-Tracking)
 
 ### opentrack linux
