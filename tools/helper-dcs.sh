@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.1.1'
+ver='0.1.1b'
 # a small portion of this script was taken from the SC LUG Helper on 26/01/27 and cannot be relicensed until removed. get_latest_release() was taken from their GPLv3 source. The rest was written by Chaos initially.
 
 
@@ -15,21 +15,18 @@ fi
 ###################################################################################################
 #variables and config
 ###################################################################################################
-#disable_zenity=0
-#use_zenity=0
+disable_zenity=0
 dir_cfg="/home/$USER/.config/dcs-on-linux"
 cfg_dir_prefix="prefix.cfg"
 cfg_firstrun="firstrun.cfg"
 cfg_dir_srs_prefix="srs_prefix.cfg"
 cfg_preferred_dir_wine="preferred_wine.cfg"
-
 #dir_prefix='' #/home/$USER/games/dcs-world #set default FIXME ensure this actually works
 #dir_srs_prefix=''
-
 subdir_dcs_corefiles="drive_c/Program Files/Eagle Dynamics/DCS World"
 subdir_dcs_savedgames="drive_c/users/$USER/Saved Games/DCS"
-
 self_path=$(dirname $(readlink -f $0))
+
 
 ###################################################################################################
 #urls
