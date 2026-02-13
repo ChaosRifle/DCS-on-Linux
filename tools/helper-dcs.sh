@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.1.0b'
+ver='0.1.1'
 # a small portion of this script was taken from the SC LUG Helper on 26/01/27 and cannot be relicensed until removed. get_latest_release() was taken from their GPLv3 source. The rest was written by Chaos initially.
 
 
@@ -15,7 +15,7 @@ fi
 ###################################################################################################
 #variables and config
 ###################################################################################################
-disable_zenity=0
+#disable_zenity=0
 #use_zenity=0
 dir_cfg="/home/$USER/.config/dcs-on-linux"
 cfg_dir_prefix="prefix.cfg"
@@ -29,6 +29,7 @@ cfg_preferred_dir_wine="preferred_wine.cfg"
 subdir_dcs_corefiles="drive_c/Program Files/Eagle Dynamics/DCS World"
 subdir_dcs_savedgames="drive_c/users/$USER/Saved Games/DCS"
 
+self_path=$(dirname $(readlink -f $0))
 
 ###################################################################################################
 #urls
@@ -97,16 +98,17 @@ array_files_dxvk=( # files shipped with dxvk that need to be removed from regist
 ###################################################################################################
 #function defines
 ###################################################################################################
-check_dependency(){ #startup dep-check
+check_dependency(){
  selftest='pass'
-  if [ ! -x "$(command -v wine)" ]; then selftest='fail'; echo 'ERROR: WINE MISSING'; fi
+  if [ ! -x "$(command -v wine)" ]; then selftest='fail'; echo 'ERROR: wine missing'; fi
   #if ! command -v winetricks > /dev/null 2>&1; then selftest='fail'; echo 'ERROR: WINETRICKS MISSING'; fi
-  if [ ! -x "$(command -v winetricks)" ]; then selftest='fail'; echo 'ERROR: WINETRICKS MISSING'; fi #FIXME this is broken in script but not in terminal. what the heck is going on?!
-  if [ ! -x "$(command -v git)" ]; then selftest='fail'; echo 'ERROR: GIT MISSING'; fi
-  if [ ! -x "$(command -v wget)" ]; then selftest='fail'; echo 'ERROR: WGET MISSING'; fi
-  if [ ! -x "$(command -v curl)" ]; then selftest='fail'; echo 'ERROR: CURL MISSING'; fi
-  if [ ! -x "$(command -v cabextract)" ]; then selftest='fail'; echo 'ERROR: CABEXTRACT MISSING'; fi
-  if [ ! -x "$(command -v unzip)" ]; then selftest='fail'; echo 'ERROR: UNZIP MISSING'; fi
+  if [ ! -x "$(command -v winetricks)" ]; then selftest='fail'; echo 'ERROR: winetricks missing'; fi #FIXME this is broken in script but not in terminal. what the heck is going on?!
+  if [ ! -x "$(command -v git)" ]; then selftest='fail'; echo 'ERROR: git missing'; fi
+  if [ ! -x "$(command -v wget)" ]; then selftest='fail'; echo 'ERROR: wget missing'; fi
+  if [ ! -x "$(command -v curl)" ]; then selftest='fail'; echo 'ERROR: curl missing'; fi
+  if [ ! -x "$(command -v cabextract)" ]; then selftest='fail'; echo 'ERROR: cabextract missing'; fi
+  if [ ! -x "$(command -v tar)" ]; then selftest='fail'; echo 'ERROR: tar missing'; fi
+  if [ ! -x "$(command -v unzip)" ]; then selftest='fail'; echo 'ERROR: unzip missing'; fi
   if [ ! -x "$(command -v touch)" ]; then selftest='fail'; echo 'ERROR: touch missing'; fi
   if [ ! -x "$(command -v mkdir)" ]; then selftest='fail'; echo 'ERROR: mkdir missing'; fi
   if [ ! -x "$(command -v chmod)" ]; then selftest='fail'; echo 'ERROR: chmod missing'; fi
@@ -212,7 +214,7 @@ select_target_dcs_prefix(){
   while true; do
     dir_prefix=$(query_filepath "enter the full path to your DCS prefix ('path/to/games/dcs-world')")
     if [ ! -d "$dir_prefix" ]; then
-      if [ ! $(confirm 'the path you specified could not be found. would you like to try again?') == true ]; then
+      if [ $(confirm 'the path you specified could not be found. would you like to try again?') == false ]; then
         break
       fi
     else
@@ -227,7 +229,7 @@ select_target_srs_prefix(){
   while true; do
     dir_srs_prefix=$(query_filepath "enter the full path to your SRS prefix ('path/to/games/srs(-2.1.1.0)')")
     if [ ! -d "$dir_srs_prefix" ]; then
-      if [ ! $(confirm 'the path you specified could not be found. would you like to try again?') == true ]; then
+      if [ $(confirm 'the path you specified could not be found. would you like to try again?') == false ]; then
         break
       fi
     else
@@ -238,7 +240,7 @@ select_target_srs_prefix(){
   echo $dir_srs_prefix
 }
 
-install_dcs(){ #TODO - hardcoded for wine 11, add switching later, FIXME in progress conversion for prefix recreation
+install_dcs(){ #TODO FIXME in progress conversion for prefix recreation
   preferred_url_wine=$url_wine_11_staging
   preferred_file_wine=$file_wine_11_staging
   preferred_dir_wine=$dir_wine_11_staging
@@ -306,13 +308,12 @@ Desktop icon checkbox is fine to modify'
   fi
 }
 
-install_dcs_from_prefix(){ #FIXME
+install_dcs_from_prefix(){ #FIXME incomplete
   source_prefix=$(query_filepath)
 
   install_dcs
   mkdir -p 'temp dcs install files/core' 'temp dcs install files/save'
   mv "$source_prefix/drive_c/Program Files/Eagle Dynamics/"
-
 }
 
 install_srs(){ #TODO add optional hook install
@@ -409,7 +410,7 @@ install_srs_2.1.1.0(){ #TODO FIXME something is preventing sound working properl
   fi
 }
 
-menu_main(){
+menu_main(){ #TODO rewrite once query() is complete
   while true; do
     unset menu
     menu=(
@@ -482,7 +483,7 @@ enter a choice [0-7]:
   done
 }
 
-menu_troubleshooting(){
+menu_troubleshooting(){ #TODO rewrite once query() is complete
   menu_troubleshooting=(
     [0]=" exit_script"
     [1]=" return_to_main_menu"
@@ -561,7 +562,7 @@ enter a choice [0-10]:
   done
 }
 
-menu_runners(){ #TODO FIXME totally nonfunctional at this time
+menu_runners(){ #TODO  rewrite once query() is complete, FIXME totally nonfunctional at this time
   menu_runners=(
     [0]=" exit_script"
     [1]=" return_to_main_menu"
@@ -614,7 +615,7 @@ enter a choice [0-5]:
   done
 }
 
-menu_dxvk(){
+menu_dxvk(){ #TODO rewrite once query() is complete
   menu_dxvk=(
     [0]=" exit_script"
     [1]=" return_to_main_menu"
@@ -675,10 +676,12 @@ enter a choice [0-5]:
 }
 
 run_winetricks(){
+  path_wine="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/"
   export WINEPREFIX="$dir_prefix"
-  export WINE="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wine"
-  export WINESERVER="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wineserver"
+  export WINE="$path_wine/wine"
+  export WINESERVER="$path_wine/wineserver"
   winetricks
+  unset $path_wine
 }
 
 run_wine_control_panel(){
@@ -688,18 +691,17 @@ run_wine_control_panel(){
 
 run_wine_configuration(){
   export WINEPREFIX="$dir_prefix"
-  "$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/winecfg" #winecfg
+  "$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/winecfg"
 }
 
 run_wine_regedit(){
   export WINEPREFIX="$dir_prefix"
-  "$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/regedit" #regedit
+  "$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/regedit"
 }
 
 run_wine_wineboot_update(){
   export WINEPREFIX="$dir_prefix"
   "$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wineboot" -u
-  #wineboot -u
 }
 
 kill_wineserver(){
@@ -708,7 +710,7 @@ kill_wineserver(){
 }
 
 fixerscript_textures(){
-  "$(dirname $(readlink -f $0))/texturefixer.sh" "$dir_prefix"
+  "$self_path/texturefixer.sh" "$dir_prefix"
 }
 
 fixerscript_vanilla_voip_crash(){ #TODO unwritten script, literally doesnt exist yet
@@ -717,16 +719,22 @@ fixerscript_vanilla_voip_crash(){ #TODO unwritten script, literally doesnt exist
 }
 
 fixerscript_delete_shaders(){
-  if [ $(confirm "remove mesa/dxvk cache in '$dir_prefix'?") == true ]; then
-    rm -rf "$dir_prefix/cache"
-    mkdir "$dir_prefix/cache"
-  fi
-  if [ $(confirm "remove dcs shaders in '$dir_prefix'?") == true ]; then
-    "$(dirname $(readlink -f $0))/deleteshaders.sh" "$dir_prefix"
+  if [ -d "$dir_prefix" ]; then
+      if [ $(confirm "remove mesa/dxvk cache in:
+'$dir_prefix'?") == true ]; then
+      rm -rf "$dir_prefix/cache"
+      mkdir "$dir_prefix/cache"
+    fi
+    if [ $(confirm "remove dcs shaders in:
+'$dir_prefix'?") == true ]; then
+      "$self_path/deleteshaders.sh" "$dir_prefix"
+    fi
+  else
+    notify "ERROR: prefix was not found"
   fi
 }
 
-get_latest_release(){ # TODO - from SCLUG, GPLv3, by TheSane, unused at the moment.
+get_latest_git_release(){ # TODO - from SCLUG, GPLv3, by TheSane, unused at the moment.
   # Sanity check
   if [ "$#" -lt 1 ]; then
     debug_print exit "Script error: The get_latest_release function expects one argument. Aborting."
@@ -738,38 +746,44 @@ get_latest_release(){ # TODO - from SCLUG, GPLv3, by TheSane, unused at the mome
 }
 
 remove_all_dxvk(){
-  export WINEPREFIX="$dir_prefix"
-  path_wine="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/"
-  for value in "${array_files_dxvk[@]}"; do
-    rm -rf "$dir_prefix/drive_c/windows/system32/$value.dll"
-    rm -rf "$dir_prefix/drive_c/windows/syswow64/$value.dll"
-    "$path_wine/wine" reg delete 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v "*$value" /f
-  done
-  rm -rf "$dir_prefix/drive_c/windows/system32/nvapi.dll"
-  rm -rf "$dir_prefix/drive_c/windows/syswow64/nvapi64.dll"
-  rm -rf "$dir_prefix/drive_c/windows/syswow64/nvofapi64.dll"
-  "$path_wine/wine" reg delete 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v '*nvapi' /f
-  "$path_wine/wine" reg delete 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v '*nvapi64' /f
-  "$path_wine/wine" reg delete 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v '*nvofapi64' /f
-# $wine reg delete 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v $1 /f > /dev/null 2>&1 sourced from dxvk installer script from 2.0 and earlier
-  run_wine_wineboot_update
-  unset $path_wine
+  if [ -d "$dir_prefix" ]; then
+    export WINEPREFIX="$dir_prefix"
+    path_wine="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/"
+    for value in "${array_files_dxvk[@]}"; do
+      rm -rf "$dir_prefix/drive_c/windows/system32/$value.dll"
+      rm -rf "$dir_prefix/drive_c/windows/syswow64/$value.dll"
+      "$path_wine/wine" reg delete 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v "*$value" /f
+    done
+    rm -rf "$dir_prefix/drive_c/windows/system32/nvapi.dll"
+    rm -rf "$dir_prefix/drive_c/windows/syswow64/nvapi64.dll"
+    rm -rf "$dir_prefix/drive_c/windows/syswow64/nvofapi64.dll"
+    "$path_wine/wine" reg delete 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v '*nvapi' /f
+    "$path_wine/wine" reg delete 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v '*nvapi64' /f
+    "$path_wine/wine" reg delete 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v '*nvofapi64' /f
+  # $wine reg delete 'HKEY_CURRENT_USER\Software\Wine\DllOverrides' /v $1 /f > /dev/null 2>&1 sourced from dxvk installer script from 2.0 and earlier
+    run_wine_wineboot_update
+    unset $path_wine
+  else
+    notify "ERROR: prefix was not found"
+  fi
 }
 
 install_dxvk_standard(){
   remove_all_dxvk
+  path_wine="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin"
   export WINEPREFIX="$dir_prefix"
-  export WINE="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wine"
-  export WINESERVER="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wineserver"
+  export WINE="$path_wine/wine"
+  export WINESERVER="$path_wine/wineserver"
   winetricks -f dxvk
   unset $path_wine
 }
 
 install_dxvk_nvapi(){
   if [ $(confirm 'I (chaos) am unsure if this can be fully uninstalled once installed. this has not been fully tested for removal. Proceed?') == true ]; then
+    path_wine="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin"
     export WINEPREFIX="$dir_prefix"
-    export WINE="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wine"
-    export WINESERVER="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wineserver"
+    export WINE="$path_wine/wine"
+    export WINESERVER="$path_wine/wineserver"
     winetricks -f dxvk_nvapi
     unset $path_wine
   fi

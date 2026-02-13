@@ -1,0 +1,326 @@
+--DATIS OPTIONS PAGE
+
+local leftMargin = 56
+local width = 850
+
+-- Skins
+
+local EditBoxSkin = {
+	["params"] = {
+		["name"] = "editBoxSkin_login",
+	}
+}
+
+local CheckBoxSkin = {
+	["params"] = {
+		["name"] = "checkBoxSkin_options",
+	}
+}
+
+local TitleSkin = {
+	["params"] = {
+		["name"] = "staticOptionsTitleSkin",
+	},
+	["states"] = {
+		["released"] = {
+			[1] = {
+				["text"] = {
+					["horzAlign"] = {
+						["type"] = "min"
+					}
+				}
+			}
+		}
+	}
+}
+
+local LabelSkin = {
+	["params"] = {
+		["name"] = "staticOptionsCaptionSkin",
+	}
+}
+
+local HelpSkin = {
+	["params"] = {
+		["name"] = "staticSkin2",
+	},
+	["states"] = {
+		["released"] = {
+			[1] = {
+				["text"] = {
+					["fontSize"] = 10,
+					["horzAlign"] = {
+						["type"] = "min"
+					}
+				}
+			}
+		}
+	}
+}
+
+local ComboListSkin = {
+	["params"] = {
+		["name"] = "comboListSkin_options",
+	}
+}
+
+-- Content
+
+dialog = {
+	["children"] = {
+			["containerPlugin"] = {
+				["children"] =  {
+
+					----------------------------------------
+					-- Title
+					----------------------------------------
+					["srsTitleLabel"] = {
+						["params"] = {
+							["enabled"] = true,
+							["bounds"] = {
+								["x"] = leftMargin,
+								["y"] = 30,
+								["w"] = width,
+								["h"] = 24,
+							},
+							["visible"] = true,
+							["tooltip"] = "",
+							["zindex"] = 0,
+							["text"] = "$DCS_SRS",
+						},
+						["skin"] = TitleSkin,
+						["type"] = "Static",
+					},
+
+					-----------------------------------------------
+					-- SRS Overlay
+					-----------------------------------------------
+				
+					["srsOverlayEnabledCheckbox"] = {
+						["params"] = {
+							["bounds"] = {
+								["x"] = leftMargin,
+								["y"] = 90,
+								["w"] = width,
+								["h"] = 20,
+							},
+							["enabled"] = true,
+							["state"] = false,
+							["text"] = "$DCS_SRS_OVERLAY",
+							["tooltip"] = "",
+							["visible"] = true,
+							["zindex"] = 0,
+							["tabOrder"] = 0,
+						},
+						["skin"] = CheckBoxSkin,
+						["type"] = "CheckBox",
+					},
+
+					["srsOverlayEnabledHelpLabel"] = {
+						["params"] = {
+							["bounds"] = {
+								["x"] = leftMargin,
+								["y"] = 110,
+								["w"] = width,
+								["h"] = 40,
+							},
+							["enabled"] = true,
+							["text"] = "$DCS_SRS_OVERLAY_INFO",
+							["tooltip"] = "",
+							["visible"] = true,
+							["zindex"] = 0,
+						},
+						["skin"] = HelpSkin,
+						["type"] = "Static",
+					},
+
+					-----------------------------------------------
+					-- SRS Auto Launch
+					-----------------------------------------------
+					["srsAutoLaunchEnabledCheckbox"] = {
+						["params"] = {
+							["bounds"] = {
+								["x"] = leftMargin,
+								["y"] = 185,
+								["w"] = width,
+								["h"] = 20,
+							},
+							["enabled"] = true,
+							["state"] = false,
+							["text"] = "$DCS_SRS_AUTO_LAUNCH",
+							["tooltip"] = "",
+							["visible"] = true,
+							["zindex"] = 0,
+							["tabOrder"] = 0,
+						},
+						["skin"] = CheckBoxSkin,
+						["type"] = "CheckBox",
+					},
+
+					["srsAutoLaunchEnabledHelpLabel"] = {
+						["params"] = {
+							["bounds"] = {
+								["x"] = leftMargin,
+								["y"] = 205,
+								["w"] = width,
+								["h"] = 40,
+							},
+							["enabled"] = true,
+							["text"] = "$DCS_SRS_AUTO_LAUNCH_INFO",
+							["tooltip"] = "",
+							["visible"] = true,
+							["zindex"] = 0,
+						},
+						["skin"] = HelpSkin,
+						["type"] = "Static",
+					},
+
+					["srsAutoLaunchEnabledHelpLabel2"] = {
+						["params"] = {
+							["bounds"] = {
+								["x"] = leftMargin,
+								["y"] = 225,
+								["w"] = width,
+								["h"] = 40,
+							},
+							["enabled"] = true,
+							["text"] = "$DCS_SRS_AUTO_LAUNCH_INFO_2",
+							["tooltip"] = "",
+							["visible"] = true,
+							["zindex"] = 0,
+						},
+						["skin"] = HelpSkin,
+						["type"] = "Static",
+					},
+
+					-----------------------------------------------
+
+					-----------------------------------------------
+					-- SRS Compact Mode
+					-----------------------------------------------
+					["srsOverlayCompactModeEnabledCheckbox"] = {
+						["params"] = {
+							["bounds"] = {
+								["x"] = leftMargin,
+								["y"] = 300,
+								["w"] = width,
+								["h"] = 20,
+							},
+							["enabled"] = true,
+							["state"] = false,
+							["text"] = "$DCS_SRS_OVERLAY_COMPACT",
+							["tooltip"] = "",
+							["visible"] = true,
+							["zindex"] = 0,
+							["tabOrder"] = 0,
+						},
+						["skin"] = CheckBoxSkin,
+						["type"] = "CheckBox",
+					},
+
+					["srsCompactModeCheckboxLabel"] = {
+						["params"] = {
+							["bounds"] = {
+								["x"] = leftMargin,
+								["y"] = 320,
+								["w"] = width,
+								["h"] = 90,
+							},
+							["enabled"] = true,
+							["text"] = "$DCS_SRS_OVERLAY_COMPACT_INFO",
+							["tooltip"] = "",
+							["visible"] = true,
+							["zindex"] = 0,
+						},
+						["skin"] = HelpSkin,
+						["type"] = "Static",
+					},
+
+					-----------------------------------------------
+
+					-----------------------------------------------
+					-- SRS Helper Text
+					-----------------------------------------------
+					["srsOverlayHelpTextEnabledCheckbox"] = {
+						["params"] = {
+							["bounds"] = {
+								["x"] = leftMargin,
+								["y"] = 405,
+								["w"] = width,
+								["h"] = 20,
+							},
+							["enabled"] = true,
+							["state"] = false,
+							["text"] = "$DCS_SRS_OVERLAY_HELP_TEXT",
+							["tooltip"] = "",
+							["visible"] = true,
+							["zindex"] = 0,
+							["tabOrder"] = 0,
+						},
+						["skin"] = CheckBoxSkin,
+						["type"] = "CheckBox",
+					},
+
+					["srsOverlayHelpTextEnabledCheckboxLabel"] = {
+						["params"] = {
+							["bounds"] = {
+								["x"] = leftMargin,
+								["y"] = 420,
+								["w"] = width,
+								["h"] = 90,
+							},
+							["enabled"] = true,
+							["text"] = "$DCS_SRS_OVERLAY_HELP_TEXT_INFO",
+							["tooltip"] = "",
+							["visible"] = true,
+							["zindex"] = 0,
+						},
+						["skin"] = HelpSkin,
+						["type"] = "Static",
+					},
+
+					-----------------------------------------------
+				},
+			["type"] = "Panel",
+			["skin"] = {
+				["params"] = {
+					["name"] = "panelSkin",
+				},
+			},
+			["params"] = {
+				["enabled"] = true,
+				["bounds"] = {
+					["x"] = 0,
+					["y"] = 0,
+					["w"] = 974,
+					["h"] = 600,
+				},
+				["visible"] = true,
+				["tooltip"] = "",
+				["zindex"] = 2,
+				["text"] = "",
+			},
+		},
+	},
+	["type"] = "Window",
+	["skin"] = {
+		["params"] = {
+			["name"] = "windowSkin",
+		},
+	},
+	["params"] = {
+		["bounds"] = {
+			["h"] = 851,
+			["w"] = 1135,
+			["x"] = 0,
+			["y"] = 0,
+		},
+		["draggable"] = true,
+		["enabled"] =  true,
+		["hasCursor"] =  true,
+		["lockFlow"] = false,
+		["modal"] = false,
+		["text"] = "dialog",
+		["zOrder"] = 1,
+	},
+}
