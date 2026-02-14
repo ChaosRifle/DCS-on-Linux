@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.1.1b'
+ver='0.1.1c'
 # a small portion of this script was taken from the SC LUG Helper on 26/01/27 and cannot be relicensed until removed. get_latest_release() was taken from their GPLv3 source. The rest was written by Chaos initially.
 
 
@@ -252,7 +252,7 @@ install_dcs(){ #TODO FIXME in progress conversion for prefix recreation
     notify 'invalid path, directory doesnt exist!'
     exit 1
   fi
-  if [ -d "$dir_install/../dcs-world" ]; then
+  if [ -d "$dir_install/dcs-world" ]; then
     notify 'invalid path, you gave an existing prefix!'
     exit 1
   fi
