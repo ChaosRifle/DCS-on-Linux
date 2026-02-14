@@ -252,10 +252,6 @@ install_dcs(){ #TODO FIXME in progress conversion for prefix recreation
     notify 'invalid path, directory doesnt exist!'
     exit 1
   fi
-  if [ -d "$dir_install/dcs-world" ]; then
-    notify 'invalid path, you gave an existing prefix!'
-    exit 1
-  fi
   dir_prefix="$dir_install/dcs-world"
   echo "install path: $dir_install"
   echo "install prefix: $dir_prefix"
@@ -268,7 +264,8 @@ install_dcs(){ #TODO FIXME in progress conversion for prefix recreation
 #       subdir_dcs_corefiles="drive_c/Program Files/Eagle Dynamics/DCS World" # DELETEME VAR NAME
 # subdir_dcs_savedgames="drive_c/users/$USER/Saved Games/DCS" #DELETEME
 
-    exit
+    notify 'invalid path, you gave an existing prefix!'
+    exit 1
   else
     mkdir -p "$dir_prefix/cache" "$dir_prefix/runners" "$dir_prefix/files"
     echo $preferred_dir_wine > "$dir_prefix/runners/$cfg_preferred_dir_wine"
