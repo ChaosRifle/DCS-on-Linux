@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.1.1c'
+ver='0.2.0'
 # a small portion of this script was taken from the SC LUG Helper on 26/01/27 and cannot be relicensed until removed. get_latest_release() was taken from their GPLv3 source. The rest was written by Chaos initially.
 
 
@@ -156,7 +156,7 @@ $1
 
     if [ "$filepath_input" = "$nil" ] ; then #user supplied empty path or hit zenity cancel
       if [ $(confirm 'this will exit the program, are you sure?') == true ]; then
-        exit 1
+        exit 1  # BUG due to being executed in a subshell, the exit command doesnt exit the main program, resulting in nil value being set if invoked with var=$(query_filepath), and thus continuing execution with a nil path
       fi
     else
       break
@@ -237,16 +237,17 @@ select_target_srs_prefix(){
   echo $dir_srs_prefix
 }
 
-install_dcs(){ #TODO FIXME in progress conversion for prefix recreation
+install_dcs(){
   preferred_url_wine=$url_wine_11_staging
   preferred_file_wine=$file_wine_11_staging
   preferred_dir_wine=$dir_wine_11_staging
+
   anchor_dir="$(pwd)"
-  if [ $? -eq 0 ]; then
+#   if [ $? -eq 0 ]; then
     dir_install="$(query_filepath 'Select the directory to install DCS into')"
-  else
-    dir_install=$1
-  fi
+#   else
+#     dir_install=$1
+#   fi
 
   if [ ! -d "$dir_install" ]; then
     notify 'invalid path, directory doesnt exist!'
@@ -256,6 +257,14 @@ install_dcs(){ #TODO FIXME in progress conversion for prefix recreation
   echo "install path: $dir_install"
   echo "install prefix: $dir_prefix"
   echo $dir_prefix > "$dir_cfg/$cfg_dir_prefix"
+
+
+
+#new code here
+
+
+
+
   if [ -d "$dir_install/dcs-world" ]; then #ensure no existing prefix before we install to it FIXME will break if given nothing and try to make /dcs-world
 #     if $(confirm 'would you like to rebuild this existing prefix?'); then
 #       mkdir -p "dcs reinstallation files/$subdir_dcs_corefiles" "dcs reinstallation files/$subdir_dcs_savedgames"
