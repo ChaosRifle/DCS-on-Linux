@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.1.1c'
+ver='0.1.2'
 # a small portion of this script was taken from the SC LUG Helper on 26/01/27 and cannot be relicensed until removed. get_latest_release() was taken from their GPLv3 source. The rest was written by Chaos initially.
 
 
@@ -282,12 +282,12 @@ install_dcs(){ #TODO FIXME in progress conversion for prefix recreation
 
     if [ ! -f "/files/$file_dcs" ]; then #dcs installer
       cd "$dir_prefix/files"
-      wget "$url_dcs" --force-progress
+      wget "$url_dcs" #--force-progress
     fi
 
     if [ ! -d "$dir_prefix/runners/$preferred_dir_wine" ]; then #wine runner
       cd "$dir_prefix/runners"
-      wget "$preferred_url_wine" --force-progress
+      wget "$preferred_url_wine" #--force-progress
       tar -xvf "$preferred_file_wine"
       rm -rf "$preferred_file_wine"
     fi
@@ -341,12 +341,12 @@ install_srs(){ #TODO add optional hook install
     echo $preferred_dir_wine > "$dir_srs_prefix/runners/$cfg_preferred_dir_wine"
 
     cd "$dir_srs_prefix/drive_c/srs"
-    wget "$url_srs_latest" --force-progress
+    wget "$url_srs_latest" #--force-progress
     unzip "$archive_srs_latest"
 
     if [ ! -d "$dir_srs_prefix/runners/$preferred_dir_wine" ]; then #wine runner
       cd "$dir_srs_prefix/runners"
-      wget "$preferred_url_wine" --force-progress
+      wget "$preferred_url_wine" #--force-progress
       tar -xvf "$preferred_file_wine"
       rm -rf "$preferred_file_wine"
     fi
@@ -387,12 +387,12 @@ install_srs_2.1.1.0(){ #TODO FIXME something is preventing sound working properl
     echo $preferred_dir_wine > "$dir_srs_prefix/runners/$cfg_preferred_dir_wine"
 
     cd "$dir_srs_prefix/drive_c/srs"
-    wget "$url_srs" --force-progress
+    wget "$url_srs" #--force-progress
     unzip "$archive_srs"
 
     if [ ! -d "$dir_srs_prefix/runners/$preferred_dir_wine" ]; then #wine runner
       cd "$dir_srs_prefix/runners"
-      wget "$preferred_url_wine" --force-progress
+      wget "$preferred_url_wine" #--force-progress
       tar -xvf "$preferred_file_wine"
       rm -rf "$preferred_file_wine"
     fi
