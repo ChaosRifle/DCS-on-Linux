@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.1.2'
+ver='0.2.10'
 # a small portion of this script was taken from the SC LUG Helper on 26/01/27 and cannot be relicensed until removed. get_latest_release() was taken from their GPLv3 source. The rest was written by Chaos initially.
 
 
@@ -21,8 +21,6 @@ cfg_dir_prefix="prefix.cfg"
 cfg_firstrun="firstrun.cfg"
 cfg_dir_srs_prefix="srs_prefix.cfg"
 cfg_preferred_dir_wine="preferred_wine.cfg"
-#dir_prefix='' #/home/$USER/games/dcs-world #set default FIXME ensure this actually works
-#dir_srs_prefix=''
 subdir_dcs_corefiles="drive_c/Program Files/Eagle Dynamics/DCS World"
 subdir_dcs_savedgames="drive_c/users/$USER/Saved Games/DCS"
 self_path=$(dirname $(readlink -f $0))
@@ -98,8 +96,8 @@ array_files_dxvk=( # files shipped with dxvk that need to be removed from regist
 check_dependency(){
  selftest='pass'
   if [ ! -x "$(command -v wine)" ]; then selftest='fail'; echo 'ERROR: wine missing'; fi
-  #if ! command -v winetricks > /dev/null 2>&1; then selftest='fail'; echo 'ERROR: WINETRICKS MISSING'; fi
-  if [ ! -x "$(command -v winetricks)" ]; then selftest='fail'; echo 'ERROR: winetricks missing'; fi #FIXME this is broken in script but not in terminal. what the heck is going on?!
+                                                                                              #if ! command -v winetricks > /dev/null 2>&1; then selftest='fail'; echo 'ERROR: WINETRICKS MISSING'; fi # FIXME
+  if [ ! -x "$(command -v winetricks)" ]; then selftest='fail'; echo 'ERROR: winetricks missing'; fi
   if [ ! -x "$(command -v git)" ]; then selftest='fail'; echo 'ERROR: git missing'; fi
   if [ ! -x "$(command -v wget)" ]; then selftest='fail'; echo 'ERROR: wget missing'; fi
   if [ ! -x "$(command -v curl)" ]; then selftest='fail'; echo 'ERROR: curl missing'; fi
@@ -110,6 +108,7 @@ check_dependency(){
   if [ ! -x "$(command -v mkdir)" ]; then selftest='fail'; echo 'ERROR: mkdir missing'; fi
   if [ ! -x "$(command -v chmod)" ]; then selftest='fail'; echo 'ERROR: chmod missing'; fi
   if ! grep -q "avx" /proc/cpuinfo; then selftest='fail'; echo 'ERROR: your cpu doesnt support avx'; fi
+  if [ ! -x "$(command -v tty)" ]; then selftest='fail'; echo 'ERROR: tty missing'; fi
 
   if [ ! $selftest = 'pass' ]; then echo 'dependency check failed, exiting..' ; exit 0; fi
 
@@ -128,16 +127,80 @@ check_dependency(){
   fi
 }
 
+terminate(){ #for subshell "exit" functionality in the event of errors
+  kill 0 $PPID
+}
+
 stringify_menu(){ #TODO unwritten - for auto generating terminal menus from zenity arrays
   dummy=0
 }
 
 query(){ #TODO unwritten - for generating multiple choice menus (and possible checklist menus later?)
-  if [ $use_zenity = 1 ]; then
-    dummy=0
+  menu=(
+    [0]=" exit_not_script"
+    [1]=" return_to_main_menu"
+    [2]=" run_winetricks"
+    [3]=" run_wine_control_panel"
+    [4]=" run_wine_configuration"
+    [5]=" run_wine_regedit"
+    [6]=" run_wineboot_-u_(update_prefix)"
+    [7]=" run_fix_textures"
+    [8]=" run_fix_vanilla_voip_crash"       #
+    [9]=" run_shaders_delete"
+    [10]=" kill_wineserver"
+    [11]=" run_winetricks"
+  )
+
+  menu_text_zenity="<a href='${url_troubleshooting}'>Troubleshooting resources</a>
+active prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>
+DoL <a href='${url_matrix}'>Matrix</a> chat/help server"
+
+
+menu_text_zenity_line_count=$((3-1))
+  menu_text="Troubleshooting resources: ${url_troubleshooting}
+active prefix: ${dir_prefix}
+DoL Matrix chat/help server: ${url_matrix}"
+
+  cancel_label='main menu'
+  menu_title="DoL - Troubleshooting menu"
+
+unset input
+  if [ $use_zenity -eq 1 ]; then
+    menu_type='radiolist'   # 'checklist'  #'radiolist'
+    zen_options=( ${menu[@]/#/"FALSE"} )
+    decimal_offset=2
+    menu_text_height=$((273+$decimal_offset+18+(18*$menu_text_zenity_line_count))) #minimum: 325, nominal base(title, zero/one line): 273 ---#
+    menu_height="$((30 * (${#menu[@]}-2) + $menu_text_height))"
+    input="$(zenity --list --"$menu_type" --width="510" --height="$menu_height" --text="$menu_text_zenity" --title="$menu_title" --hide-header --cancel-label "$cancel_label" --column="t" --column="o" "${zen_options[@]}")"
+    if [ "$input" = "$nil" ] ; then #handle cancel button
+      input='1'
+    else
+      for key in "${!menu_troubleshooting[@]}"; do
+        if [ ${menu_troubleshooting[$key]} = $input ]; then
+          input=$key
+          break
+        fi
+      done
+    fi
   else
-    dummy=0
+    menu_text="${menu_text}
+
+enter a choice [0-$((${#menu[@]}-1))]:"
+    for key in "${!menu[@]}"; do
+      menu_text="${menu_text}
+  [$key] = ${menu[$key]}"
+    done
+    menu_text="${menu_text}
+
+"
+    read -p "$menu_text" input
   fi
+
+  unset menu_text
+  unset menu_text_zenity
+  unset cancel_label
+  unset input
+  unset menu
 }
 
 query_filepath(){ #    $1_prompt_text
@@ -156,7 +219,7 @@ $1
 
     if [ "$filepath_input" = "$nil" ] ; then #user supplied empty path or hit zenity cancel
       if [ $(confirm 'this will exit the program, are you sure?') == true ]; then
-        exit 1
+        terminate
       fi
     else
       break
@@ -186,24 +249,31 @@ unset confirm_input
     case $? in
       0) echo true ;;
       1) echo false ;;
-      ?) echo "error: zenity confirmation returned value $?, terminating"; exit ;;
+      ?) echo "ERROR: zenity confirmation returned value $?, terminating" > /dev/tty; terminate ;;
     esac
   else
     read -p "
 $1
 [y/n]?
 " confirm_input
+    if [ "$confirm_input" == "$nil" ] ; then
+      echo "ERROR: confirmation option nil is not available, terminating" > /dev/tty
+      terminate
+    fi
     case $confirm_input in
       y) echo true ;;
+      Y) echo true ;;
       yes) echo true ;;
       n) echo false ;;
+      N) echo false ;;
       no) echo false ;;
-      ?) echo "error: confirmation option $confirm_input is not available, terminating"; exit ;;
+      ?) echo "ERROR: confirmation option $confirm_input is not available, terminating" > /dev/tty; terminate
+      ;;#exit;;
     esac
   fi
 }
 
-format_urls(){ #TODO unwritten - for dynamically generating menu hyperlinks and possibly disk links, in conjunction with message() or others
+format_urls(){ #TODO unwritten - for dynamically generating menu hyperlinks and possibly disk links
   local dummy=0
 }
 
@@ -237,17 +307,15 @@ select_target_srs_prefix(){
   echo $dir_srs_prefix
 }
 
-install_dcs(){ #TODO FIXME in progress conversion for prefix recreation
+install_dcs(){
   preferred_url_wine=$url_wine_11_staging
   preferred_file_wine=$file_wine_11_staging
   preferred_dir_wine=$dir_wine_11_staging
 
   anchor_dir="$(pwd)"
-  if [ $? -eq 0 ]; then
-    dir_install="$(query_filepath 'Select the directory to install DCS into')"
-  else
-    dir_install=$1
-  fi
+  dir_install="$(query_filepath 'Select the directory to install DCS into')"
+
+runtype=0 # "$(query )" # FIXME TODO # 0=fresh clean install, 1=file install, 2=prefix reinstall
 
   if [ ! -d "$dir_install" ]; then
     notify 'invalid path, directory doesnt exist!'
@@ -257,69 +325,109 @@ install_dcs(){ #TODO FIXME in progress conversion for prefix recreation
   echo "install path: $dir_install"
   echo "install prefix: $dir_prefix"
   echo $dir_prefix > "$dir_cfg/$cfg_dir_prefix"
+  if [ -d "$dir_install/dcs-world" ]; then
+    notify "Invalid path, you gave an existing prefix!
+Please rename, remove, or move the exisiting prefix ($dir_install/dcs-world).
+Aternatively, choose a different path to install to"
+    exit
+  fi
+  case $runtype in # 0=fresh clean install, 1=file install, 2=prefix reinstall
+    0) ;;
 
+    1) notify "this should be safe, but please ensure anything important (keybinds/scripts/missions) are backed up before continuing.
+Core-Files should be structured as:
+$dir_install/dcs-files/DCS World
 
+SavedGames-Files should be structured as:
+$dir_install/dcs-files/DCS
 
+WARNING: If they are not, this will fail, however manual file copy or 'launch-dcs.sh -u' can recover from this" ;;
 
-
-
-
-
-  if [ -d "$dir_install/dcs-world" ]; then #ensure no existing prefix before we install to it FIXME will break if given nothing and try to make /dcs-world
-#     if $(confirm 'would you like to rebuild this existing prefix?'); then
-#       mkdir -p "dcs reinstallation files/$subdir_dcs_corefiles" "dcs reinstallation files/$subdir_dcs_savedgames"
-#
-#       mv "$dir_install/dcs-world/$subdir_dcs_corefiles" "$dir_install"  # FIXME UNFINNISHED
-#       subdir_dcs_corefiles="drive_c/Program Files/Eagle Dynamics/DCS World" # DELETEME VAR NAME
-# subdir_dcs_savedgames="drive_c/users/$USER/Saved Games/DCS" #DELETEME
-
-    notify 'invalid path, you gave an existing prefix!'
-    exit 1
-  else
-    mkdir -p "$dir_prefix/cache" "$dir_prefix/runners" "$dir_prefix/files"
-    echo $preferred_dir_wine > "$dir_prefix/runners/$cfg_preferred_dir_wine"
-
-
-    if [ ! -f "/files/$file_dcs" ]; then #dcs installer
-      cd "$dir_prefix/files"
-      wget "$url_dcs" #--force-progress
+    2) if [ -d "$dir_install/dcs-files" ]; then
+      notify "You have existing files at $dir_install/dcs-files and thus should use file-install instead of prefix-reinstall, or, delete/rename that folder. Exiting."
+        exit 0
     fi
+    notify 'this should be safe, but please ensure anything important (keybinds/scripts/missions) are backed up before continuing.
+The next screen will ask for a prefix to destroy to collect the files.
+WARNING: this will only work for a stable release install of dcs - openbeta and closedbeta will not work.'
 
-    if [ ! -d "$dir_prefix/runners/$preferred_dir_wine" ]; then #wine runner
-      cd "$dir_prefix/runners"
-      wget "$preferred_url_wine" #--force-progress
-      tar -xvf "$preferred_file_wine"
-      rm -rf "$preferred_file_wine"
+    dir_sacrificial_prefix="$(query_filepath 'Select the SACRIFICIAL prefix (parent folder to drive_c) you wish to DESTROY to gather files for the rebuild')"
+    if [ ! -d "$dir_sacrificial_prefix/$subdir_dcs_corefiles" ] || [ ! -d "$dir_sacrificial_prefix/$subdir_dcs_savedgames" ]; then
+      notify 'could not identify directories to consume for prefix deconstruction. Exiting.'
+      exit 1
     fi
+    mkdir -p "$dir_install/dcs-files"
+    mv "$dir_sacrificial_prefix/$subdir_dcs_corefiles" "$dir_install/dcs-files"
+    mv "$dir_sacrificial_prefix/$subdir_dcs_savedgames" "$dir_install/dcs-files"
+    rm -r "$dir_sacrificial_prefix"
+    unset $dir_sacrificial_prefix
+    runtype=1 ;; #to route the end
 
-    cd "$dir_prefix"
-    export WINEPREFIX="$dir_prefix"
-    export WINEDLLOVERRIDES='wbemprox=n'
-    export WINE="$dir_prefix/runners/$preferred_dir_wine/bin/wine" #for winetricks
-    export WINESERVER="$dir_prefix/runners/$preferred_dir_wine/bin/wineserver" #for winetricks
-    winetricks -q corefonts xact_x64 d3dcompiler_47 vcrun2022 win10 dxvk
+    ?) echo "ERROR: unexpected $runtype was given. Exiting."; exit 0 ;;
+  esac
+  mkdir -p "$dir_prefix/cache" "$dir_prefix/runners" "$dir_prefix/files"
+  echo $preferred_dir_wine > "$dir_prefix/runners/$cfg_preferred_dir_wine"
+  if [ ! -f "/files/$file_dcs" ]; then #dcs installer
+    cd "$dir_prefix/files"
+    wget "$url_dcs" #--force-progress
+  fi
+  if [ ! -d "$dir_prefix/runners/$preferred_dir_wine" ]; then #wine runner
+    cd "$dir_prefix/runners"
+    wget "$preferred_url_wine" #--force-progress
+    tar -xvf "$preferred_file_wine"
+    rm -rf "$preferred_file_wine"
+  fi
+  cd "$dir_prefix"
+  export WINEPREFIX="$dir_prefix"
+  export WINEDLLOVERRIDES='wbemprox=n'
+  export WINE="$dir_prefix/runners/$preferred_dir_wine/bin/wine" #for winetricks
+  export WINESERVER="$dir_prefix/runners/$preferred_dir_wine/bin/wineserver" #for winetricks
+  winetricks -q corefonts xact_x64 d3dcompiler_47 vcrun2022 win10 dxvk
 #"$dir_prefix/runners/$preferred_dir_wine/bin/wineserver" -k #ensure that wine isnt running https://linux.die.net/man/1/wineserver
 
-    notify 'Do NOT change the default install path!
-Desktop icon checkbox is fine to modify'
-    export WINEPREFIX="$dir_prefix"
-    export WINEDLLOVERRIDES='wbemprox=n'
-    "$dir_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_prefix/files/$file_dcs"
+  case $runtype in # 0=fresh clean install, 1=file install, 2=prefix reinstall
+    0) temp_string_notify="Do NOT change the default install path!
+
+you may opt to disable the desktop icon
+you may opt to download the game later by unticking the 'Start Download' box and clicking finish, then use the 'launch-dcs.sh -u' to initiate the download later"
+;;
+    1) temp_string_notify="Do NOT change the default install path!
+DO untick the 'Start Download' box before you click 'finish'!
+
+you may opt to disable the desktop icon"
+    ;;
+    ?) echo "ERROR: unexpected $runtype was given. Exiting."; exit ;;
+  esac
+  notify "$temp_string_notify"
+  unset $temp_string_notify
+  export WINEPREFIX="$dir_prefix"
+  export WINEDLLOVERRIDES='wbemprox=n'
+  "$dir_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_prefix/files/$file_dcs"
 #"$dir_prefix/runners/$preferred_dir_wine/bin/wineserver" -k
-    cd "$anchor_dir"
-    echo 'DCS installed.'
-  fi
+  case $runtype in # 0=fresh clean install, 1=file install, 2=prefix reinstall
+  # NOTE unclear if dcs installer does anything besides files on disk, like registry edits, so to be safe, we run this after the installer, as the installer refuses to run if the files are detected. Done out of caution, not knowledge
+    0) ;;
+    1) rm -rf "$dir_prefix/$subdir_dcs_corefiles"
+    mkdir -p "$dir_prefix/$subdir_dcs_corefiles" "$dir_prefix/$subdir_dcs_savedgames"
+    mv -f "$dir_install/dcs-files/DCS World" "$dir_prefix/$subdir_dcs_corefiles/.."
+    mv -f "$dir_install/dcs-files/DCS" "$dir_prefix/$subdir_dcs_savedgames/.."
+    rm -r "$dir_install/dcs-files" ;;
+    ?) echo "ERROR: unexpected $runtype was given. Exiting."; exit ;;
+  esac
+  unset $runtype
+  cd "$anchor_dir"
+  echo 'DCS installed.'
+  notify "DCS install is now complete.
+To run DCS, execute 'launch-dcs.sh'.
+If you would like to know more, use 'launch-dcs.sh -h'
+to update DCS, run 'launch-dcs.sh -u'
+
+If you have issues, check the troubleshooting wiki or ask in matrix
+https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting
+https://matrix.to/#/#dcs-on-linux:matrix.org"
 }
 
-install_dcs_from_prefix(){ #FIXME incomplete
-  source_prefix=$(query_filepath)
-
-  install_dcs
-  mkdir -p 'temp dcs install files/core' 'temp dcs install files/save'
-  mv "$source_prefix/drive_c/Program Files/Eagle Dynamics/"
-}
-
-install_srs(){ #TODO add optional hook install
+install_srs(){
   preferred_url_wine=$url_wine_11_staging
   preferred_file_wine=$file_wine_11_staging
   preferred_dir_wine=$dir_wine_11_staging
@@ -337,12 +445,34 @@ install_srs(){ #TODO add optional hook install
     notify 'srs prefix already exits, terminating'
     exit
   else
-    mkdir -p "$dir_srs_prefix/cache" "$dir_srs_prefix/runners" "$dir_srs_prefix/files" "$dir_srs_prefix/drive_c/srs"
+    mkdir -p "$dir_srs_prefix/cache" "$dir_srs_prefix/runners" "$dir_srs_prefix/files/hook-srs/Scripts" "$dir_srs_prefix/files/hook-srs/Mods/Services" "$dir_srs_prefix/drive_c/srs"
     echo $preferred_dir_wine > "$dir_srs_prefix/runners/$cfg_preferred_dir_wine"
 
     cd "$dir_srs_prefix/drive_c/srs"
     wget "$url_srs_latest" #--force-progress
     unzip "$archive_srs_latest"
+
+    cp -r "$dir_srs_prefix/drive_c/srs/Scripts/DCS-SRS" "$dir_srs_prefix/files/hook-srs/Mods/Services"
+    cp -r "$dir_srs_prefix/drive_c/srs/Scripts/Hooks" "$dir_srs_prefix/files/hook-srs/Scripts"
+    cp -r "$dir_srs_prefix/drive_c/srs/Scripts/Export.lua" "$dir_srs_prefix/files/hook-srs/Scripts"
+
+    if [ -d "$dir_prefix" ]; then
+      temp_srs_warning="Would you like to auto-install the srs hooks to the game dir?
+
+WARNING: Due to case folding and dcs jank, we STRONGLY recommend using a mod manager to avoid problems.
+( https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#mod-manager )
+We have already generated the hooks for you at '$dir_srs_prefix/files/hook-srs'"
+      if [ $(confirm "$temp_srs_warning") == true ]; then
+        cp "$dir_srs_prefix/files/hook-srs/Mods" "$dir_prefix/$subdir_dcs_savedgames"
+        cp "$dir_srs_prefix/files/hook-srs/Scripts" "$dir_prefix/$subdir_dcs_savedgames"
+        echo 'srs hook installed via raw copy... hope it doesnt break later.'
+      fi
+      unset $temp_srs_warning
+    else
+      notify "Please place the SRS hooks in your '$subdir_dcs_savedgames' directory using a mod manager
+( https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#mod-manager )
+We have generated the srs hooks for you at '$dir_srs_prefix/files/hook-srs'"
+    fi
 
     if [ ! -d "$dir_srs_prefix/runners/$preferred_dir_wine" ]; then #wine runner
       cd "$dir_srs_prefix/runners"
@@ -357,15 +487,15 @@ install_srs(){ #TODO add optional hook install
     export WINESERVER="$dir_srs_prefix/runners/$preferred_dir_wine/bin/wineserver" #for winetricks
     winetricks -q dotnetdesktop9 win10
 
-    export WINEPREFIX="$dir_srs_prefix"
-    export WINEDLLOVERRIDES='d3d9=n,icu=n,icuin=n,icuuc=n'
-#"$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/drive_c/srs/Client/$file_srs_latest" # test run
+#     export WINEPREFIX="$dir_srs_prefix"
+#     export WINEDLLOVERRIDES='icu=n,icuin=n,icuuc=n' #d3d9=n
+#     "$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/drive_c/srs/Client/$file_srs_latest" # test run
     cd "$anchor_dir"
     echo 'SRS installed.'
   fi
 }
 
-install_srs_2.1.1.0(){ #TODO FIXME something is preventing sound working properly.. add optional hook install
+install_srs_2.1.1.0(){ # FIXME something is preventing sound working properly..
   preferred_url_wine=$url_wine_11_staging
   preferred_file_wine=$file_wine_11_staging
   preferred_dir_wine=$dir_wine_11_staging
@@ -383,12 +513,35 @@ install_srs_2.1.1.0(){ #TODO FIXME something is preventing sound working properl
     notify 'srs-2.1.1.0 prefix already exits, terminating'
     exit
   else
-    mkdir -p "$dir_srs_prefix/cache" "$dir_srs_prefix/runners" "$dir_srs_prefix/files" "$dir_srs_prefix/drive_c/srs"
+    mkdir -p "$dir_srs_prefix/cache" "$dir_srs_prefix/runners" "$dir_srs_prefix/files/hook-srs-v2.1.1.0/Scripts" "$dir_srs_prefix/files/hook-srs-v2.1.1.0/Mods/Services" "$dir_srs_prefix/drive_c/srs"
     echo $preferred_dir_wine > "$dir_srs_prefix/runners/$cfg_preferred_dir_wine"
 
     cd "$dir_srs_prefix/drive_c/srs"
     wget "$url_srs" #--force-progress
     unzip "$archive_srs"
+
+    cp -r "$dir_srs_prefix/drive_c/srs/Scripts/DCS-SRS" "$dir_srs_prefix/files/hook-srs-v2.1.1.0/Mods/Services"
+    cp -r "$dir_srs_prefix/drive_c/srs/Scripts/Hooks" "$dir_srs_prefix/files/hook-srs-v2.1.1.0/Scripts"
+    cp -r "$dir_srs_prefix/drive_c/srs/Scripts/Export.lua" "$dir_srs_prefix/files/hook-srs-v2.1.1.0/Scripts"
+
+    if [ -d "$dir_prefix" ]; then
+      temp_srs_warning="Would you like to auto-install the srs hooks to the game dir?
+
+WARNING: Due to case folding and dcs jank, we STRONGLY recommend using a mod manager to avoid problems.
+( https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#mod-manager )
+We have already generated the hooks for you at '$dir_srs_prefix/files/hook-srs-v2.1.1.0'"
+      if [ $(confirm "$temp_srs_warning") == true ]; then
+        cp "$dir_srs_prefix/files/hook-srs-v2.1.1.0/Mods" "$dir_prefix/$subdir_dcs_savedgames"
+        cp "$dir_srs_prefix/files/hook-srs-v2.1.1.0/Scripts" "$dir_prefix/$subdir_dcs_savedgames"
+        echo 'srs hook installed via raw copy... hope it doesnt break later.'
+      fi
+      unset $temp_srs_warning
+    else
+      notify "Please place the SRS hooks in your '$subdir_dcs_savedgames' directory using a mod manager
+( https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#mod-manager )
+We have generated the srs hooks for you at '$dir_srs_prefix/files/hook-srs-v2.1.1.0'"
+    fi
+
 
     if [ ! -d "$dir_srs_prefix/runners/$preferred_dir_wine" ]; then #wine runner
       cd "$dir_srs_prefix/runners"
@@ -404,10 +557,10 @@ install_srs_2.1.1.0(){ #TODO FIXME something is preventing sound working properl
     export WINESERVER="$dir_srs_prefix/runners/$preferred_dir_wine/bin/wineserver" #for winetricks
     winetricks -q dotnet48 vcrun2022 win10 # dxvk dotnetdesktop9 xact_x64
 
-    export WINEARCH=win64
-    export WINEPREFIX="$dir_srs_prefix"
-    export WINEDLLOVERRIDES='d3d9=n,icu=n,icuin=n,icuuc=n'
-#"$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/drive_c/srs/SR-ClientRadio.exe" # test run
+#     export WINEARCH=win64
+#     export WINEPREFIX="$dir_srs_prefix"
+#     export WINEDLLOVERRIDES='d3d9=n,icu=n,icuin=n,icuuc=n'
+#     "$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/drive_c/srs/SR-ClientRadio.exe" # test run
     cd "$anchor_dir"
     echo 'SRS installed.'
   fi
@@ -420,7 +573,7 @@ menu_main(){ #TODO rewrite once query() is complete
       [0]=" exit_script"
       [1]=" install_DCS"
       [2]=" Install_SRS_2.1.1.0_(incomplete-audio-issues)"
-      [3]=" Install_SRS_latest_(beta)"
+      [3]=" Install_SRS_latest"
       [4]=" change_target_DCS_prefix"
       [5]=" change_target_SRS_prefix"
       [6]=" manage_runners_(NOT_IMPLEMENTED!)"
@@ -458,11 +611,11 @@ DoL Matrix chat/help server: ${url_matrix}"
     else
       read -p "$menu_text
 
-enter a choice [0-7]:
+enter a choice [0-8]:
   [0]=exit_script
   [1]=install_DCS
   [2]=Install_SRS_2.1.1.0_(incomplete-audio-issues)
-  [3]=Install_SRS_latest_(beta)
+  [3]=Install_SRS_latest
   [4]=change_target_DCS_prefix
   [5]=change_target_SRS_prefix
   [6]=manage_runners_(NOT_IMPLEMENTED!)
@@ -565,7 +718,7 @@ enter a choice [0-10]:
   done
 }
 
-menu_runners(){ #TODO  rewrite once query() is complete, FIXME totally nonfunctional at this time
+menu_runners(){ #TODO  rewrite once query() is complete, totally nonfunctional at this time
   menu_runners=(
     [0]=" exit_script"
     [1]=" return_to_main_menu"
@@ -717,8 +870,11 @@ fixerscript_textures(){
 }
 
 fixerscript_vanilla_voip_crash(){ #TODO unwritten script, literally doesnt exist yet
-  #"$(dirname $(readlink -f $0))/removevanillavoip.sh" "$dir_prefix"
-  notify 'NOT IMPLEMENTED YET'
+  if [ $(confirm "NOT IMPLEMENTED! - This will edit game files to disable the vanilla voip system in the event it prevents gameplay. This can be undone with 'launch-dcs.sh -r' to repair the files
+
+https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#date-unknown-game-launches-to-a-black-screen-entirely-or-multiplayer-crashes-on-connect-dcslog-cites-voice-chat-related-things" ) == true ]; then
+    "$self_path/removevanillavoip.sh" "$dir_prefix"
+  fi
 }
 
 fixerscript_delete_shaders(){
@@ -831,7 +987,9 @@ firstrun(){
   if [ $is_firstrun == true ]; then
     notify "Welcome to the DCS on Linux helper.
 A config has been generated at:
-/home/$USER/.config/dcs-on-linux"
+/home/$USER/.config/dcs-on-linux
+
+NOTE: when using gui mode, information about what the script wants you to do will be displayed as a window title (text at the top in dolphin)."
 
     is_firstrun=false
     echo $is_firstrun > "$dir_cfg/$cfg_firstrun"
@@ -899,5 +1057,6 @@ fi
 #main script
 ###################################################################################################
 check_dependency
+#query
 firstrun
 menu_main
