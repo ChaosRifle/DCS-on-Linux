@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.2.10'
+ver='0.3.0'
 # a small portion of this script was taken from the SC LUG Helper on 26/01/27 and cannot be relicensed until removed. get_latest_release() was taken from their GPLv3 source. The rest was written by Chaos initially.
 
 
@@ -869,11 +869,11 @@ fixerscript_textures(){
   "$self_path/texturefixer.sh" "$dir_prefix"
 }
 
-fixerscript_vanilla_voip_crash(){ #TODO unwritten script, literally doesnt exist yet
-  if [ $(confirm "NOT IMPLEMENTED! - This will edit game files to disable the vanilla voip system in the event it prevents gameplay. This can be undone with 'launch-dcs.sh -r' to repair the files
+fixerscript_vanilla_voip_crash(){
+  if [ $(confirm "This will edit game files to disable the vanilla voip system in the event it prevents gameplay. This can be undone with 'launch-dcs.sh -r' to repair the files, though you should uninstall your mods before using repairing
 
 https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#date-unknown-game-launches-to-a-black-screen-entirely-or-multiplayer-crashes-on-connect-dcslog-cites-voice-chat-related-things" ) == true ]; then
-    "$self_path/removevanillavoip.sh" "$dir_prefix"
+    "$self_path/vanillavoipfixer.sh" "$dir_prefix"
   fi
 }
 
