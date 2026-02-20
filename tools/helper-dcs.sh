@@ -870,7 +870,11 @@ fixerscript_textures(){
 }
 
 fixerscript_vanilla_voip_crash(){
-  if [ $(confirm "This will edit game files to disable the vanilla voip system in the event it prevents gameplay. This can be undone with 'launch-dcs.sh -r' to repair the files, though you should uninstall your mods before using repairing
+  if [ $(confirm "This will edit game files to disable the vanilla voip system in the event it prevents gameplay. This can be undone with 'launch-dcs.sh -r' to repair the files, though you should uninstall your mods before using repairing.
+
+BEFORE proceeding, make sure you edit the PREFIX variable to match your DCS prefix by editing the $self_path/vanillavoipfixer.sh script.
+
+To learn more, visit:
 
 https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#date-unknown-game-launches-to-a-black-screen-entirely-or-multiplayer-crashes-on-connect-dcslog-cites-voice-chat-related-things" ) == true ]; then
     "$self_path/vanillavoipfixer.sh" "$dir_prefix"
