@@ -872,7 +872,7 @@ fixerscript_textures(){
 fixerscript_vanilla_voip_crash(){
   if [ $(confirm "This will edit game files to disable the vanilla voip system in the event it prevents gameplay. This can be undone with 'launch-dcs.sh -r' to repair the files, though you should uninstall your mods before using repairing.
 
-BEFORE proceeding, make sure you edit the PREFIX variable to match your DCS prefix by editing the $self_path/vanillavoipfixer.sh script.
+BEFORE proceeding, ensure the PREFIX variable in $self_path/vanillavoipfixer.sh matches your DCS prefix.
 
 To learn more, visit:
 
