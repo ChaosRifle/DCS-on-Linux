@@ -23,4 +23,4 @@ Join the [matrix](https://matrix.to/#/#dcs-on-linux:matrix.org) server for more 
 > none
 
 ### General News
-(2025/11/29) Lutris alternate launch args have broken. Please remove ``--no-launcher`` to be able to update, change file path to the updater, or create a second launch tile on lutris pointing to the updater. auto-installer has been updated accordingly.
+> none
