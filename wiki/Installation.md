@@ -296,7 +296,7 @@ WINEPREFIX=/path/to/new-prefix/dcs-srs winecfg
 ### linuxtrack
 - 1: download or build the appimage of fwfa123's fork of uglydwarf's linuxtrack [here](https://gitlab.com/fwfa123/linuxtrackx-ir/-/releases)
 - 2: edit the properties of the appimage file with ```alt+enter``` or ```chmod``` and make the file ```executable```
-- 3: run the appimage. You will be prompted if you have your trackir5 plugged in to authorize it to automatically create udev rules for the device if you currently lack them, and ask you to enter your sudo password. If you are not comfortable with this, Linuxtrack should provide information on doing this manually as well, or jump to the [UDEV rules](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#udev-rules) section to import our TrackIR rules or create your own. Please remeber to reload udev rules and re-plug your device, or, restart your system, when modifing udev. the changes will not take effect until you do.
+- 3: run the appimage. You will be prompted if you have your trackir5 plugged in to authorize it to automatically create udev rules for the device if you currently lack them, and ask you to enter your sudo password. If you are not comfortable with this, Linuxtrack should provide information on doing this manually as well. Please remeber to reload udev rules and re-plug your device, or, restart your system, when modifing udev. the changes will not take effect until you do.
 - 4: under the ```gaming``` tab, you will see the ```prerequisites``` section with [trackir firmware](https://www.trackir.com/downloads/) and [mfc42 libraries](https://download.microsoft.com/download/vc60pro/Update/2/W9XNT4/EN-US/VC6RedistSetup_deu.exe), you will need both. go through the install proccess for these.
 - 5: in the ```Gaming``` tab, select ```Custom Prefix``` and point to your game prefix. Alternatively, the ```Steam```(dcs steam edition only) or ```Lutris``` buttons are an easier option if installed with that respective method.
 - 6: Configure linuxtrack with your respective hardware under ```device setup``` and ```model setup```, ensuring to save changes at the bottom right.
@@ -309,14 +309,20 @@ WINEPREFIX=/path/to/new-prefix/dcs-srs winecfg
 
 
 ## UDEV rules
-udev rules are used to set permissions and operation mode of a device.
-
-- 1: use a premade udev rule, or, create a new file named ``97-yournamehere.rules`` (the number defines load order, just set it in the 90's)
+udev rules are used to set permissions and operation mode of a device. There is two methods: ``libusb`` and ``hidraw``. Many joysticks will use ``hidraw`` however some may still require ``libusb``. You should attempt to use ``hidraw`` first, and fall back to ``libusb`` if it does not work.
 > [!tip]
-> the repo contains pre-made rules in the repo's ``udev`` folder
-- 2: edit the rule to work for your device if needed (please let us know if pre-made rules do not work on your hardware), where idVendor & idProduct are your $VID & $PID. documentation for udev [here](https://www.man7.org/linux/man-pages/man7/udev.7.html). If you need help, join the [matrix](https://matrix.to/#/#dcs-on-linux:matrix.org) server. your file contents should look similar to the following:
+> the repo contains pre-made rules in the repo's ``udev`` folder for common devices!
+
+- 1: use a premade udev rule, or, create a new file named ``##-ruleNameHere.rules`` (where ``##`` is replaced with the load order number. for ``hidraw`` use ``40`` and for ``libusb`` set it to ``97``, ex: ``40-virpil.rules``)
+- 2: edit the rule to work for your device if needed (please let us know if pre-made rules do not work on your hardware), where idVendor & idProduct are your $VID & $PID. documentation for udev [here](https://www.man7.org/linux/man-pages/man7/udev.7.html). If you need help, join the [matrix](https://matrix.to/#/#dcs-on-linux:matrix.org) server. your file contents should look similar one of the following:
+
 ```
-# Custom Joystick Udev Rules
+# hidraw rule example
+KERNEL=="hidraw*", ATTRS{idVendor}=="3344", ATTRS{idProduct}=="*", MODE="0664", TAG+="uaccess"
+```
+or
+```
+# libusb rule example
 
 # Virpil
 ACTION=="add", \
@@ -329,7 +335,7 @@ ACTION=="add", \
 > to identify your stick/throttle/pedals VID:PID, run ``lsusb`` in terminal. the output will look like the following: ``Bus ### Device ###: ID $VID:$PID $DeviceName``
 
 - 3: move the file into ``/etc/udev/rules.d/``
-- 4: reload your rules by running ``udevadm control --reload && udevadm trigger`` in terminal. you will need to replug your devices. Alternatively, restart your system.
+- 4: reload your rules by running ``sudo udevadm control --reload && sudo udevadm trigger`` in terminal. you will also need to re-plug your devices afterward. Alternatively, restart your system.
 
 > [!tip]
 > If you experience further issues with input devices, check [joystick troubleshooting](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#joystick-issues) for more info
