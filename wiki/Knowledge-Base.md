@@ -38,6 +38,8 @@ in linux distros, long term support means less updates and staying on major vers
 # Lutris terms:
 
 # Wine terms:
+### Prefix
+refers to the containing directory for wine. in an example path of ``~/games/dcs-world/drive_c/Program Files/Eagle Dynamics/DCS World/bin/DCS.exe`` the prefix is ``dcs-world``. The easy way to tell is it has the subdirectories of ``drive_c`` or ``dosdevices`` directory inside it.
 
 # Proton terms:
 > [!note]
