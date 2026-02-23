@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.3.0'
+ver='0.4.0'
 # a small portion of this script was taken from the SC LUG Helper on 26/01/27 and cannot be relicensed until removed. get_latest_release() was taken from their GPLv3 source. The rest was written by Chaos initially.
 
 
@@ -8,7 +8,7 @@ ver='0.3.0'
 ###################################################################################################
 if [ "$(id -u)" -eq 0 ]; then
   echo 'You have run this as root, please dont run scripts off the internet as root.'
-  exit 0
+  exit 1
 fi
 
 
@@ -109,8 +109,9 @@ check_dependency(){
   if [ ! -x "$(command -v chmod)" ]; then selftest='fail'; echo 'ERROR: chmod missing'; fi
   if ! grep -q "avx" /proc/cpuinfo; then selftest='fail'; echo 'ERROR: your cpu doesnt support avx'; fi
   if [ ! -x "$(command -v tty)" ]; then selftest='fail'; echo 'ERROR: tty missing'; fi
+  if [ ! -x "$(command -v wc)" ]; then selftest='fail'; echo 'ERROR: wc missing'; fi
 
-  if [ ! $selftest = 'pass' ]; then echo 'dependency check failed, exiting..' ; exit 0; fi
+  if [ ! $selftest = 'pass' ]; then echo 'dependency check failed, exiting..' ; exit 1; fi
 
   if [ ! "$disable_zenity" -eq 1 ]; then
     if [ -x "$(command -v zenity)" ]; then
@@ -127,79 +128,75 @@ check_dependency(){
   fi
 }
 
-terminate(){ #for subshell "exit" functionality in the event of errors
+terminate(){ # for subshell "exit" functionality in the event of errors
   kill 0 $PPID
 }
 
-stringify_menu(){ #TODO unwritten - for auto generating terminal menus from zenity arrays
-  dummy=0
-}
-
-query(){ #TODO unwritten - for generating multiple choice menus (and possible checklist menus later?)
-  menu=(
-    [0]=" exit_not_script"
-    [1]=" return_to_main_menu"
-    [2]=" run_winetricks"
-    [3]=" run_wine_control_panel"
-    [4]=" run_wine_configuration"
-    [5]=" run_wine_regedit"
-    [6]=" run_wineboot_-u_(update_prefix)"
-    [7]=" run_fix_textures"
-    [8]=" run_fix_vanilla_voip_crash"       #
-    [9]=" run_shaders_delete"
-    [10]=" kill_wineserver"
-    [11]=" run_winetricks"
-  )
-
-  menu_text_zenity="<a href='${url_troubleshooting}'>Troubleshooting resources</a>
-active prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>
-DoL <a href='${url_matrix}'>Matrix</a> chat/help server"
-
-
-menu_text_zenity_line_count=$((3-1))
-  menu_text="Troubleshooting resources: ${url_troubleshooting}
-active prefix: ${dir_prefix}
-DoL Matrix chat/help server: ${url_matrix}"
-
-  cancel_label='main menu'
-  menu_title="DoL - Troubleshooting menu"
-
-unset input
+query(){ #    $1_terminal_exit_prompts
+  unset input
   if [ $use_zenity -eq 1 ]; then
+    menu_text_zenity_line_count=$(($(echo "$menu_text_zenity" | wc -l)-1))
     menu_type='radiolist'   # 'checklist'  #'radiolist'
     zen_options=( ${menu[@]/#/"FALSE"} )
     decimal_offset=2
     menu_text_height=$((273+$decimal_offset+18+(18*$menu_text_zenity_line_count))) #minimum: 325, nominal base(title, zero/one line): 273 ---#
     menu_height="$((30 * (${#menu[@]}-2) + $menu_text_height))"
-    input="$(zenity --list --"$menu_type" --width="510" --height="$menu_height" --text="$menu_text_zenity" --title="$menu_title" --hide-header --cancel-label "$cancel_label" --column="t" --column="o" "${zen_options[@]}")"
+    input="$(zenity --list --"$menu_type" --width="510" --height="$menu_height" --text="$menu_text_zenity" --title="$menu_title" --hide-header --cancel-label "$menu_cancel_label" --column="t" --column="o" "${zen_options[@]}")"
     if [ "$input" = "$nil" ] ; then #handle cancel button
-      input='1'
+      input=$menu_cancel_action
     else
-      for key in "${!menu_troubleshooting[@]}"; do
-        if [ ${menu_troubleshooting[$key]} = $input ]; then
+      for key in "${!menu[@]}"; do
+        if [ ${menu[$key]} = $input ]; then
           input=$key
           break
         fi
       done
     fi
   else
-    menu_text="${menu_text}
+    case $1 in
+      mainmenu) menu_exit_prompt=" or [e]:
 
-enter a choice [0-$((${#menu[@]}-1))]:"
+  [e] = exit
+";;
+      submenu) menu_exit_prompt=" or [e/m]:
+
+  [e] = exit
+  [m] = menu
+";;
+      ?) menu_exit_prompt=":
+";;
+      $nil) menu_exit_prompt=":
+";;
+    esac
+    menu_text="      ${menu_title}
+
+${menu_text}
+
+enter a choice [0-$((${#menu[@]}-1))]${menu_exit_prompt}"
     for key in "${!menu[@]}"; do
       menu_text="${menu_text}
   [$key] = ${menu[$key]}"
     done
+    echo '
+'
     menu_text="${menu_text}
 
 "
     read -p "$menu_text" input
   fi
+  unset menu_exit_prompt
+  unset menu_type
+  unset menu_text_zenity_line_count
+  unset zen_options
+  unset decimal_offset
+  unset menu_text_height
+  unset menu_height
 
   unset menu_text
   unset menu_text_zenity
-  unset cancel_label
-  unset input
+  unset menu_title
+  unset menu_cancel_label
+  unset menu_cancel_action
   unset menu
 }
 
@@ -230,7 +227,7 @@ $1
 
 notify(){ #    $1_info_text
   if [ $use_zenity = 1 ]; then
-    zenity --info --title="" --text="$1"
+    zenity --width="510" --info  --title="" --text="$1"
   else
     read -p "
 $1
@@ -242,7 +239,7 @@ press [enter] to continue
   fi
 }
 
-confirm(){ #    $1_question_text
+confirm(){ #    $1_question_text # WARNING only use this function where it is safe to terminate the entire proccess, as unknown or nil entry (terminal use) will exit the code. Perhaps put in a while true loop and remove the terminates for $nil) and ?)
 unset confirm_input
   if [ $use_zenity = 1 ]; then
     zenity --question --title="Confirmation" --text="$1"
@@ -256,10 +253,6 @@ unset confirm_input
 $1
 [y/n]?
 " confirm_input
-    if [ "$confirm_input" == "$nil" ] ; then
-      echo "ERROR: confirmation option nil is not available, terminating" > /dev/tty
-      terminate
-    fi
     case $confirm_input in
       y) echo true ;;
       Y) echo true ;;
@@ -267,13 +260,13 @@ $1
       n) echo false ;;
       N) echo false ;;
       no) echo false ;;
-      ?) echo "ERROR: confirmation option $confirm_input is not available, terminating" > /dev/tty; terminate
-      ;;#exit;;
+      ?) echo "ERROR: confirmation option $confirm_input is not available, terminating" > /dev/tty; terminate;;
+      $nil) echo "ERROR: confirmation option nil is not available, terminating" > /dev/tty; terminate;;
     esac
   fi
 }
 
-format_urls(){ #TODO unwritten - for dynamically generating menu hyperlinks and possibly disk links
+format_urls(){ #TODO unwritten - for dynamically generating menu hyperlinks and possibly disk links to mitigate need for having both menu_text_zenity and menu_text for query(), cutting work in half
   local dummy=0
 }
 
@@ -311,59 +304,118 @@ install_dcs(){
   preferred_url_wine=$url_wine_11_staging
   preferred_file_wine=$file_wine_11_staging
   preferred_dir_wine=$dir_wine_11_staging
-
   anchor_dir="$(pwd)"
+
   dir_install="$(query_filepath 'Select the directory to install DCS into')"
-
-runtype=0 # "$(query )" # FIXME TODO # 0=fresh clean install, 1=file install, 2=prefix reinstall
-
   if [ ! -d "$dir_install" ]; then
-    notify 'invalid path, directory doesnt exist!'
-    exit 1
+    notify 'invalid path, directory doesnt exist!. exiting'
+    return
   fi
   dir_prefix="$dir_install/dcs-world"
   echo "install path: $dir_install"
   echo "install prefix: $dir_prefix"
-  echo $dir_prefix > "$dir_cfg/$cfg_dir_prefix"
-  if [ -d "$dir_install/dcs-world" ]; then
-    notify "Invalid path, you gave an existing prefix!
-Please rename, remove, or move the exisiting prefix ($dir_install/dcs-world).
-Aternatively, choose a different path to install to"
-    exit
+
+  #automatic runtype detection # 0=fresh clean install, 1=file install, 2=prefix reinstall
+  unset runtype
+  if [ -d "$dir_prefix" ]; then
+    if [ -d "$dir_prefix/$subdir_dcs_corefiles" ] && [ -d "$dir_prefix/$subdir_dcs_savedgames" ]; then
+      if [ $(confirm "'dcs-world' prefix detected, continue with consume-existing-prefix install? (will use existing files to reinstall the game)
+
+WARNING: consume-type installers will move, not copy, the game files into the new prefix") == true ]; then
+        runtype=2
+        dir_sacrificial_prefix="$dir_prefix"
+      else
+        notify "It will not be possible to install a prefix here without sacrifice of the existing prefix. Please choose a different install path or remove/rename the existing prefix '$dir_prefix'. exiting"
+        return
+      fi
+    else
+      notify "an exiting prefix (dcs-world) was detected, without savedgames AND core files. It is not be possible to install a prefix here without sacrifice of the existing prefix, and we are unable to sacrifice this prefix without detecting the game files. Please choose a different install path or remove/rename the existing prefix '$dir_prefix'. If you think this is wrong, ensure the existing prefix is on stable branch (we do not detect ob/cb installs) and has a savedgames folder, as well as being installed to the default path of 'C/program files/Eagle Dynamics/DCS World'. exiting"
+      return
+    fi
   fi
+  echo $dir_prefix > "$dir_cfg/$cfg_dir_prefix"
+  if [ -d "$dir_install/dcs-files" ]; then
+    if [ "$runtype" = 2 ]; then
+      notify "you already have a 'dcs-files' folder at your install path, consume-existing-prefix install will be unable to contine as it generates one during the sacrifice of the existing prefix. Your existing prefix prevents normal install.  Please rename/remove 'dcs-world'/'dcs-files', or select a different install path. exiting"
+      unset runtype
+      unset dir_sacrificial_prefix
+      return
+    fi
+    if [ -d "$dir_install/dcs-files/DCS World" ] && [ -d "$dir_install/dcs-files/DCS" ]; then
+      if [ $(confirm "dcs-files detected, continue with consume-existing-files install? (will use '$dir_install/dcs-files' folder to repopulate new prefix).
+Selecting no will revert to normal-install.
+
+WARNING: consume-type installers will move, not copy, the game files into the new prefix") == true ]; then
+        runtype=1
+      else
+        runtype=0
+      fi
+    else
+      notify "'$dir_install/dcs-files' was detected but sub-directorys were not found ('DCS World' and 'DCS'). This will prevent any consume-type installers from working, proceeding with normal-install."
+      runtype=0
+    fi
+  fi
+
+  #manual runtype selection fallback # 0=fresh clean install, 1=file install, 2=prefix reinstall
+  if [ "$runtype" = "$nil" ]; then
+    menu=(
+      [0]=" normal_install"
+      [1]=" consume_existing_files"
+      [2]=" consume_existing_prefix"
+    )
+    menu_text_zenity="WARNING: consume-type installers will move, not copy, the game files into the new prefix"
+    menu_text="WARNING: consume-type installers will move, not copy, the game files into the new prefix"
+    menu_cancel_label='cancel'
+    menu_cancel_action='m'
+    menu_title="Select an install method"
+    query
+    case $input in
+      0) runtype=0;;
+      1) runtype=1;;
+      2) runtype=2;;
+      m) return;;
+      ?) echo "ERROR: option $input is not available, please try again"; return;;
+      $nil) echo "ERROR: option nil is not available, please try again"; return;;
+    esac
+    unset input
+  fi
+
+  #primary script execution beyond here
   case $runtype in # 0=fresh clean install, 1=file install, 2=prefix reinstall
     0) ;;
 
-    1) notify "this should be safe, but please ensure anything important (keybinds/scripts/missions) are backed up before continuing.
+    1) notify "this should be safe, but please ensure anything important (keybinds/scripts/missions) is backed up before continuing.
+
 Core-Files should be structured as:
 $dir_install/dcs-files/DCS World
 
 SavedGames-Files should be structured as:
 $dir_install/dcs-files/DCS
 
-WARNING: If they are not, this will fail, however manual file copy or 'launch-dcs.sh -u' can recover from this" ;;
+WARNING: If the files are not as above, this will revert to a normal installer that asks you to download the game";;
 
-    2) if [ -d "$dir_install/dcs-files" ]; then
-      notify "You have existing files at $dir_install/dcs-files and thus should use file-install instead of prefix-reinstall, or, delete/rename that folder. Exiting."
-        exit 0
-    fi
-    notify 'this should be safe, but please ensure anything important (keybinds/scripts/missions) are backed up before continuing.
-The next screen will ask for a prefix to destroy to collect the files.
-WARNING: this will only work for a stable release install of dcs - openbeta and closedbeta will not work.'
+    2) notify 'this should be safe, but please ensure anything important (keybinds/scripts/missions) is backed up before continuing.
 
-    dir_sacrificial_prefix="$(query_filepath 'Select the SACRIFICIAL prefix (parent folder to drive_c) you wish to DESTROY to gather files for the rebuild')"
-    if [ ! -d "$dir_sacrificial_prefix/$subdir_dcs_corefiles" ] || [ ! -d "$dir_sacrificial_prefix/$subdir_dcs_savedgames" ]; then
-      notify 'could not identify directories to consume for prefix deconstruction. Exiting.'
-      exit 1
-    fi
-    mkdir -p "$dir_install/dcs-files"
-    mv "$dir_sacrificial_prefix/$subdir_dcs_corefiles" "$dir_install/dcs-files"
-    mv "$dir_sacrificial_prefix/$subdir_dcs_savedgames" "$dir_install/dcs-files"
-    rm -r "$dir_sacrificial_prefix"
-    unset $dir_sacrificial_prefix
-    runtype=1 ;; #to route the end
+WARNING: this will only work for a stable-release install of dcs - openbeta and closedbeta will not work without renaming the directories.'
+      if [ "$dir_sacrificial_prefix" = "$nil" ] && [ ! -d "$dir_prefix" ]; then
+        dir_sacrificial_prefix="$(query_filepath 'Select the SACRIFICIAL prefix (parent folder to drive_c) you wish to DESTROY to gather files for installing without download')"
+      fi
 
-    ?) echo "ERROR: unexpected $runtype was given. Exiting."; exit 0 ;;
+      if [ ! -d "$dir_sacrificial_prefix/$subdir_dcs_corefiles" ]; then
+        notify "ERROR: core files folder not found at: '$dir_sacrificial_prefix/$subdir_dcs_corefiles', exiting"
+        return
+      fi
+      if [ ! -d "$dir_sacrificial_prefix/$subdir_dcs_savedgames" ]; then
+        notify "ERROR: saved games folder not found at: '$dir_sacrificial_prefix/$subdir_dcs_savedgames', exiting"
+        return
+      fi
+      mkdir -p "$dir_install/dcs-files"
+      mv "$dir_sacrificial_prefix/$subdir_dcs_corefiles" "$dir_install/dcs-files"
+      mv "$dir_sacrificial_prefix/$subdir_dcs_savedgames" "$dir_install/dcs-files"
+      rm -r "$dir_sacrificial_prefix"
+      unset $dir_sacrificial_prefix
+      runtype=1
+    ;; #from here on it is a file-based install path
   esac
   mkdir -p "$dir_prefix/cache" "$dir_prefix/runners" "$dir_prefix/files"
   echo $preferred_dir_wine > "$dir_prefix/runners/$cfg_preferred_dir_wine"
@@ -385,18 +437,16 @@ WARNING: this will only work for a stable release install of dcs - openbeta and 
   winetricks -q corefonts xact_x64 d3dcompiler_47 vcrun2022 win10 dxvk
 #"$dir_prefix/runners/$preferred_dir_wine/bin/wineserver" -k #ensure that wine isnt running https://linux.die.net/man/1/wineserver
 
-  case $runtype in # 0=fresh clean install, 1=file install, 2=prefix reinstall
-    0) temp_string_notify="Do NOT change the default install path!
+  case $runtype in # 0=fresh clean install, 1=file install, 2=prefix reinstall, reroutes to 1 here as it needs the same actions
+    0) temp_string_notify="you must NOT change the default install path!
 
 you may opt to disable the desktop icon
-you may opt to download the game later by unticking the 'Start Download' box and clicking finish, then use the 'launch-dcs.sh -u' to initiate the download later"
+you may opt to download the game later by unticking the 'Start Download' box before clicking finish, then use the 'launch-dcs.sh -u' to initiate the download later"
 ;;
-    1) temp_string_notify="Do NOT change the default install path!
-DO untick the 'Start Download' box before you click 'finish'!
+    1) temp_string_notify="you must NOT change the default install path!
+you MUST untick the 'Start Download' box before you click 'finish'!
 
-you may opt to disable the desktop icon"
-    ;;
-    ?) echo "ERROR: unexpected $runtype was given. Exiting."; exit ;;
+you may opt to disable the desktop icon";;
   esac
   notify "$temp_string_notify"
   unset $temp_string_notify
@@ -407,16 +457,19 @@ you may opt to disable the desktop icon"
   case $runtype in # 0=fresh clean install, 1=file install, 2=prefix reinstall
   # NOTE unclear if dcs installer does anything besides files on disk, like registry edits, so to be safe, we run this after the installer, as the installer refuses to run if the files are detected. Done out of caution, not knowledge
     0) ;;
-    1) rm -rf "$dir_prefix/$subdir_dcs_corefiles"
-    mkdir -p "$dir_prefix/$subdir_dcs_corefiles" "$dir_prefix/$subdir_dcs_savedgames"
-    mv -f "$dir_install/dcs-files/DCS World" "$dir_prefix/$subdir_dcs_corefiles/.."
-    mv -f "$dir_install/dcs-files/DCS" "$dir_prefix/$subdir_dcs_savedgames/.."
-    rm -r "$dir_install/dcs-files" ;;
-    ?) echo "ERROR: unexpected $runtype was given. Exiting."; exit ;;
+    1) if [ -d "$dir_install/dcs-files/DCS" ] && [ -d "$dir_install/dcs-files/DCS World" ]; then
+        rm -rf "$dir_prefix/$subdir_dcs_corefiles"
+        mkdir -p "$dir_prefix/$subdir_dcs_corefiles" "$dir_prefix/$subdir_dcs_savedgames"
+        mv -f "$dir_install/dcs-files/DCS World" "$dir_prefix/$subdir_dcs_corefiles/.."
+        mv -f "$dir_install/dcs-files/DCS" "$dir_prefix/$subdir_dcs_savedgames/.."
+        rm -r "$dir_install/dcs-files"
+      else
+        notify "ERROR: dcs-files were not found to skip download. Installation will continue as a normal install of dcs. you should run 'launch-dcs -u' to install game files, or move them in manually after this installer completes.."
+      fi
+    ;;
   esac
   unset $runtype
   cd "$anchor_dir"
-  echo 'DCS installed.'
   notify "DCS install is now complete.
 To run DCS, execute 'launch-dcs.sh'.
 If you would like to know more, use 'launch-dcs.sh -h'
@@ -566,22 +619,18 @@ We have generated the srs hooks for you at '$dir_srs_prefix/files/hook-srs-v2.1.
   fi
 }
 
-menu_main(){ #TODO rewrite once query() is complete
+menu_main(){
   while true; do
-    unset menu
     menu=(
-      [0]=" exit_script"
-      [1]=" install_DCS"
-      [2]=" Install_SRS_2.1.1.0_(incomplete-audio-issues)"
-      [3]=" Install_SRS_latest"
-      [4]=" change_target_DCS_prefix"
-      [5]=" change_target_SRS_prefix"
-      [6]=" manage_runners_(NOT_IMPLEMENTED!)"
-      [7]=" manage_dxvk"
-      [8]=" troubleshooting"
+      [0]=" install_DCS"
+      [1]=" Install_SRS_2.1.1.0_(incomplete-audio-issues)"
+      [2]=" Install_SRS_latest"
+      [3]=" change_target_DCS_prefix"
+      [4]=" change_target_SRS_prefix"
+      [5]=" manage_runners_(NOT_IMPLEMENTED!)"
+      [6]=" manage_dxvk"
+      [7]=" troubleshooting"
     )
-    zen_options=( ${menu[@]/#/"FALSE"} )
-    menu_type='radiolist'   # 'checklist'
 
     menu_text_zenity="active prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>
 DoL <a href='${url_dol}'>Github</a>
@@ -590,244 +639,129 @@ DoL <a href='${url_matrix}'>Matrix</a> chat/help server"
     menu_text="active prefix: ${dir_prefix}
 DoL Github: ${url_dol}
 DoL Matrix chat/help server: ${url_matrix}"
-    menu_height='575'
-    cancel_label='exit'
 
-    unset input
-    if [ $use_zenity -eq 1 ]; then
-      input="$(zenity --list --"$menu_type" --width="510" --height="$menu_height" --text="$menu_text_zenity" --title="DCS on Linux Community Helper" --hide-header --cancel-label "$cancel_label" --column="" --column="Option" "${zen_options[@]}")"
-      #echo $input
-      if [ "$input" = "$nil" ] ; then #handle cancel button
-        input='0'
-      else
-        for key in "${!menu[@]}"; do
-          #echo ${menu[$key]}
-          if [ ${menu[$key]} = $input ]; then
-            input=$key
-            break
-          fi
-        done
-      fi
-    else
-      read -p "$menu_text
-
-enter a choice [0-8]:
-  [0]=exit_script
-  [1]=install_DCS
-  [2]=Install_SRS_2.1.1.0_(incomplete-audio-issues)
-  [3]=Install_SRS_latest
-  [4]=change_target_DCS_prefix
-  [5]=change_target_SRS_prefix
-  [6]=manage_runners_(NOT_IMPLEMENTED!)
-  [7]=manage_dxvk
-  [8]=troubleshooting
-
-" input
-    fi
+    menu_cancel_label='exit'
+    menu_cancel_action='e'
+    menu_title="DCS on Linux Community Helper"
+    query 'mainmenu'
     case $input in
-      0) exit 1 ;;
-      1) install_dcs ;;
-      2) install_srs_2.1.1.0 ;;
-      3) install_srs ;;
-      4) select_target_dcs_prefix ;;
-      5) select_target_srs_prefix ;;
-      6) menu_runners ;;
-      7) menu_dxvk ;;
-      8) menu_troubleshooting ;;
-      ?) echo "error: option $input is not available, please try again" ;;
+      0) install_dcs;;
+      1) install_srs_2.1.1.0;;
+      2) install_srs;;
+      3) select_target_dcs_prefix;;
+      4) select_target_srs_prefix;;
+      5) menu_runners; break;;
+      6) menu_dxvk; break;;
+      7) menu_troubleshooting; break;;
+      e) exit 0;;
+      ?) echo "ERROR: option $input is not available, please try again";;
+      $nil) echo 'ERROR: please enter a value that is not nil';;
     esac
+    unset input
   done
 }
 
-menu_troubleshooting(){ #TODO rewrite once query() is complete
-  menu_troubleshooting=(
-    [0]=" exit_script"
-    [1]=" return_to_main_menu"
-    [2]=" run_winetricks"
-    [3]=" run_wine_control_panel"
-    [4]=" run_wine_configuration"
-    [5]=" run_wine_regedit"
-    [6]=" run_wineboot_-u_(update_prefix)"
-    [7]=" run_fix_textures"
-    [8]=" run_fix_vanilla_voip_crash"       #
-    [9]=" run_shaders_delete"
-    [10]=" kill_wineserver"
-  )
-  zen_options=( ${menu_troubleshooting[@]/#/"FALSE"} )
-  menu_type='radiolist'   # 'checklist'  #'radiolist'
+menu_troubleshooting(){
+  while true; do
+    menu=(
+      [0]=" run_winetricks"
+      [1]=" run_wine_control_panel"
+      [2]=" run_wine_configuration"
+      [3]=" run_wine_regedit"
+      [4]=" run_wineboot_-u_(update_prefix)"
+      [5]=" run_fix_textures"
+      [6]=" run_fix_vanilla_voip_crash"
+      [7]=" run_shaders_delete"
+      [8]=" kill_wineserver"
+    )
 
-  menu_text_zenity="<a href='${url_troubleshooting}'>Troubleshooting resources</a>
+    menu_text_zenity="<a href='${url_troubleshooting}'>Troubleshooting resources</a>
 active prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>
 DoL <a href='${url_matrix}'>Matrix</a> chat/help server"
 
-  menu_text="Troubleshooting resources: ${url_troubleshooting}
+    menu_text="Troubleshooting resources: ${url_troubleshooting}
 active prefix: ${dir_prefix}
 DoL Matrix chat/help server: ${url_matrix}"
 
-  menu_height='600' #575
-  cancel_label='main menu'
-  stringify_menu $menu_troubleshooting
-
-  while true; do
-    unset input
-    if [ $use_zenity -eq 1 ]; then
-      input="$(zenity --list --"$menu_type" --width="510" --height="$menu_height" --text="$menu_text_zenity" --title="DoL - Troubleshooting menu" --hide-header --cancel-label "$cancel_label" --column="" --column="Option" "${zen_options[@]}")"
-      #echo $input
-      if [ "$input" = "$nil" ] ; then #handle cancel button
-        input='1'
-      else
-        for key in "${!menu_troubleshooting[@]}"; do
-          if [ ${menu_troubleshooting[$key]} = $input ]; then
-            input=$key
-            break
-          fi
-        done
-      fi
-    else
-      read -p "$menu_text
-
-enter a choice [0-10]:
-  [0]=exit_script
-  [1]=return_to_main_menu
-  [2]=run_winetricks
-  [3]=run_wine_control_panel
-  [4]=run_wine_configuration
-  [5]=run_wine_regedit
-  [6]=run_wineboot_-u_(update_prefix)
-  [7]=run_fix_textures
-  [8]=run_fix_vanilla_voip_crash
-  [9]=run_shaders_delete
-  [10]=kill_wineserver
-
-" input
-    fi
+    menu_cancel_label='main menu'
+    menu_cancel_action='m'
+    menu_title="DoL - Troubleshooting menu"
+    query 'submenu'
     case $input in
-      0) exit 1 ; break ;;
-      1) menu_main; break ;;
-      2) run_winetricks ;;
-      3) run_wine_control_panel ;;
-      4) run_wine_configuration ;;
-      5) run_wine_regedit ;;
-      6) run_wine_wineboot_update ;;
-      7) fixerscript_textures ;;
-      8) fixerscript_vanilla_voip_crash ;;
-      9) fixerscript_delete_shaders ;;
-      10) kill_wineserver ;;
-      ?) echo "error: option $input is not available, please try again" ;;
+      0) run_winetricks;;
+      1) run_wine_control_panel;;
+      2) run_wine_configuration;;
+      3) run_wine_regedit;;
+      4) run_wine_wineboot_update;;
+      5) fixerscript_textures;;
+      6) fixerscript_vanilla_voip_crash;;
+      7) fixerscript_delete_shaders;;
+      8) kill_wineserver;;
+      e) exit 0;;
+      m) menu_main; break;;
+      ?) echo "ERROR: option $input is not available, please try again";;
+      $nil) echo 'ERROR: please enter a value that is not nil';;
     esac
+    unset input
   done
 }
 
-menu_runners(){ #TODO  rewrite once query() is complete, totally nonfunctional at this time
-  menu_runners=(
-    [0]=" exit_script"
-    [1]=" return_to_main_menu"
-    [2]=" remove_an_installed_runner"                   #
-    [3]=" install_a_wine_kron4ek_runner"                #
-    [4]=" change_active_runner_from_installed_runners"  #
-    [5]=" install a proton GE runner (not functional)"  #
-    [6]=" remove an installed runner2"                  #
-  )
-  zen_options=( ${menu_runners[@]/#/"FALSE"} )
-  menu_type='radiolist'   # 'checklist'  #'radiolist'
-
-  menu_text_zenity="active prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>"
-
-  menu_text="active prefix: ${dir_prefix}"
-
-  menu_height='575'
-  cancel_label='main menu'
-  stringify_menu $menu_runners
-
+menu_runners(){ #TODO totally nonfunctional at this time
   while true; do
-    unset input
-    if [ $use_zenity -eq 1 ]; then
-      input="$(zenity --list --"$menu_type" --width="510" --height="$menu_height" --text="$menu_text_zenity" --title="DoL - Runner menu" --hide-header --cancel-label "$cancel_label" --column="" --column="Option" "${zen_options[@]}")"
-      #echo $input
-      if [ "$input" = "$nil" ] ; then #handle cancel button
-        input='1'
-      else
-        for key in "${!menu_runners[@]}"; do
-          if [ ${menu_runners[$key]} = $input ]; then
-            input=$key
-            break
-          fi
-        done
-      fi
-    else
-      read -p "$menu_text
+    menu=(
+      [0]=" remove_an_installed_runner"                   #
+      [1]=" install_a_wine_kron4ek_runner"                #
+      [2]=" change_active_runner_from_installed_runners"  #
+      [3]=" install a proton GE runner (not functional)"  #
+      [4]=" remove an installed runner2"                  #
+    )
 
-enter a choice [0-5]:
-  [0]=exit_script
-  [1]=return_to_main_menu
+    menu_text_zenity="active prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>"
 
-" input
-    fi
+    menu_text="active prefix: ${dir_prefix}"
+
+    menu_cancel_label='main menu'
+    menu_cancel_action='m'
+    menu_title="DoL - Runner menu"
+    query 'submenu'
     case $input in
-      0) exit 1 ; break ;;
-      1) menu_main; break ;;
-      ?) echo "error: option $input is not available, please try again" ;;
+      e) exit 0;;
+      m) menu_main; break;;
+      ?) echo "ERROR: option $input is not available, please try again";;
+      $nil) echo 'ERROR: please enter a value that is not nil';;
     esac
+    unset input
   done
 }
 
-menu_dxvk(){ #TODO rewrite once query() is complete
-  menu_dxvk=(
-    [0]=" exit_script"
-    [1]=" return_to_main_menu"
-    [2]=" remove_all_dxvk"
-    [3]=" install_dxvk_standard"
-    [4]=" install_dxvk_nvapi"
-    [5]=" install_dxvk_git"                 #
-  )
-  zen_options=( ${menu_dxvk[@]/#/"FALSE"} )
-  menu_type='radiolist'   # 'checklist'  #'radiolist'
-
-  menu_text_zenity="active prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>"
-
-  menu_text="active prefix: ${dir_prefix}"
-
-  menu_height='575'
-  cancel_label='main menu'
-  stringify_menu $menu_dxvk
-
+menu_dxvk(){
   while true; do
-    unset input
-    if [ $use_zenity -eq 1 ]; then
-      input="$(zenity --list --"$menu_type" --width="510" --height="$menu_height" --text="$menu_text_zenity" --title="DoL - DXVK menu" --hide-header --cancel-label "$cancel_label" --column="" --column="Option" "${zen_options[@]}")"
-      #echo $input
-      if [ "$input" = "$nil" ] ; then #handle cancel button
-        input='1'
-      else
-        for key in "${!menu_dxvk[@]}"; do
-          if [ ${menu_dxvk[$key]} = $input ]; then
-            input=$key
-            break
-          fi
-        done
-      fi
-    else
-      read -p "$menu_text
+    menu=(
+      [0]=" remove_all_dxvk"
+      [1]=" install_dxvk_standard"
+      [2]=" install_dxvk_nvapi"
+      [3]=" install_dxvk_git"                 #
+    )
 
-enter a choice [0-5]:
-  [0]=exit_script
-  [1]=return_to_main_menu
-  [2]=remove_all_dxvk
-  [3]=install_dxvk_standard
-  [4]=install_dxvk_nvapi
-  [5]=install_dxvk_git
+    menu_text_zenity="active prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>"
 
-" input
-    fi
+    menu_text="active prefix: ${dir_prefix}"
+
+    menu_cancel_label='main menu'
+    menu_cancel_action='m'
+    menu_title="DoL - DXVK menu"
+    query 'submenu'
     case $input in
-      0) exit 1 ; break ;;
-      1) menu_main; break ;;
-      2) remove_all_dxvk ; menu_dxvk ;;
-      3) install_dxvk_standard ; menu_dxvk ;;
-      4) install_dxvk_nvapi ; menu_dxvk ;;
-      5) install_dxvk_git ; menu_dxvk ;;
-      ?) echo "error: option $input is not available, please try again" ;;
+      0) remove_all_dxvk;; # ; menu_dxvk ;;
+      1) install_dxvk_standard;;
+      2) install_dxvk_nvapi;;
+      3) install_dxvk_git;;
+      e) exit 0;;
+      m) menu_main; break;;
+      ?) echo "ERROR: option $input is not available, please try again";;
+      $nil) echo 'ERROR: please enter a value that is not nil';;
     esac
+    unset input
   done
 }
 
@@ -866,11 +800,15 @@ kill_wineserver(){
 }
 
 fixerscript_textures(){
-  "$self_path/texturefixer.sh" "$dir_prefix"
+  if [ $(confirm "This will edit game files to fix non-rendering textures (AH64, F18, Mi24, Ka50). This will break textures IC if you slot those aircraft. This can be undone with 'launch-dcs.sh -r' to repair the files, though you should uninstall your mods before repairing
+
+https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#date-unknown-missing-textures" ) == true ]; then
+    "$self_path/texturefixer.sh" "$dir_prefix"
+  fi
 }
 
 fixerscript_vanilla_voip_crash(){
-  if [ $(confirm "This will edit game files to disable the vanilla voip system in the event it prevents gameplay. This can be undone with 'launch-dcs.sh -r' to repair the files, though you should uninstall your mods before using repairing
+  if [ $(confirm "This will edit game files to disable the vanilla voip system in the event it prevents gameplay. This can be undone with 'launch-dcs.sh -r' to repair the files, though you should uninstall your mods before repairing
 
 https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#date-unknown-game-launches-to-a-black-screen-entirely-or-multiplayer-crashes-on-connect-dcslog-cites-voice-chat-related-things" ) == true ]; then
     "$self_path/vanillavoipfixer.sh" "$dir_prefix"
@@ -938,7 +876,7 @@ install_dxvk_standard(){
 }
 
 install_dxvk_nvapi(){
-  if [ $(confirm 'I (chaos) am unsure if this can be fully uninstalled once installed. this has not been fully tested for removal. Proceed?') == true ]; then
+  if [ $(confirm 'I (chaos) am unsure if this can be fully uninstalled once installed. this has not been fully tested for removal. Removal may require a full prefix rebuild (which can be done without redownloading dcs). Proceed?') == true ]; then
     path_wine="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin"
     export WINEPREFIX="$dir_prefix"
     export WINE="$path_wine/wine"
@@ -1010,13 +948,13 @@ if [ $# -eq 0 ]; then #default run
 else
   while getopts "ht" arg; do #arg run
     case $arg in
-      h) printf "DCS on Linux Helper Script (based on SC-LUG)
+      h) printf "DCS on Linux Helper Script
 exeution: $0
 [-h] help (this message)
 [-t] terminal mode (disable zenity even if present)
-"; exit 1 ;;
+"; exit 0 ;;
       t) disable_zenity=1 ; echo 'zenity overridden' ;;
-      ?) echo "error: option -$OPTARG is not implemented, use -h to see available swithes"; exit ;;
+      ?) echo "error: option -$OPTARG is not implemented, use -h to see available swithes"; exit 1;;
     esac
   done
 fi
@@ -1057,6 +995,5 @@ fi
 #main script
 ###################################################################################################
 check_dependency
-#query
 firstrun
 menu_main
