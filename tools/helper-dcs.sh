@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.6.9'
+ver='0.6.10'
 # a small portion of this script was taken from the SC LUG Helper on 26/01/27 and cannot be relicensed until removed. get_latest_release() was taken from their GPLv3 source. The rest was written by Chaos initially.
 
 
@@ -31,14 +31,17 @@ dir_self=$(dirname $(readlink -f $0))
 url_dcs='https://www.digitalcombatsimulator.com/upload/iblock/959/d33ul8g3arxnzc1ejgdaa8uev8gvmew2/DCS_World_web.exe'
 file_dcs='DCS_World_web.exe'
 
-url_srs='https://github.com/ciribob/DCS-SimpleRadioStandalone/releases/download/2.1.1.0/DCS-SimpleRadioStandalone-2.1.1.0.zip'
-file_srs='SR-ClientRadio.exe'
-archive_srs='DCS-SimpleRadioStandalone-2.1.1.0.zip'
+url_srs_2_1_1_0='https://github.com/ciribob/DCS-SimpleRadioStandalone/releases/download/2.1.1.0/DCS-SimpleRadioStandalone-2.1.1.0.zip'
+file_srs_2_1_1_0='SR-ClientRadio.exe'
+archive_srs_2_1_1_0='DCS-SimpleRadioStandalone-2.1.1.0.zip'
 
-url_srs_latest='https://github.com/ciribob/DCS-SimpleRadioStandalone/releases/download/2.3.4.0/DCS-SimpleRadioStandalone-2.3.4.0.zip'
-file_srs_latest='SR-ClientRadio.exe'
-archive_srs_latest='DCS-SimpleRadioStandalone-2.3.4.0.zip'
+url_srs_2_3_4_0='https://github.com/ciribob/DCS-SimpleRadioStandalone/releases/download/2.3.4.0/DCS-SimpleRadioStandalone-2.3.4.0.zip'
+file_srs_2_3_4_0='SR-ClientRadio.exe'
+archive_srs_2_3_4_0='DCS-SimpleRadioStandalone-2.3.4.0.zip'
 
+url_srs_latest=''
+file_srs_latest=''
+archive_srs_latest=''
 
 url_wine_8='https://github.com/Kron4ek/Wine-Builds/releases/download/8.21/wine-8.21-amd64.tar.xz'
 file_wine_8='wine-8.21-amd64.tar.xz'
@@ -507,7 +510,7 @@ https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting
 https://matrix.to/#/#dcs-on-linux:matrix.org"
 }
 
-install_srs(){
+install_srs_2.3.4.0(){
   preferred_url_wine=$url_wine_11_staging
   preferred_file_wine=$file_wine_11_staging
   preferred_dir_wine=$dir_wine_11_staging
@@ -515,7 +518,7 @@ install_srs(){
   anchor_dir="$(pwd)"
 
   dir_srs_install="$(zenity --file-selection --directory --title="Select the directory to install SRS")"
-  dir_srs_prefix="$dir_srs_install/srs"
+  dir_srs_prefix="$dir_srs_install/srs-2.3.4.0"
   echo "install path: $dir_srs_install"
   echo "install prefix: $dir_srs_prefix"
 
@@ -529,8 +532,8 @@ install_srs(){
     echo $preferred_dir_wine > "$dir_srs_prefix/runners/$cfg_preferred_dir_wine"
 
     cd "$dir_srs_prefix/drive_c/srs"
-    wget "$url_srs_latest" #--force-progress
-    unzip "$archive_srs_latest"
+    wget "$url_srs_2_3_4_0" #--force-progress
+    unzip "$archive_srs_2_3_4_0"
 
     cp -r "$dir_srs_prefix/drive_c/srs/Scripts/DCS-SRS" "$dir_srs_prefix/files/hook-srs/Mods/Services"
     cp -r "$dir_srs_prefix/drive_c/srs/Scripts/Hooks" "$dir_srs_prefix/files/hook-srs/Scripts"
@@ -569,7 +572,7 @@ We have generated the srs hooks for you at '$dir_srs_prefix/files/hook-srs'"
 
 #     export WINEPREFIX="$dir_srs_prefix"
 #     export WINEDLLOVERRIDES='icu=n,icuin=n,icuuc=n' #d3d9=n
-#     "$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/drive_c/srs/Client/$file_srs_latest" # test run
+#     "$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/drive_c/srs/Client/$file_srs_2_3_4_0" # test run
     cd "$anchor_dir"
     echo 'SRS installed.'
   fi
@@ -597,8 +600,8 @@ install_srs_2.1.1.0(){ # FIXME something is preventing sound working properly..
     echo $preferred_dir_wine > "$dir_srs_prefix/runners/$cfg_preferred_dir_wine"
 
     cd "$dir_srs_prefix/drive_c/srs"
-    wget "$url_srs" #--force-progress
-    unzip "$archive_srs"
+    wget "$url_srs_2_1_1_0" #--force-progress
+    unzip "$archive_srs_2_1_1_0"
 
     cp -r "$dir_srs_prefix/drive_c/srs/Scripts/DCS-SRS" "$dir_srs_prefix/files/hook-srs-v2.1.1.0/Mods/Services"
     cp -r "$dir_srs_prefix/drive_c/srs/Scripts/Hooks" "$dir_srs_prefix/files/hook-srs-v2.1.1.0/Scripts"
@@ -797,7 +800,7 @@ menu_dxvk(){
 menu_srs(){
   while true; do
     menu=(
-      [0]=" Install_SRS_latest"
+      [0]=" Install_SRS_2.3.4.0"
       [1]=" change_target_SRS_prefix"
       [2]=" Install_SRS_2.1.1.0_(incomplete-audio-issues)"
     )
@@ -815,7 +818,7 @@ DoL Matrix chat/help server: ${url_matrix}"
     menu_title="DoL - SRS menu"
     query 'submenu'
     case $input in
-      0) install_srs;;
+      0) install_srs_2.3.4.0;;
       1) select_target_srs_prefix;;
       2) install_srs_2.1.1.0;;
       e) exit 0;;
