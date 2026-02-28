@@ -455,7 +455,7 @@ WARNING: this will only work for a stable-release install of dcs - openbeta and 
   export WINEDLLOVERRIDES='wbemprox=n'
   export WINE="$dir_prefix/runners/$preferred_dir_wine/bin/wine" #for winetricks
   export WINESERVER="$dir_prefix/runners/$preferred_dir_wine/bin/wineserver" #for winetricks
-  if [ "$tempvrmode" = "$nil" ] then # TODO FIXME this is temp for vr users, must be better when runner menu is complete
+  if [ "$tempvrmode" = "$nil" ]; then # TODO FIXME this is temp for vr users, must be better when runner menu is complete
     winetricks -q corefonts xact_x64 d3dcompiler_47 vcrun2022 win10 dxvk
   else
     winetricks -q corefonts xact_x64 d3dcompiler_47 vcrun2022 win10
