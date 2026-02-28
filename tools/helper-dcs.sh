@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.6.6'
+ver='0.6.7'
 # a small portion of this script was taken from the SC LUG Helper on 26/01/27 and cannot be relicensed until removed. get_latest_release() was taken from their GPLv3 source. The rest was written by Chaos initially.
 
 
@@ -68,6 +68,10 @@ dir_wine_11='wine-11.1-amd64' #known bad due to 'debugger detected'
 url_wine_11_staging='https://github.com/Kron4ek/Wine-Builds/releases/download/11.1/wine-11.1-staging-amd64.tar.xz'
 file_wine_11_staging='wine-11.1-staging-amd64.tar.xz'
 dir_wine_11_staging='wine-11.1-staging-amd64' #known good
+
+url_lug_vr_wine_11_staging='https://github.com/starcitizen-lug/lug-wine/releases/download/11.0-1/lug-wine-tkg-staging-git-11.0-1.tar.gz'
+file_lug_vr_wine_11_staging='lug-wine-tkg-staging-git-11.0-1.tar.gz'
+dir_lug_vr_wine_11_staging='lug-wine-tkg-staging-git-11.0-1'
 
 url_dxvk_gplasync='https://gitlab.com/Ph42oN/dxvk-gplasync/-/jobs/11383149837/artifacts/download?file_type=archive'
 file_dxvk_gpl_async='download?file_type=archive'
@@ -311,9 +315,16 @@ select_target_srs_prefix(){
 }
 
 install_dcs(){
-  preferred_url_wine=$url_wine_11_staging
-  preferred_file_wine=$file_wine_11_staging
-  preferred_dir_wine=$dir_wine_11_staging
+  if [ $(confirm 'attempt alpha vr install?') ]; then  # TODO FIXME this is temp for vr users, must be better when runner menu is complete
+    preferred_url_wine=$url_lug_vr_wine_11_staging
+    preferred_file_wine=$file_lug_vr_wine_11_staging
+    preferred_dir_wine=$dir_lug_vr_wine_11_staging
+    tempvrmode=true
+  else
+    preferred_url_wine=$url_wine_11_staging
+    preferred_file_wine=$file_wine_11_staging
+    preferred_dir_wine=$dir_wine_11_staging
+  fi
   anchor_dir="$(pwd)"
 
   dir_install="$(query_filepath 'Select the directory to install DCS into')"
@@ -444,7 +455,11 @@ WARNING: this will only work for a stable-release install of dcs - openbeta and 
   export WINEDLLOVERRIDES='wbemprox=n'
   export WINE="$dir_prefix/runners/$preferred_dir_wine/bin/wine" #for winetricks
   export WINESERVER="$dir_prefix/runners/$preferred_dir_wine/bin/wineserver" #for winetricks
-  winetricks -q corefonts xact_x64 d3dcompiler_47 vcrun2022 win10 dxvk
+  if [ "$tempvrmode" = "$nil" ] then # TODO FIXME this is temp for vr users, must be better when runner menu is complete
+    winetricks -q corefonts xact_x64 d3dcompiler_47 vcrun2022 win10 dxvk
+  else
+    winetricks -q corefonts xact_x64 d3dcompiler_47 vcrun2022 win10
+  fi
 #"$dir_prefix/runners/$preferred_dir_wine/bin/wineserver" -k #ensure that wine isnt running https://linux.die.net/man/1/wineserver
 
   case $runtype in # 0=fresh clean install, 1=file install, 2=prefix reinstall, reroutes to 1 here as it needs the same actions
