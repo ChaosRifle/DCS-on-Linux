@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.1.0b'
+ver='0.1.2'
 
 
 ###################################################################################################
@@ -46,11 +46,13 @@ load_dcs_wine_config() { #in function so it can be modified by switches
   export MESA_SHADER_CACHE_MAX_SIZE="10G"
   export __GL_SHADER_DISK_CACHE="1"
   export __GL_SHADER_DISK_CACHE_PATH="$dir_prefix/cahce/gl"
+  export DXVK_SHADER_CACHE_PATH="$dir_prefix/cache/dxvk"
+  export DXVK_STATE_CACHE=1
   export DXVK_STATE_CACHE_PATH="$dir_prefix/cache/dxvk"
   export WINEDEBUG='-all' # clean up terminal spam
 
   if [ "$use_hud" = '1' ]; then
-    export DXVK_HUD='version,api,compiler' #full, #fps #,compiler
+    export DXVK_HUD='version,api,compiler,opacity=0.3' #full, #fps #,compiler
     #export MANGOHUD=1
   fi
 }
@@ -91,7 +93,7 @@ launch_srs(){
 
 if [ $# -eq 0 ]; then #default run
   echo "you are running v$ver of the launcher script."
-  $0 -vaon
+  $0 -van
   exit 1
 else
   while getopts "hadilnopruvw" arg; do #arg run

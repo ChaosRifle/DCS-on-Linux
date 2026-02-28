@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.4.0'
+ver='0.6.5'
 # a small portion of this script was taken from the SC LUG Helper on 26/01/27 and cannot be relicensed until removed. get_latest_release() was taken from their GPLv3 source. The rest was written by Chaos initially.
 
 
@@ -89,6 +89,14 @@ array_files_dxvk=( # files shipped with dxvk that need to be removed from regist
   "dxgi"
 )
 
+array_files_DoL=(
+  "deleteshaders.sh"
+  "helper-dcs.sh"
+  "launch-dcs.sh"
+  "texturefixer.sh"
+  "vanillavoipfixer.sh"
+)
+
 
 ###################################################################################################
 #function defines
@@ -110,6 +118,8 @@ check_dependency(){
   if ! grep -q "avx" /proc/cpuinfo; then selftest='fail'; echo 'ERROR: your cpu doesnt support avx'; fi
   if [ ! -x "$(command -v tty)" ]; then selftest='fail'; echo 'ERROR: tty missing'; fi
   if [ ! -x "$(command -v wc)" ]; then selftest='fail'; echo 'ERROR: wc missing'; fi
+  if [ ! -x "$(command -v pkexec)" ]; then selftest='fail'; echo 'ERROR: pkexec missing'; fi
+  if [ ! -x "$(command -v sh)" ]; then selftest='fail'; echo 'ERROR: sh missing'; fi
 
   if [ ! $selftest = 'pass' ]; then echo 'dependency check failed, exiting..' ; exit 1; fi
 
@@ -470,6 +480,9 @@ you may opt to disable the desktop icon";;
   esac
   unset $runtype
   cd "$anchor_dir"
+
+  fixerscript_apache_font_crash
+
   notify "DCS install is now complete.
 To run DCS, execute 'launch-dcs.sh'.
 If you would like to know more, use 'launch-dcs.sh -h'
@@ -623,13 +636,12 @@ menu_main(){
   while true; do
     menu=(
       [0]=" install_DCS"
-      [1]=" Install_SRS_2.1.1.0_(incomplete-audio-issues)"
-      [2]=" Install_SRS_latest"
-      [3]=" change_target_DCS_prefix"
-      [4]=" change_target_SRS_prefix"
-      [5]=" manage_runners_(NOT_IMPLEMENTED!)"
-      [6]=" manage_dxvk"
-      [7]=" troubleshooting"
+      [1]=" change_target_DCS_prefix"
+      [2]=" manage_runners_(NOT_IMPLEMENTED!)"
+      [3]=" manage_dxvk"
+      [4]=" troubleshooting"
+      [5]=" Simple_Radio_Standalone"
+      [6]=" update_DoL_scripts"
     )
 
     menu_text_zenity="active prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>
@@ -646,13 +658,12 @@ DoL Matrix chat/help server: ${url_matrix}"
     query 'mainmenu'
     case $input in
       0) install_dcs;;
-      1) install_srs_2.1.1.0;;
-      2) install_srs;;
-      3) select_target_dcs_prefix;;
-      4) select_target_srs_prefix;;
-      5) menu_runners; break;;
-      6) menu_dxvk; break;;
-      7) menu_troubleshooting; break;;
+      1) select_target_dcs_prefix;;
+      2) menu_runners; break;;
+      3) menu_dxvk; break;;
+      4) menu_troubleshooting; break;;
+      5) menu_srs; break;;
+      6) self_update;;
       e) exit 0;;
       ?) echo "ERROR: option $input is not available, please try again";;
       $nil) echo 'ERROR: please enter a value that is not nil';;
@@ -664,15 +675,17 @@ DoL Matrix chat/help server: ${url_matrix}"
 menu_troubleshooting(){
   while true; do
     menu=(
-      [0]=" run_winetricks"
-      [1]=" run_wine_control_panel"
-      [2]=" run_wine_configuration"
-      [3]=" run_wine_regedit"
-      [4]=" run_wineboot_-u_(update_prefix)"
-      [5]=" run_fix_textures"
-      [6]=" run_fix_vanilla_voip_crash"
-      [7]=" run_shaders_delete"
-      [8]=" kill_wineserver"
+      [0]=" winetricks"
+      [1]=" wine_control_panel"
+      [2]=" wine_configuration"
+      [3]=" wine_regedit"
+      [4]=" wineboot_-u_(update_prefix)"
+      [5]=" fix_textures"
+      [6]=" fix_vanilla_voip_crash"
+      [7]=" fix_apache_font_crash"
+      [8]=" delete_shaders"
+      [9]=" kill_wineserver"
+      [10]=" install_udev_rules"
     )
 
     menu_text_zenity="<a href='${url_troubleshooting}'>Troubleshooting resources</a>
@@ -695,8 +708,10 @@ DoL Matrix chat/help server: ${url_matrix}"
       4) run_wine_wineboot_update;;
       5) fixerscript_textures;;
       6) fixerscript_vanilla_voip_crash;;
-      7) fixerscript_delete_shaders;;
-      8) kill_wineserver;;
+      7) fixerscript_apache_font_crash;;
+      8) fixerscript_delete_shaders;;
+      9) kill_wineserver;;
+      10) install_udev_rules;;
       e) exit 0;;
       m) menu_main; break;;
       ?) echo "ERROR: option $input is not available, please try again";;
@@ -756,6 +771,39 @@ menu_dxvk(){
       1) install_dxvk_standard;;
       2) install_dxvk_nvapi;;
       3) install_dxvk_git;;
+      e) exit 0;;
+      m) menu_main; break;;
+      ?) echo "ERROR: option $input is not available, please try again";;
+      $nil) echo 'ERROR: please enter a value that is not nil';;
+    esac
+    unset input
+  done
+}
+
+menu_srs(){
+  while true; do
+    menu=(
+      [0]=" Install_SRS_latest"
+      [1]=" change_target_SRS_prefix"
+      [2]=" Install_SRS_2.1.1.0_(incomplete-audio-issues)"
+    )
+
+    menu_text_zenity="<a href='${url_troubleshooting}'>Troubleshooting resources</a>
+active SRS prefix: <a href='file://${dir_srs_prefix}'>${dir_srs_prefix}</a>
+DoL <a href='${url_matrix}'>Matrix</a> chat/help server"
+
+    menu_text="Troubleshooting resources: ${url_troubleshooting}
+active SRS prefix: ${dir_srs_prefix}
+DoL Matrix chat/help server: ${url_matrix}"
+
+    menu_cancel_label='main menu'
+    menu_cancel_action='m'
+    menu_title="DoL - SRS menu"
+    query 'submenu'
+    case $input in
+      0) install_srs;;
+      1) select_target_srs_prefix;;
+      2) install_srs_2.1.1.0;;
       e) exit 0;;
       m) menu_main; break;;
       ?) echo "ERROR: option $input is not available, please try again";;
@@ -921,6 +969,100 @@ exit 1
   unset file_working
 }
 
+self_update(){
+  if [ $(confirm 'this will delete and regenerate DoL scripts from git, if you have made modifications, please back them up. Would you like to continue?') == true ]; then
+    anchor_dir="$(pwd)"
+    if [ $(git rev-parse --is-inside-work-tree) == true ]; then
+      git fetch origin
+      git pull origin
+    else
+      mkdir -p "$self_path/tmp"
+      cd "$self_path/tmp"
+      git clone "$url_dol.git"
+      for value in "${array_files_DoL[@]}"; do
+        rm "$self_path/$value"
+      done
+      mv $self_path/tmp/DCS-on-Linux/tools/* "$self_path"
+      cd "$anchor_dir"
+      rm -rf "$self_path/tmp" #/DCS-on-Linux"
+    fi
+    cd "$anchor_dir"
+    "$self_path/helper-dcs.sh"
+    exit 0
+  fi
+}
+
+fixerscript_apache_font_crash(){ # TODO FIXME select opensource font and download it in the else statement below.
+  if [ -f "$dir_prefix/drive_c/windows/Fonts/seguisym.ttf" ]; then
+    if [ $(confirm 'detected seguisym.ttf in your prefix. remove it and continue replacing it?') == true ]; then
+      rm "$dir_prefix/drive_c/windows/Fonts/seguisym.ttf"
+    else
+      return
+    fi
+  fi
+  if [ $(confirm 'do you have a real copy of seguisym.ttf you would like to use to fix apache chashes?') == true ]; then
+    file_seguisym="seguisym.ttf"
+    while true; do
+      dir_seguisym=$(query_filepath 'please provide the filepath to the containing folder of your copy of seguisym.ttf')
+      if [ -f "$dir_seguisym/$file_seguisym" ]; then
+        break
+      else
+        if [ $(confirm "ERROR: file not found at '$dir_seguisym/$file_seguisym'. Would you like to try again?") != true ]; then
+          return
+        fi
+      fi
+    done
+  else # download file and then rename it
+    notify 'automatic download is not yet supported, while we find a suitable, legal, replacement for seguisym.ttf (issue #1 on the github repo). You can get a real copy from the internet, or a windows iso/vm. Normal execution will continue.' # FIXME
+    return #TODO this is not ready for use, we need a legally viable font to use
+#     wget some_seguism_website
+#     dir_seguisym=""
+#     file_seguisym=""
+  fi
+  mv "$dir_seguisym/$file_seguisym" "$dir_prefix/drive_c/windows/Fonts/seguisym.ttf"
+  unset dir_seguisym
+  unset file_seguisym
+}
+
+install_udev_rules(){
+  anchor_dir="$(pwd)"
+  error_udev=false
+  mkdir -p "$self_path/tmp"
+  cd "$self_path/tmp"
+  echo "$self_path/../udev/40-virpil.rules"
+  if [ -f "$self_path/../udev/40-virpil.rules" ]; then #if repo skip redundant download
+    mkdir -p "$self_path/tmp/DCS-on-Linux/udev"
+    cp $self_path/../udev/* "$self_path/tmp/DCS-on-Linux/udev"
+  else
+    git clone "$url_dol.git"
+  fi
+
+  # while we can run all commands with one auth via ';', it truncates the popup text making it unreadable. This way requires two auths, but allows users to read the popup code.
+  pkexec sh -c "sudo mv -f $self_path/tmp/DCS-on-Linux/udev/* /etc/udev/rules.d"
+  exit_code="$?"
+  if [ "$exit_code" -eq 126 ] || [ "$exit_code" -eq 127 ]; then
+    error_udev=true
+    echo 'ERROR: pkexec returned an error attempting to move udev rules'
+  fi
+  pkexec sh -c "sudo udevadm control --reload && sudo udevadm trigger"
+  exit_code="$?"
+  if [ "$exit_code" -eq 126 ] || [ "$exit_code" -eq 127 ]; then
+    error_udev=true
+    echo 'ERROR: pkexec returned an error attempting to reload udev rules'
+  fi
+
+  cd "$anchor_dir"
+  rm -rf "$self_path/tmp"
+  if [ "$error_udev" == false ]; then
+    notify 'udev install complete, please unplug and re-plug your devices before trying to use them.
+
+NOTE: This automated udev script currently only supports virpil, vkb, thrustmaster, and turtlebeach devices at this time. If you have hardware unsupported by these rules, please notify a maintainer with your PID and VID (lsusb).'
+  else
+    notify 'udev rule install encountered an error and probably did not work, normal operations will continue.
+If you would like to re-try, the troubleshooting menu can do so.'
+  fi
+}
+
 firstrun(){
   if [ $is_firstrun == true ]; then
     notify "Welcome to the DCS on Linux helper.
@@ -931,6 +1073,10 @@ NOTE: when using gui mode, information about what the script wants you to do wil
 
     is_firstrun=false
     echo $is_firstrun > "$dir_cfg/$cfg_firstrun"
+
+    if [ $(confirm 'would you like automated generic (virpil,vkb,tm,turtle) udev rule install?') ]; then
+      install_udev_rules
+    fi
   fi
 }
 
