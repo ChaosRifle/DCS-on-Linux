@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.6.5'
+ver='0.6.6'
 # a small portion of this script was taken from the SC LUG Helper on 26/01/27 and cannot be relicensed until removed. get_latest_release() was taken from their GPLv3 source. The rest was written by Chaos initially.
 
 
@@ -973,8 +973,13 @@ self_update(){
   if [ $(confirm 'this will delete and regenerate DoL scripts from git, if you have made modifications, please back them up. Would you like to continue?') == true ]; then
     anchor_dir="$(pwd)"
     if [ $(git rev-parse --is-inside-work-tree) == true ]; then
-      git fetch origin
-      git pull origin
+      if [ $(confirm 'git tree detected, are you sure you want to continue? (this could remove all your changes to DoL if you are a dev!)') ]; then
+        git fetch --all
+        git reset --hard origin/main
+        git pull origin
+      else
+        return
+      fi
     else
       mkdir -p "$self_path/tmp"
       cd "$self_path/tmp"
