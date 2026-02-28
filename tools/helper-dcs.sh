@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.6.7'
+ver='0.6.8'
 # a small portion of this script was taken from the SC LUG Helper on 26/01/27 and cannot be relicensed until removed. get_latest_release() was taken from their GPLv3 source. The rest was written by Chaos initially.
 
 
@@ -69,9 +69,9 @@ url_wine_11_staging='https://github.com/Kron4ek/Wine-Builds/releases/download/11
 file_wine_11_staging='wine-11.1-staging-amd64.tar.xz'
 dir_wine_11_staging='wine-11.1-staging-amd64' #known good
 
-url_lug_vr_wine_11_staging='https://github.com/starcitizen-lug/lug-wine/releases/download/11.0-1/lug-wine-tkg-staging-git-11.0-1.tar.gz'
-file_lug_vr_wine_11_staging='lug-wine-tkg-staging-git-11.0-1.tar.gz'
-dir_lug_vr_wine_11_staging='lug-wine-tkg-staging-git-11.0-1'
+url_lug_vr_wine_11_staging='https://github.com/starcitizen-lug/lug-wine-experimental/releases/download/11.3-1/lug-wine-tkg-staging-experimental-git-11.3-1.tar.gz'
+file_lug_vr_wine_11_staging='lug-wine-tkg-staging-experimental-git-11.3-1.tar.gz'
+dir_lug_vr_wine_11_staging='lug-wine-tkg-staging-experimental-git-11.3-1'
 
 url_dxvk_gplasync='https://gitlab.com/Ph42oN/dxvk-gplasync/-/jobs/11383149837/artifacts/download?file_type=archive'
 file_dxvk_gpl_async='download?file_type=archive'
@@ -1033,7 +1033,7 @@ fixerscript_apache_font_crash(){ # TODO FIXME select opensource font and downloa
       fi
     done
   else # download file and then rename it
-    notify 'automatic download is not yet supported, while we find a suitable, legal, replacement for seguisym.ttf (issue #1 on the github repo). You can get a real copy from the internet, or a windows iso/vm. Normal execution will continue.' # FIXME
+    notify 'automatic font download is not yet supported, while we find a suitable, legal, replacement for seguisym.ttf (issue #1 on the github repo). You can get a real copy from the internet, or a windows iso/vm. Normal execution will continue.' # FIXME
     return #TODO this is not ready for use, we need a legally viable font to use
 #     wget some_seguism_website
 #     dir_seguisym=""
