@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.6.8'
+ver='0.6.9'
 # a small portion of this script was taken from the SC LUG Helper on 26/01/27 and cannot be relicensed until removed. get_latest_release() was taken from their GPLv3 source. The rest was written by Chaos initially.
 
 
@@ -23,8 +23,7 @@ cfg_dir_srs_prefix="srs_prefix.cfg"
 cfg_preferred_dir_wine="preferred_wine.cfg"
 subdir_dcs_corefiles="drive_c/Program Files/Eagle Dynamics/DCS World"
 subdir_dcs_savedgames="drive_c/users/$USER/Saved Games/DCS"
-self_path=$(dirname $(readlink -f $0))
-
+dir_self=$(dirname $(readlink -f $0))
 
 ###################################################################################################
 #urls
@@ -866,7 +865,7 @@ fixerscript_textures(){
   if [ $(confirm "This will edit game files to fix non-rendering textures (AH64, F18, Mi24, Ka50). This will break textures IC if you slot those aircraft. This can be undone with 'launch-dcs.sh -r' to repair the files, though you should uninstall your mods before repairing
 
 https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#date-unknown-missing-textures" ) == true ]; then
-    "$self_path/texturefixer.sh" "$dir_prefix"
+    "$dir_self/texturefixer.sh" "$dir_prefix"
   fi
 }
 
@@ -874,7 +873,7 @@ fixerscript_vanilla_voip_crash(){
   if [ $(confirm "This will edit game files to disable the vanilla voip system in the event it prevents gameplay. This can be undone with 'launch-dcs.sh -r' to repair the files, though you should uninstall your mods before repairing
 
 https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#date-unknown-game-launches-to-a-black-screen-entirely-or-multiplayer-crashes-on-connect-dcslog-cites-voice-chat-related-things" ) == true ]; then
-    "$self_path/vanillavoipfixer.sh" "$dir_prefix"
+    "$dir_self/vanillavoipfixer.sh" "$dir_prefix"
   fi
 }
 
@@ -887,7 +886,7 @@ fixerscript_delete_shaders(){
     fi
     if [ $(confirm "remove dcs shaders in:
 '$dir_prefix'?") == true ]; then
-      "$self_path/deleteshaders.sh" "$dir_prefix"
+      "$dir_self/deleteshaders.sh" "$dir_prefix"
     fi
   else
     notify "ERROR: prefix was not found"
@@ -996,18 +995,18 @@ self_update(){
         return
       fi
     else
-      mkdir -p "$self_path/tmp"
-      cd "$self_path/tmp"
+      mkdir -p "$dir_self/tmp"
+      cd "$dir_self/tmp"
       git clone "$url_dol.git"
       for value in "${array_files_DoL[@]}"; do
-        rm "$self_path/$value"
+        rm "$dir_self/$value"
       done
-      mv $self_path/tmp/DCS-on-Linux/tools/* "$self_path"
+      mv $dir_self/tmp/DCS-on-Linux/tools/* "$dir_self"
       cd "$anchor_dir"
-      rm -rf "$self_path/tmp" #/DCS-on-Linux"
+      rm -rf "$dir_self/tmp" #/DCS-on-Linux"
     fi
     cd "$anchor_dir"
-    "$self_path/helper-dcs.sh"
+    "$dir_self/helper-dcs.sh"
     exit 0
   fi
 }
@@ -1047,18 +1046,18 @@ fixerscript_apache_font_crash(){ # TODO FIXME select opensource font and downloa
 install_udev_rules(){
   anchor_dir="$(pwd)"
   error_udev=false
-  mkdir -p "$self_path/tmp"
-  cd "$self_path/tmp"
-  echo "$self_path/../udev/40-virpil.rules"
-  if [ -f "$self_path/../udev/40-virpil.rules" ]; then #if repo skip redundant download
-    mkdir -p "$self_path/tmp/DCS-on-Linux/udev"
-    cp $self_path/../udev/* "$self_path/tmp/DCS-on-Linux/udev"
+  mkdir -p "$dir_self/tmp"
+  cd "$dir_self/tmp"
+  echo "$dir_self/../udev/40-virpil.rules"
+  if [ -f "$dir_self/../udev/40-virpil.rules" ]; then #if repo skip redundant download
+    mkdir -p "$dir_self/tmp/DCS-on-Linux/udev"
+    cp $dir_self/../udev/* "$dir_self/tmp/DCS-on-Linux/udev"
   else
     git clone "$url_dol.git"
   fi
 
   # while we can run all commands with one auth via ';', it truncates the popup text making it unreadable. This way requires two auths, but allows users to read the popup code.
-  pkexec sh -c "sudo mv -f $self_path/tmp/DCS-on-Linux/udev/* /etc/udev/rules.d"
+  pkexec sh -c "sudo mv -f $dir_self/tmp/DCS-on-Linux/udev/* /etc/udev/rules.d"
   exit_code="$?"
   if [ "$exit_code" -eq 126 ] || [ "$exit_code" -eq 127 ]; then
     error_udev=true
@@ -1072,7 +1071,7 @@ install_udev_rules(){
   fi
 
   cd "$anchor_dir"
-  rm -rf "$self_path/tmp"
+  rm -rf "$dir_self/tmp"
   if [ "$error_udev" == false ]; then
     notify 'udev install complete, please unplug and re-plug your devices before trying to use them.
 
