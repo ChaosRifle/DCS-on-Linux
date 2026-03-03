@@ -19,4 +19,5 @@ This guide very much stands on the backs of giants, without the people listed be
 - [Budderpard](https://github.com/budderpard) - the modern dcs on linux guide post 2.9 [ information ]
 - onno - maintaining the hoggit wiki page [ information ]
 - the countless contributors on the [proton issue](https://github.com/ValveSoftware/Proton/issues/1722) - thank you to everyone for their work there! [ information, reporting, solutions ]
+- SC Linux Users Group, and [the-Sane](https://github.com/the-sane) for idea of a unified place to get dcs working, with wiki, troubleshooting, etc. This repo is based on the SC-LUG wiki and helper script.
 - [Chaos](https://github.com/ChaosRifle) - collecting and collating data for the initial creation of this guide, initial lutris yaml, and one of the maintainers of this guide [ information, reporting, scripts ]
