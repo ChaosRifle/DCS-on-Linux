@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.6.10'
+ver='0.6.13'
 # a small portion of this script was taken from the SC LUG Helper on 26/01/27 and cannot be relicensed until removed. get_latest_release() was taken from their GPLv3 source. The rest was written by Chaos initially.
 
 
@@ -39,9 +39,11 @@ url_srs_2_3_4_0='https://github.com/ciribob/DCS-SimpleRadioStandalone/releases/d
 file_srs_2_3_4_0='SR-ClientRadio.exe'
 archive_srs_2_3_4_0='DCS-SimpleRadioStandalone-2.3.4.0.zip'
 
-url_srs_latest=''
-file_srs_latest=''
-archive_srs_latest=''
+url_srs_latest='https://github.com/ciribob/DCS-SimpleRadioStandalone/releases/download/2.3.6.0/DCS-SimpleRadioStandalone-2.3.6.0.zip'
+file_srs_latest='SR-ClientRadio.exe'
+archive_srs_latest='DCS-SimpleRadioStandalone-2.3.6.0.zip'
+url_dotnet10='https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/10.0.3/windowsdesktop-runtime-10.0.3-win-x64.exe'
+file_dotnet10='windowsdesktop-runtime-10.0.3-win-x64.exe'
 
 url_wine_8='https://github.com/Kron4ek/Wine-Builds/releases/download/8.21/wine-8.21-amd64.tar.xz'
 file_wine_8='wine-8.21-amd64.tar.xz'
@@ -510,6 +512,80 @@ https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting
 https://matrix.to/#/#dcs-on-linux:matrix.org"
 }
 
+install_srs_latest(){
+  preferred_url_wine=$url_wine_11_staging
+  preferred_file_wine=$file_wine_11_staging
+  preferred_dir_wine=$dir_wine_11_staging
+
+  anchor_dir="$(pwd)"
+
+  dir_srs_install="$(zenity --file-selection --directory --title="Select the directory to install SRS")"
+  dir_srs_prefix="$dir_srs_install/srs-latest"
+  echo "install path: $dir_srs_install"
+  echo "install prefix: $dir_srs_prefix"
+
+  echo $dir_srs_prefix > "$dir_cfg/$cfg_dir_srs_prefix"
+
+  if [ -d "$dir_srs_prefix" ]; then
+    notify 'srs prefix already exits, terminating'
+    exit
+  else
+    mkdir -p "$dir_srs_prefix/cache" "$dir_srs_prefix/runners" "$dir_srs_prefix/files/hook-srs/Scripts" "$dir_srs_prefix/files/hook-srs/Mods/Services" "$dir_srs_prefix/drive_c/srs"
+    echo $preferred_dir_wine > "$dir_srs_prefix/runners/$cfg_preferred_dir_wine"
+
+    cd "$dir_srs_prefix/drive_c/srs"
+    wget "$url_srs_latest" #--force-progress
+    unzip "$archive_srs_latest"
+
+    cp -r "$dir_srs_prefix/drive_c/srs/Scripts/DCS-SRS" "$dir_srs_prefix/files/hook-srs/Mods/Services"
+    cp -r "$dir_srs_prefix/drive_c/srs/Scripts/Hooks" "$dir_srs_prefix/files/hook-srs/Scripts"
+    cp -r "$dir_srs_prefix/drive_c/srs/Scripts/Export.lua" "$dir_srs_prefix/files/hook-srs/Scripts"
+
+    if [ -d "$dir_prefix" ]; then
+      temp_srs_warning="Would you like to auto-install the srs hooks to the game dir?
+
+      WARNING: Due to case folding and dcs jank, we STRONGLY recommend using a mod manager to avoid problems.
+      ( https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#mod-manager )
+      We have already generated the hooks for you at '$dir_srs_prefix/files/hook-srs'"
+      if [ $(confirm "$temp_srs_warning") == true ]; then
+        cp "$dir_srs_prefix/files/hook-srs/Mods" "$dir_prefix/$subdir_dcs_savedgames"
+        cp "$dir_srs_prefix/files/hook-srs/Scripts" "$dir_prefix/$subdir_dcs_savedgames"
+        echo 'srs hook installed via raw copy... hope it doesnt break later.'
+      fi
+      unset $temp_srs_warning
+    else
+      notify "Please place the SRS hooks in your '$subdir_dcs_savedgames' directory using a mod manager
+      ( https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#mod-manager )
+      We have generated the srs hooks for you at '$dir_srs_prefix/files/hook-srs'"
+    fi
+
+    if [ ! -d "$dir_srs_prefix/runners/$preferred_dir_wine" ]; then #wine runner
+      cd "$dir_srs_prefix/runners"
+      wget "$preferred_url_wine" #--force-progress
+      tar -xvf "$preferred_file_wine"
+      rm -rf "$preferred_file_wine"
+    fi
+
+    cd "$dir_srs_prefix"
+    export WINEPREFIX="$dir_srs_prefix"
+    export WINE="$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" #for winetricks
+    export WINESERVER="$dir_srs_prefix/runners/$preferred_dir_wine/bin/wineserver" #for winetricks
+    winetricks -q win10
+
+    # Temporary manual install of .NET Desktop 10 until winetricks has equivalent built-in command
+    mkdir -p "$dir_srs_prefix/files/dotnet10"
+    cd "$dir_srs_prefix/files/dotnet10"
+    wget "$url_dotnet10"
+    "$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/files/dotnet10/$file_dotnet10"
+
+#     export WINEPREFIX="$dir_srs_prefix"
+#     export WINEDLLOVERRIDES='icu=n,icuin=n,icuuc=n' #d3d9=n
+#     "$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/drive_c/srs/Client/$file_srs_2_3_4_0" # test run
+    cd "$anchor_dir"
+    echo 'SRS installed.'
+  fi
+}
+
 install_srs_2.3.4.0(){
   preferred_url_wine=$url_wine_11_staging
   preferred_file_wine=$file_wine_11_staging
@@ -800,9 +876,10 @@ menu_dxvk(){
 menu_srs(){
   while true; do
     menu=(
-      [0]=" Install_SRS_2.3.4.0"
+      [0]=" Install_SRS_latest"
       [1]=" change_target_SRS_prefix"
-      [2]=" Install_SRS_2.1.1.0_(incomplete-audio-issues)"
+      [2]=" Install_SRS_2.3.4.0"
+      [3]=" Install_SRS_2.1.1.0_(incomplete-audio-issues)"
     )
 
     menu_text_zenity="<a href='${url_troubleshooting}'>Troubleshooting resources</a>
@@ -818,9 +895,10 @@ DoL Matrix chat/help server: ${url_matrix}"
     menu_title="DoL - SRS menu"
     query 'submenu'
     case $input in
-      0) install_srs_2.3.4.0;;
+      0) install_srs_latest;;
       1) select_target_srs_prefix;;
-      2) install_srs_2.1.1.0;;
+      2) install_srs_2.3.4.0;;
+      3) install_srs_2.1.1.0;;
       e) exit 0;;
       m) menu_main; break;;
       ?) echo "ERROR: option $input is not available, please try again";;
