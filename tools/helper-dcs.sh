@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.6.11'
+ver='0.6.12'
 # a small portion of this script was taken from the SC LUG Helper on 26/01/27 and cannot be relicensed until removed. get_latest_release() was taken from their GPLv3 source. The rest was written by Chaos initially.
 
 
@@ -42,7 +42,7 @@ archive_srs_2_3_4_0='DCS-SimpleRadioStandalone-2.3.4.0.zip'
 url_srs_latest='https://github.com/ciribob/DCS-SimpleRadioStandalone/releases/download/2.3.6.0/DCS-SimpleRadioStandalone-2.3.6.0.zip'
 file_srs_latest='SR-ClientRadio.exe'
 archive_srs_latest='DCS-SimpleRadioStandalone-2.3.6.0.zip'
-pre_req_dotnet10_url='https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/10.0.3/windowsdesktop-runtime-10.0.3-win-x64.exe'
+url_dotnet10='https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/10.0.3/windowsdesktop-runtime-10.0.3-win-x64.exe'
 file_dotnet10='windowsdesktop-runtime-10.0.3-win-x64.exe'
 
 url_wine_8='https://github.com/Kron4ek/Wine-Builds/releases/download/8.21/wine-8.21-amd64.tar.xz'
@@ -520,7 +520,7 @@ install_srs_latest(){
   anchor_dir="$(pwd)"
 
   dir_srs_install="$(zenity --file-selection --directory --title="Select the directory to install SRS")"
-  dir_srs_prefix="$dir_srs_install/srs-2.3.6.0"
+  dir_srs_prefix="$dir_srs_install/srs-latest"
   echo "install path: $dir_srs_install"
   echo "install prefix: $dir_srs_prefix"
 
@@ -575,7 +575,7 @@ install_srs_latest(){
     # Temporary manual install of .NET Desktop 10 until winetricks has equivalent built-in command
     mkdir -p "$dir_srs_prefix/files/dotnet10"
     cd "$dir_srs_prefix/files/dotnet10"
-    wget "$pre_req_dotnet10_url"
+    wget "$url_dotnet10"
     wine "$dir_srs_prefix/files/dotnet10/$file_dotnet10"
 
 #     export WINEPREFIX="$dir_srs_prefix"
@@ -877,8 +877,8 @@ menu_srs(){
   while true; do
     menu=(
       [0]=" Install_SRS_latest"
-      [1]=" Install_SRS_2.3.4.0"
-      [2]=" change_target_SRS_prefix"
+      [1]=" change_target_SRS_prefix"
+      [2]=" Install_SRS_2.3.4.0"
       [3]=" Install_SRS_2.1.1.0_(incomplete-audio-issues)"
     )
 
@@ -896,8 +896,8 @@ DoL Matrix chat/help server: ${url_matrix}"
     query 'submenu'
     case $input in
       0) install_srs_latest;;
-      1) install_srs_2.3.4.0;;
-      2) select_target_srs_prefix;;
+      1) select_target_srs_prefix;;
+      2) install_srs_2.3.4.0;;
       3) install_srs_2.1.1.0;;
       e) exit 0;;
       m) menu_main; break;;
