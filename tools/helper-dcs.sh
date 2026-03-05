@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.6.12'
+ver='0.6.13'
 # a small portion of this script was taken from the SC LUG Helper on 26/01/27 and cannot be relicensed until removed. get_latest_release() was taken from their GPLv3 source. The rest was written by Chaos initially.
 
 
@@ -576,7 +576,7 @@ install_srs_latest(){
     mkdir -p "$dir_srs_prefix/files/dotnet10"
     cd "$dir_srs_prefix/files/dotnet10"
     wget "$url_dotnet10"
-    wine "$dir_srs_prefix/files/dotnet10/$file_dotnet10"
+    "$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/files/dotnet10/$file_dotnet10"
 
 #     export WINEPREFIX="$dir_srs_prefix"
 #     export WINEDLLOVERRIDES='icu=n,icuin=n,icuuc=n' #d3d9=n
