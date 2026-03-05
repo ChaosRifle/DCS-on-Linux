@@ -2,14 +2,23 @@
 This is meant to be a community hub (and eventually wiki) for the current best ways and tools to use to install DCS on linux - as such, when new information comes to light, ***please let a maintainer know, or make a PR to the repo***. If the lutris installer needs an update, please make a PR to the yaml script contained here or ping Chaos, as I(chaos) will use this yaml to edit and maintain the current script on lutris.net (``DoL Community Choice (Latest)``) If you would like to contribute to the wiki, please make a PR to the files in the ```wiki``` [folder](https://github.com/ChaosRifle/DCS-on-Linux/tree/main/wiki)
 
 
-### guidelines
+
+
+## LLM (AI) policy
+Absolutely no LLM or AI use for contributions to this repo, be it code or documentation. This is due to the questionable legal and ethical status of LLM training, and being prone to errors which makes it incompatible with this project.
+
+
+
+
+## wiki
+### wiki guidelines
 - Language/writing style: Writing should be clear, simple, in english, and ideally only able to be interpreted in a single way. Content should be kept easy to read, and as short as possible without loosing the purpose of the text. The goal of your text should be a clean, quick, and easy to understand/read solution to installing dcs and it's supporting software.
 - Linking: mentions of locations on the wiki should always link to said location. Usage of terminology or abreviations should follow wikipedia standards of the first occurance linking to the relevent terminology page, on a per-section basis (ie, section of [UDEV](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#udev-rules)). When in doubt, link.
 - ``Troubleshooting`` sections: Aims to be comprehensive of all possible issues and their fixes. Format of all problems/workarounds will be encased in a note block. These are clear, defined ``Problem`` & ``Solution`` pairs (if a solution is unknown, denote such). Optionally, and preferably, also includes cause for the problem if known. (ie, opentrack cant hook extra steam libraries, cause being opentrack only searches for the default steam library and no others) All notes must be date-stamped for the day that became an issue (yyyy/mm/dd). Old problems will be grandfathered in under ``date unknown`` date-stamps due to the work involved. expect any submissions for problems that became an issue for users in 2025+ to request a valid datestamp. All known issues and workarounds should be in this area so it can be used for stand-alone troubleshooting as if the ``Installation`` section did not exist. Old, no longer relevant, problems (ie, resolved by ED, wine, etc) will be moved to the [Troubleshooting Archive](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting-Archive) to retain records of it. 
 - ``Installation`` sections: these are for step by step get-it-working-for-most-users instructions, meant to be modular for a users install case. If different instructions exist for different install methods (lutris, wine, steam, SA on steam) then your section should be segmented out as such. You may choose to mark the alternate segments as incomplete for methods you are not familliar with (done with ``> [!note] \n> this segment is incomplete``). Try to keep troubleshooting to the troubleshooting wiki, however some discretion exists for what is valid for the installation sections. Ideally for such cases it should also be in the troubleshooting section for people not following the guides to find. an example of this is the apache font problem mentioned in [fixer-scripts](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#fixer-scripts) and the [corrosponding troubleshooting page](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#date-unknown-slotting-into-ah-64d-apache-crashes-game) it links to). Universal issues with the game are accepted and expected, and specific edge cases for hardware or software should be scrutinized (though not nessisarilly rejected). Generally speaking, these are *instructions to be followed*, not tips & tricks or troubleshooting. 
 
 
-### specifics:
+### wiki specifics:
 - ordered list should be ``- 3: `` (dash space number colon space) for instruction steps
 - un-ordered lists should be comma separated for single line or dash beginning for multiple lines (like this list here)
 - number identifiers for images should always be formatted as ``[3]`` (bracket number bracket) and be after the words it is labeling. example: click ``button`` [2] to save.
@@ -18,5 +27,12 @@ This is meant to be a community hub (and eventually wiki) for the current best w
 
 
 
-### LLM (AI) policy
-Absolutely no LLM use for contributions to this repo, be it code or documentation. This is due to the questionable legal and ethical status of LLM training, and being prone to errors which makes it incompatible with this project. 
+## scripts (bash)
+### script guidelines
+- use of sudo or pkexec should be avoided as much as possible, except where absolutely nessisary to get things working. pkexec should be used for security and warning to users, favoring short lines of code to allow the pkexec window to show the full command being executed, even if that means multiple pkexec uses. Security and awareness of the end user is the top priority
+- legibility of code is a high priority so users can read, modify, or maintain it. Complex functions should be commented so people unfamilliar with bash can understand with a basic programming background (arrays/variables/case statements, etc)
+
+
+### script specifics
+- script version numbers will be as ``1.2.3`` where 3rd ``(3)`` is the minor version for fixes/updates, 2nd ``(2)`` is major version for new feature additions or large fixes, rare version bumps to clean excessive minor version numbers, 1st ``(1)`` is reserved for large overhauls/refactors/1.0 release. Any change to a preceeding version number will zero out the following numbers. ie: ``0.9.2`` -> ``1.0.0`` or ``0.12.2`` -> ``0.13.0``
+- variables will snake case, and named as arrayIndicator_containedDataType_name_optionalExtra, such as ``file_srs_2_1_1_0`` or ``array_files_DoL``
