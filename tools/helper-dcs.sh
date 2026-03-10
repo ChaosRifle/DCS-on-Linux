@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.6.13'
+ver='0.7.0'
 # a small portion of this script was taken from the SC LUG Helper on 26/01/27 and cannot be relicensed until removed. get_latest_release() was taken from their GPLv3 source. The rest was written by Chaos initially.
 
 
@@ -151,20 +151,25 @@ terminate(){ # for subshell "exit" functionality in the event of errors
 }
 
 query(){ #    $1_terminal_exit_prompts
+  log 'c' 'query()' "$1"
   unset input
   if [ $use_zenity -eq 1 ]; then
     menu_text_zenity_line_count=$(($(echo "$menu_text_zenity" | wc -l)-1))
     menu_type='radiolist'   # 'checklist'  #'radiolist'
-    zen_options=( ${menu[@]/#/"FALSE"} )
+    for value in "${menu[@]}"; do
+      array_zenity_menu+=("FALSE")
+      array_zenity_menu+=("$value")
+    done
     decimal_offset=2
     menu_text_height=$((273+$decimal_offset+18+(18*$menu_text_zenity_line_count))) #minimum: 325, nominal base(title, zero/one line): 273 ---#
     menu_height="$((30 * (${#menu[@]}-2) + $menu_text_height))"
-    input="$(zenity --list --"$menu_type" --width="510" --height="$menu_height" --text="$menu_text_zenity" --title="$menu_title" --hide-header --cancel-label "$menu_cancel_label" --column="t" --column="o" "${zen_options[@]}")"
+    input="$(zenity --list --"$menu_type" --width="510" --height="$menu_height" --text="$menu_text_zenity" --title="$menu_title" --hide-header --cancel-label "$menu_cancel_label" --column="t" --column="o" "${array_zenity_menu[@]}")"
+    log 'i' 'query()' "$input"
     if [ "$input" = "$nil" ] ; then #handle cancel button
       input=$menu_cancel_action
     else
       for key in "${!menu[@]}"; do
-        if [ ${menu[$key]} = $input ]; then
+        if [ "${menu[$key]}" = "$input" ]; then
           input=$key
           break
         fi
@@ -181,7 +186,7 @@ query(){ #    $1_terminal_exit_prompts
   [e] = exit
   [m] = menu
 ";;
-      ?) menu_exit_prompt=":
+      *?) menu_exit_prompt=":
 ";;
       $nil) menu_exit_prompt=":
 ";;
@@ -209,7 +214,7 @@ enter a choice [0-$((${#menu[@]}-1))]${menu_exit_prompt}"
   unset decimal_offset
   unset menu_text_height
   unset menu_height
-
+  unset array_zenity_menu
   unset menu_text
   unset menu_text_zenity
   unset menu_title
@@ -264,7 +269,7 @@ unset confirm_input
     case $? in
       0) echo true ;;
       1) echo false ;;
-      ?) echo "ERROR: zenity confirmation returned value $?, terminating" > /dev/tty; terminate ;;
+      *?) echo "ERROR: zenity confirmation returned value $?, terminating" > /dev/tty; terminate ;;
     esac
   else
     read -p "
@@ -278,7 +283,7 @@ $1
       n) echo false ;;
       N) echo false ;;
       no) echo false ;;
-      ?) echo "ERROR: confirmation option $confirm_input is not available, terminating" > /dev/tty; terminate;;
+      *?) echo "ERROR: confirmation option $confirm_input is not available, terminating" > /dev/tty; terminate;;
       $nil) echo "ERROR: confirmation option nil is not available, terminating" > /dev/tty; terminate;;
     esac
   fi
@@ -319,7 +324,7 @@ select_target_srs_prefix(){
 }
 
 install_dcs(){
-  if [ $(confirm 'attempt alpha vr install?') ]; then  # TODO FIXME this is temp for vr users, must be better when runner menu is complete
+  if [ $(confirm 'attempt alpha vr install?')  == true ]; then  # TODO FIXME this is temp for vr users, must be better when runner menu is complete
     preferred_url_wine=$url_lug_vr_wine_11_staging
     preferred_file_wine=$file_lug_vr_wine_11_staging
     preferred_dir_wine=$dir_lug_vr_wine_11_staging
@@ -399,7 +404,7 @@ WARNING: consume-type installers will move, not copy, the game files into the ne
       1) runtype=1;;
       2) runtype=2;;
       m) return;;
-      ?) echo "ERROR: option $input is not available, please try again"; return;;
+      *?) echo "ERROR: option $input is not available, please try again"; return;;
       $nil) echo "ERROR: option nil is not available, please try again"; return;;
     esac
     unset input
@@ -459,11 +464,8 @@ WARNING: this will only work for a stable-release install of dcs - openbeta and 
   export WINEDLLOVERRIDES='wbemprox=n'
   export WINE="$dir_prefix/runners/$preferred_dir_wine/bin/wine" #for winetricks
   export WINESERVER="$dir_prefix/runners/$preferred_dir_wine/bin/wineserver" #for winetricks
-  if [ "$tempvrmode" = "$nil" ]; then # TODO FIXME this is temp for vr users, must be better when runner menu is complete
-    winetricks -q corefonts xact_x64 d3dcompiler_47 vcrun2022 win10 dxvk
-  else
-    winetricks -q corefonts xact_x64 d3dcompiler_47 vcrun2022 win10
-  fi
+  winetricks -q corefonts xact_x64 d3dcompiler_47 vcrun2022 win10 dxvk
+
 #"$dir_prefix/runners/$preferred_dir_wine/bin/wineserver" -k #ensure that wine isnt running https://linux.die.net/man/1/wineserver
 
   case $runtype in # 0=fresh clean install, 1=file install, 2=prefix reinstall, reroutes to 1 here as it needs the same actions
@@ -728,13 +730,13 @@ We have generated the srs hooks for you at '$dir_srs_prefix/files/hook-srs-v2.1.
 menu_main(){
   while true; do
     menu=(
-      [0]=" install_DCS"
-      [1]=" change_target_DCS_prefix"
-      [2]=" manage_runners_(NOT_IMPLEMENTED!)"
-      [3]=" manage_dxvk"
-      [4]=" troubleshooting"
-      [5]=" Simple_Radio_Standalone"
-      [6]=" update_DoL_scripts"
+      [0]="install DCS"
+      [1]="change target DCS prefix"
+      [2]="manage runners (NOT IMPLEMENTED!)"
+      [3]="manage dxvk"
+      [4]="troubleshooting"
+      [5]="Simple Radio Standalone"
+      [6]="update DoL scripts"
     )
 
     menu_text_zenity="active prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>
@@ -749,7 +751,7 @@ DoL Matrix chat/help server: ${url_matrix}"
     menu_cancel_action='e'
     menu_title="DCS on Linux Community Helper"
     query 'mainmenu'
-    case $input in
+    case "$input" in
       0) install_dcs;;
       1) select_target_dcs_prefix;;
       2) menu_runners; break;;
@@ -758,7 +760,7 @@ DoL Matrix chat/help server: ${url_matrix}"
       5) menu_srs; break;;
       6) self_update;;
       e) exit 0;;
-      ?) echo "ERROR: option $input is not available, please try again";;
+      *?) echo "ERROR: option $input is not available, please try again";;
       $nil) echo 'ERROR: please enter a value that is not nil';;
     esac
     unset input
@@ -768,17 +770,17 @@ DoL Matrix chat/help server: ${url_matrix}"
 menu_troubleshooting(){
   while true; do
     menu=(
-      [0]=" winetricks"
-      [1]=" wine_control_panel"
-      [2]=" wine_configuration"
-      [3]=" wine_regedit"
-      [4]=" wineboot_-u_(update_prefix)"
-      [5]=" fix_textures"
-      [6]=" fix_vanilla_voip_crash"
-      [7]=" fix_apache_font_crash"
-      [8]=" delete_shaders"
-      [9]=" kill_wineserver"
-      [10]=" install_udev_rules"
+      [0]="winetricks"
+      [1]="wine control panel"
+      [2]="wine configuration"
+      [3]="wine regedit"
+      [4]="wineboot -u (update_prefix)"
+      [5]="fix textures"
+      [6]="fix vanilla voip crash"
+      [7]="fix apache font crash"
+      [8]="delete shaders"
+      [9]="kill wineserver"
+      [10]="install udev rules"
     )
 
     menu_text_zenity="<a href='${url_troubleshooting}'>Troubleshooting resources</a>
@@ -793,7 +795,7 @@ DoL Matrix chat/help server: ${url_matrix}"
     menu_cancel_action='m'
     menu_title="DoL - Troubleshooting menu"
     query 'submenu'
-    case $input in
+    case "$input" in
       0) run_winetricks;;
       1) run_wine_control_panel;;
       2) run_wine_configuration;;
@@ -807,7 +809,7 @@ DoL Matrix chat/help server: ${url_matrix}"
       10) install_udev_rules;;
       e) exit 0;;
       m) menu_main; break;;
-      ?) echo "ERROR: option $input is not available, please try again";;
+      *?) echo "ERROR: option $input is not available, please try again";;
       $nil) echo 'ERROR: please enter a value that is not nil';;
     esac
     unset input
@@ -817,11 +819,14 @@ DoL Matrix chat/help server: ${url_matrix}"
 menu_runners(){ #TODO totally nonfunctional at this time
   while true; do
     menu=(
-      [0]=" remove_an_installed_runner"                   #
-      [1]=" install_a_wine_kron4ek_runner"                #
-      [2]=" change_active_runner_from_installed_runners"  #
-      [3]=" install a proton GE runner (not functional)"  #
-      [4]=" remove an installed runner2"                  #
+      [0]="install a runner"                             #
+      [1]="change active runner from installed runners"
+      [2]="remove an installed runner"                   #
+
+      [3]="install_a_wine_kron4ek_runner"                #
+      [4]="install_a_wine_sclug_runner_(vr_support)   url_lug_vr_wine_11_staging='https://github.com/starcitizen-lug/lug-wine-experimental/releases/download/11.3-1/lug-wine-tkg-staging-experimental-git-11.3-1.tar.gz'"
+      [5]="install a proton GE runner (not functional)"  #
+      [6]="remove an installed runner2"                  #
     )
 
     menu_text_zenity="active prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>"
@@ -830,12 +835,15 @@ menu_runners(){ #TODO totally nonfunctional at this time
 
     menu_cancel_label='main menu'
     menu_cancel_action='m'
-    menu_title="DoL - Runner menu"
+    menu_title="INCOMPLETE, DO NOT USE ANY OPTIONS IN HERE! DoL - Runner menu" #FIXME
     query 'submenu'
-    case $input in
+    case "$input" in
+      0) install_prefix_runner;;
+      1) modify_prefix_runner 'select' 'dcs';;
+      2) modify_prefix_runner 'rm' 'dcs';;
       e) exit 0;;
       m) menu_main; break;;
-      ?) echo "ERROR: option $input is not available, please try again";;
+      *?) echo "ERROR: option $input is not available, please try again";;
       $nil) echo 'ERROR: please enter a value that is not nil';;
     esac
     unset input
@@ -845,10 +853,10 @@ menu_runners(){ #TODO totally nonfunctional at this time
 menu_dxvk(){
   while true; do
     menu=(
-      [0]=" remove_all_dxvk"
-      [1]=" install_dxvk_standard"
-      [2]=" install_dxvk_nvapi"
-      [3]=" install_dxvk_git"                 #
+      [0]="remove all dxvk"
+      [1]="install dxvk standard"
+      [2]="install dxvk nvapi"
+      [3]="install dxvk git"                 #
     )
 
     menu_text_zenity="active prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>"
@@ -859,14 +867,14 @@ menu_dxvk(){
     menu_cancel_action='m'
     menu_title="DoL - DXVK menu"
     query 'submenu'
-    case $input in
+    case "$input" in
       0) remove_all_dxvk;; # ; menu_dxvk ;;
       1) install_dxvk_standard;;
       2) install_dxvk_nvapi;;
       3) install_dxvk_git;;
       e) exit 0;;
       m) menu_main; break;;
-      ?) echo "ERROR: option $input is not available, please try again";;
+      *?) echo "ERROR: option $input is not available, please try again";;
       $nil) echo 'ERROR: please enter a value that is not nil';;
     esac
     unset input
@@ -876,10 +884,10 @@ menu_dxvk(){
 menu_srs(){
   while true; do
     menu=(
-      [0]=" Install_SRS_latest"
-      [1]=" change_target_SRS_prefix"
-      [2]=" Install_SRS_2.3.4.0"
-      [3]=" Install_SRS_2.1.1.0_(incomplete-audio-issues)"
+      [0]="Install SRS latest"
+      [1]="change target SRS prefix"
+      [2]="Install SRS 2.3.4.0"
+      [3]="Install SRS 2.1.1.0 (incomplete: audio issues)"  #
     )
 
     menu_text_zenity="<a href='${url_troubleshooting}'>Troubleshooting resources</a>
@@ -894,14 +902,14 @@ DoL Matrix chat/help server: ${url_matrix}"
     menu_cancel_action='m'
     menu_title="DoL - SRS menu"
     query 'submenu'
-    case $input in
+    case "$input" in
       0) install_srs_latest;;
       1) select_target_srs_prefix;;
       2) install_srs_2.3.4.0;;
       3) install_srs_2.1.1.0;;
       e) exit 0;;
       m) menu_main; break;;
-      ?) echo "ERROR: option $input is not available, please try again";;
+      *?) echo "ERROR: option $input is not available, please try again";;
       $nil) echo 'ERROR: please enter a value that is not nil';;
     esac
     unset input
@@ -1163,6 +1171,29 @@ If you would like to re-try, the troubleshooting menu can do so.'
   fi
 }
 
+log(){ # TODO this will be used to output control flow to error logs for debugging in future releases
+  case "$1" in
+    c)
+      dummy=0
+#       echo "CONTROL FLOW: $2"
+    ;;
+    i)
+      dummy=0
+#       echo "USER INPUT: $2 $3"
+    ;;
+    *?)
+      dummy=0
+#       echo "$1"
+    ;;
+    $nil)
+      dummy=0
+#       echo "$1"
+    ;;
+  esac
+}
+
+
+
 firstrun(){
   if [ $is_firstrun == true ]; then
     notify "Welcome to the DCS on Linux helper.
@@ -1200,7 +1231,7 @@ exeution: $0
 [-t] terminal mode (disable zenity even if present)
 "; exit 0 ;;
       t) disable_zenity=1 ; echo 'zenity overridden' ;;
-      ?) echo "error: option -$OPTARG is not implemented, use -h to see available swithes"; exit 1;;
+      *?) echo "error: option -$OPTARG is not implemented, use -h to see available swithes"; exit 1;;
     esac
   done
 fi
