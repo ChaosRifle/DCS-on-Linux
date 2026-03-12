@@ -168,8 +168,7 @@
 ## known working runners:
 #### Lutris / Wine
 - Proton 9.27 GE
-- Wine 10.12
-- Wine 11.1 Staging
+- wine 10+/11+ staging (staging only!)
 #### Steam
 - Proton Experimental (2025/07/27)
 

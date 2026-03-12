@@ -1,7 +1,5 @@
 #!/bin/bash
-ver='0.7.0'
-# a small portion of this script was taken from the SC LUG Helper on 26/01/27 and cannot be relicensed until removed. get_latest_release() was taken from their GPLv3 source. The rest was written by Chaos initially.
-
+ver='0.8.0'
 
 ###################################################################################################
 #block root use, keep this as the FIRST lines of code in the script
@@ -15,7 +13,7 @@ fi
 ###################################################################################################
 #variables and config
 ###################################################################################################
-disable_zenity=0
+disable_zenity="0"
 dir_cfg="/home/$USER/.config/dcs-on-linux"
 cfg_dir_prefix="prefix.cfg"
 cfg_firstrun="firstrun.cfg"
@@ -23,7 +21,9 @@ cfg_dir_srs_prefix="srs_prefix.cfg"
 cfg_preferred_dir_wine="preferred_wine.cfg"
 subdir_dcs_corefiles="drive_c/Program Files/Eagle Dynamics/DCS World"
 subdir_dcs_savedgames="drive_c/users/$USER/Saved Games/DCS"
-dir_self=$(dirname $(readlink -f $0))
+dynamic_install_list_size='10'
+dir_self="$(dirname $(readlink -f $0))"
+
 
 ###################################################################################################
 #urls
@@ -31,59 +31,30 @@ dir_self=$(dirname $(readlink -f $0))
 url_dcs='https://www.digitalcombatsimulator.com/upload/iblock/959/d33ul8g3arxnzc1ejgdaa8uev8gvmew2/DCS_World_web.exe'
 file_dcs='DCS_World_web.exe'
 
-url_srs_2_1_1_0='https://github.com/ciribob/DCS-SimpleRadioStandalone/releases/download/2.1.1.0/DCS-SimpleRadioStandalone-2.1.1.0.zip'
-file_srs_2_1_1_0='SR-ClientRadio.exe'
-archive_srs_2_1_1_0='DCS-SimpleRadioStandalone-2.1.1.0.zip'
-
-url_srs_2_3_4_0='https://github.com/ciribob/DCS-SimpleRadioStandalone/releases/download/2.3.4.0/DCS-SimpleRadioStandalone-2.3.4.0.zip'
-file_srs_2_3_4_0='SR-ClientRadio.exe'
-archive_srs_2_3_4_0='DCS-SimpleRadioStandalone-2.3.4.0.zip'
-
-url_srs_latest='https://github.com/ciribob/DCS-SimpleRadioStandalone/releases/download/2.3.6.0/DCS-SimpleRadioStandalone-2.3.6.0.zip'
-file_srs_latest='SR-ClientRadio.exe'
-archive_srs_latest='DCS-SimpleRadioStandalone-2.3.6.0.zip'
-url_dotnet10='https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/10.0.3/windowsdesktop-runtime-10.0.3-win-x64.exe'
-file_dotnet10='windowsdesktop-runtime-10.0.3-win-x64.exe'
-
-url_wine_8='https://github.com/Kron4ek/Wine-Builds/releases/download/8.21/wine-8.21-amd64.tar.xz'
-file_wine_8='wine-8.21-amd64.tar.xz'
-dir_wine_8='wine-8.21-amd64'
-
-url_wine_9='https://github.com/Kron4ek/Wine-Builds/releases/download/9.22/wine-9.22-amd64.tar.xz'
-file_wine_9='wine-9.22-amd64.tar.xz'
-dir_wine_9='wine-9.22-amd64'
-
-url_wine_9_staging='https://github.com/Kron4ek/Wine-Builds/releases/download/9.22/wine-9.22-staging-amd64.tar.xz'
-file_wine_9_staging='wine-9.22-staging-amd64.tar.xz'
-dir_wine_9_staging='wine-9.22-staging-amd64'
-
-url_wine_10='https://github.com/Kron4ek/Wine-Builds/releases/download/10.20/wine-10.20-amd64.tar.xz'
-file_wine_10='wine-10.20-amd64.tar.xz'
-dir_wine_10='wine-10.20-amd64'
-
-url_wine_10_staging='https://github.com/Kron4ek/Wine-Builds/releases/download/10.20/wine-10.20-staging-amd64.tar.xz'
-file_wine_10_staging='wine-10.20-staging-amd64.tar.xz'
-dir_wine_10_staging='wine-10.20-staging-amd64'
-
-url_wine_11='https://github.com/Kron4ek/Wine-Builds/releases/download/11.1/wine-11.1-amd64.tar.xz'
-file_wine_11='wine-11.1-amd64.tar.xz'
-dir_wine_11='wine-11.1-amd64' #known bad due to 'debugger detected'
-
-url_wine_11_staging='https://github.com/Kron4ek/Wine-Builds/releases/download/11.1/wine-11.1-staging-amd64.tar.xz'
-file_wine_11_staging='wine-11.1-staging-amd64.tar.xz'
-dir_wine_11_staging='wine-11.1-staging-amd64' #known good
-
-url_lug_vr_wine_11_staging='https://github.com/starcitizen-lug/lug-wine-experimental/releases/download/11.3-1/lug-wine-tkg-staging-experimental-git-11.3-1.tar.gz'
-file_lug_vr_wine_11_staging='lug-wine-tkg-staging-experimental-git-11.3-1.tar.gz'
-dir_lug_vr_wine_11_staging='lug-wine-tkg-staging-experimental-git-11.3-1'
-
-url_dxvk_gplasync='https://gitlab.com/Ph42oN/dxvk-gplasync/-/jobs/11383149837/artifacts/download?file_type=archive'
-file_dxvk_gpl_async='download?file_type=archive'
-
-
 url_dol='https://github.com/ChaosRifle/DCS-on-Linux'
 url_troubleshooting='https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting'
 url_matrix='https://matrix.to/#/#dcs-on-linux:matrix.org'
+
+url_wine_sclug="https://api.github.com/repos/starcitizen-lug/lug-wine/releases?per_page=$dynamic_install_list_size"
+url_wine_Kron4ek="https://api.github.com/repos/Kron4ek/Wine-Builds/releases?per_page=$dynamic_install_list_size"
+
+
+
+url_dxvk_gplasync='https://gitlab.com/Ph42oN/dxvk-gplasync/-/jobs/11383149837/artifacts/download?file_type=archive' # Ph42oN%2Fdxvk-gplasync
+file_dxvk_gpl_async='download?file_type=archive'
+
+
+
+url_wine_11_staging='https://github.com/Kron4ek/Wine-Builds/releases/download/11.1/wine-11.1-staging-amd64.tar.xz' #known good for dcs, used in srs these days to avoid unnessisary prompts
+
+url_srs_2_1_1_0='https://github.com/ciribob/DCS-SimpleRadioStandalone/releases/download/2.1.1.0/DCS-SimpleRadioStandalone-2.1.1.0.zip'
+archive_srs_2_1_1_0='DCS-SimpleRadioStandalone-2.1.1.0.zip'
+
+url_srs_2_3_4_0='https://github.com/ciribob/DCS-SimpleRadioStandalone/releases/download/2.3.4.0/DCS-SimpleRadioStandalone-2.3.4.0.zip'
+archive_srs_2_3_4_0='DCS-SimpleRadioStandalone-2.3.4.0.zip'
+
+url_dotnet10='https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/10.0.3/windowsdesktop-runtime-10.0.3-win-x64.exe' # used for srs latest, unfortunately winetricks lacks dotnetdesktop10
+file_dotnet10='windowsdesktop-runtime-10.0.3-win-x64.exe'
 
 
 ###################################################################################################
@@ -110,9 +81,9 @@ array_files_DoL=(
 #function defines
 ###################################################################################################
 check_dependency(){
- selftest='pass'
+  log 'c' 'check_dependency()'
+  selftest='pass'
   if [ ! -x "$(command -v wine)" ]; then selftest='fail'; echo 'ERROR: wine missing'; fi
-                                                                                              #if ! command -v winetricks > /dev/null 2>&1; then selftest='fail'; echo 'ERROR: WINETRICKS MISSING'; fi # FIXME
   if [ ! -x "$(command -v winetricks)" ]; then selftest='fail'; echo 'ERROR: winetricks missing'; fi
   if [ ! -x "$(command -v git)" ]; then selftest='fail'; echo 'ERROR: git missing'; fi
   if [ ! -x "$(command -v wget)" ]; then selftest='fail'; echo 'ERROR: wget missing'; fi
@@ -128,6 +99,8 @@ check_dependency(){
   if [ ! -x "$(command -v wc)" ]; then selftest='fail'; echo 'ERROR: wc missing'; fi
   if [ ! -x "$(command -v pkexec)" ]; then selftest='fail'; echo 'ERROR: pkexec missing'; fi
   if [ ! -x "$(command -v sh)" ]; then selftest='fail'; echo 'ERROR: sh missing'; fi
+#   if [ ! -x "$(command -v mapfile)" ]; then selftest='fail'; echo 'ERROR: mapfile missing'; fi # find solution to search for mapfile, should be in bash v4 or higher TODO FIXME
+#   find a solution to check for globbing, ex: x=(*/) TODO FIXME
 
   if [ ! $selftest = 'pass' ]; then echo 'dependency check failed, exiting..' ; exit 1; fi
 
@@ -147,6 +120,7 @@ check_dependency(){
 }
 
 terminate(){ # for subshell "exit" functionality in the event of errors
+  log 'c' 'terminate()'
   kill 0 $PPID
 }
 
@@ -224,6 +198,7 @@ enter a choice [0-$((${#menu[@]}-1))]${menu_exit_prompt}"
 }
 
 query_filepath(){ #    $1_prompt_text
+  log 'c' 'query_filepath()'
   while true; do
     unset filepath_input
     if [ $use_zenity = 1 ]; then
@@ -249,6 +224,7 @@ $1
 }
 
 notify(){ #    $1_info_text
+  log 'c' 'notify()'
   if [ $use_zenity = 1 ]; then
     zenity --width="510" --info  --title="" --text="$1"
   else
@@ -263,7 +239,8 @@ press [enter] to continue
 }
 
 confirm(){ #    $1_question_text # WARNING only use this function where it is safe to terminate the entire proccess, as unknown or nil entry (terminal use) will exit the code. Perhaps put in a while true loop and remove the terminates for $nil) and ?)
-unset confirm_input
+  log 'c' 'confirm()'
+  unset confirm_input
   if [ $use_zenity = 1 ]; then
     zenity --question --title="Confirmation" --text="$1"
     case $? in
@@ -289,11 +266,8 @@ $1
   fi
 }
 
-format_urls(){ #TODO unwritten - for dynamically generating menu hyperlinks and possibly disk links to mitigate need for having both menu_text_zenity and menu_text for query(), cutting work in half
-  local dummy=0
-}
-
 select_target_dcs_prefix(){
+  log 'c' 'select_target_dcs_prefix()'
   while true; do
     dir_prefix=$(query_filepath "enter the full path to your DCS prefix ('path/to/games/dcs-world')")
     if [ ! -d "$dir_prefix" ]; then
@@ -309,6 +283,7 @@ select_target_dcs_prefix(){
 }
 
 select_target_srs_prefix(){
+  log 'c' 'select_target_srs_prefix()'
   while true; do
     dir_srs_prefix=$(query_filepath "enter the full path to your SRS prefix ('path/to/games/srs(-2.1.1.0)')")
     if [ ! -d "$dir_srs_prefix" ]; then
@@ -324,16 +299,7 @@ select_target_srs_prefix(){
 }
 
 install_dcs(){
-  if [ $(confirm 'attempt alpha vr install?')  == true ]; then  # TODO FIXME this is temp for vr users, must be better when runner menu is complete
-    preferred_url_wine=$url_lug_vr_wine_11_staging
-    preferred_file_wine=$file_lug_vr_wine_11_staging
-    preferred_dir_wine=$dir_lug_vr_wine_11_staging
-    tempvrmode=true
-  else
-    preferred_url_wine=$url_wine_11_staging
-    preferred_file_wine=$file_wine_11_staging
-    preferred_dir_wine=$dir_wine_11_staging
-  fi
+  log 'c' 'install_dcs()'
   anchor_dir="$(pwd)"
 
   dir_install="$(query_filepath 'Select the directory to install DCS into')"
@@ -448,17 +414,14 @@ WARNING: this will only work for a stable-release install of dcs - openbeta and 
     ;; #from here on it is a file-based install path
   esac
   mkdir -p "$dir_prefix/cache" "$dir_prefix/runners" "$dir_prefix/files"
-  echo $preferred_dir_wine > "$dir_prefix/runners/$cfg_preferred_dir_wine"
   if [ ! -f "/files/$file_dcs" ]; then #dcs installer
     cd "$dir_prefix/files"
     wget "$url_dcs" #--force-progress
   fi
-  if [ ! -d "$dir_prefix/runners/$preferred_dir_wine" ]; then #wine runner
-    cd "$dir_prefix/runners"
-    wget "$preferred_url_wine" #--force-progress
-    tar -xvf "$preferred_file_wine"
-    rm -rf "$preferred_file_wine"
-  fi
+
+  install_prefix_runner 'dcs' #    $1_dcs_or_srs   $2_url_forced_selection_runner
+  preferred_dir_wine="$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"
+
   cd "$dir_prefix"
   export WINEPREFIX="$dir_prefix"
   export WINEDLLOVERRIDES='wbemprox=n'
@@ -515,11 +478,10 @@ https://matrix.to/#/#dcs-on-linux:matrix.org"
 }
 
 install_srs_latest(){
-  preferred_url_wine=$url_wine_11_staging
-  preferred_file_wine=$file_wine_11_staging
-  preferred_dir_wine=$dir_wine_11_staging
-
+  log 'c' 'install_srs_latest()'
   anchor_dir="$(pwd)"
+  url_srs_latest="$(get_latest_git_release 'gh' 'ciribob/DCS-SimpleRadioStandalone' '.zip')" #     $1_github_or_gitlab    $2_repoOwner/repoName    $3_file_grep_filter
+  archive_srs_latest="$(echo "$url_srs_latest" | cut -d '/' -f9)"
 
   dir_srs_install="$(zenity --file-selection --directory --title="Select the directory to install SRS")"
   dir_srs_prefix="$dir_srs_install/srs-latest"
@@ -533,7 +495,6 @@ install_srs_latest(){
     exit
   else
     mkdir -p "$dir_srs_prefix/cache" "$dir_srs_prefix/runners" "$dir_srs_prefix/files/hook-srs/Scripts" "$dir_srs_prefix/files/hook-srs/Mods/Services" "$dir_srs_prefix/drive_c/srs"
-    echo $preferred_dir_wine > "$dir_srs_prefix/runners/$cfg_preferred_dir_wine"
 
     cd "$dir_srs_prefix/drive_c/srs"
     wget "$url_srs_latest" #--force-progress
@@ -542,14 +503,13 @@ install_srs_latest(){
     cp -r "$dir_srs_prefix/drive_c/srs/Scripts/DCS-SRS" "$dir_srs_prefix/files/hook-srs/Mods/Services"
     cp -r "$dir_srs_prefix/drive_c/srs/Scripts/Hooks" "$dir_srs_prefix/files/hook-srs/Scripts"
     cp -r "$dir_srs_prefix/drive_c/srs/Scripts/Export.lua" "$dir_srs_prefix/files/hook-srs/Scripts"
-
     if [ -d "$dir_prefix" ]; then
-      temp_srs_warning="Would you like to auto-install the srs hooks to the game dir?
+      temp_srs_warning="Will you install the srs hooks yourself?
+We have generated the hooks for you at '$dir_srs_prefix/files/hook-srs'
 
-      WARNING: Due to case folding and dcs jank, we STRONGLY recommend using a mod manager to avoid problems.
-      ( https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#mod-manager )
-      We have already generated the hooks for you at '$dir_srs_prefix/files/hook-srs'"
-      if [ $(confirm "$temp_srs_warning") == true ]; then
+WARNING: Due to case folding and dcs jank, we STRONGLY recommend using a mod manager to avoid problems.
+( https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#mod-manager )"
+      if [ $(confirm "$temp_srs_warning") == false ]; then
         cp "$dir_srs_prefix/files/hook-srs/Mods" "$dir_prefix/$subdir_dcs_savedgames"
         cp "$dir_srs_prefix/files/hook-srs/Scripts" "$dir_prefix/$subdir_dcs_savedgames"
         echo 'srs hook installed via raw copy... hope it doesnt break later.'
@@ -557,16 +517,12 @@ install_srs_latest(){
       unset $temp_srs_warning
     else
       notify "Please place the SRS hooks in your '$subdir_dcs_savedgames' directory using a mod manager
-      ( https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#mod-manager )
-      We have generated the srs hooks for you at '$dir_srs_prefix/files/hook-srs'"
+( https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#mod-manager )
+We have generated the srs hooks for you at '$dir_srs_prefix/files/hook-srs'"
     fi
 
-    if [ ! -d "$dir_srs_prefix/runners/$preferred_dir_wine" ]; then #wine runner
-      cd "$dir_srs_prefix/runners"
-      wget "$preferred_url_wine" #--force-progress
-      tar -xvf "$preferred_file_wine"
-      rm -rf "$preferred_file_wine"
-    fi
+    install_prefix_runner 'srs' "$url_wine_11_staging" #    $1_dcs_or_srs   $2_url_forced_selection_runner
+    preferred_dir_wine="$(cat "$dir_srs_prefix/runners/$cfg_preferred_dir_wine")"
 
     cd "$dir_srs_prefix"
     export WINEPREFIX="$dir_srs_prefix"
@@ -582,17 +538,14 @@ install_srs_latest(){
 
 #     export WINEPREFIX="$dir_srs_prefix"
 #     export WINEDLLOVERRIDES='icu=n,icuin=n,icuuc=n' #d3d9=n
-#     "$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/drive_c/srs/Client/$file_srs_2_3_4_0" # test run
+#     "$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/drive_c/srs/Client/SR-ClientRadio.exe" # test run
     cd "$anchor_dir"
-    echo 'SRS installed.'
+    echo "SRS installed"
   fi
 }
 
 install_srs_2.3.4.0(){
-  preferred_url_wine=$url_wine_11_staging
-  preferred_file_wine=$file_wine_11_staging
-  preferred_dir_wine=$dir_wine_11_staging
-
+  log 'c' 'install_srs_2.3.4.0()'
   anchor_dir="$(pwd)"
 
   dir_srs_install="$(zenity --file-selection --directory --title="Select the directory to install SRS")"
@@ -607,7 +560,6 @@ install_srs_2.3.4.0(){
     exit
   else
     mkdir -p "$dir_srs_prefix/cache" "$dir_srs_prefix/runners" "$dir_srs_prefix/files/hook-srs/Scripts" "$dir_srs_prefix/files/hook-srs/Mods/Services" "$dir_srs_prefix/drive_c/srs"
-    echo $preferred_dir_wine > "$dir_srs_prefix/runners/$cfg_preferred_dir_wine"
 
     cd "$dir_srs_prefix/drive_c/srs"
     wget "$url_srs_2_3_4_0" #--force-progress
@@ -618,12 +570,12 @@ install_srs_2.3.4.0(){
     cp -r "$dir_srs_prefix/drive_c/srs/Scripts/Export.lua" "$dir_srs_prefix/files/hook-srs/Scripts"
 
     if [ -d "$dir_prefix" ]; then
-      temp_srs_warning="Would you like to auto-install the srs hooks to the game dir?
+      temp_srs_warning="Will you install the srs hooks yourself?
+We have generated the hooks for you at '$dir_srs_prefix/files/hook-srs'
 
 WARNING: Due to case folding and dcs jank, we STRONGLY recommend using a mod manager to avoid problems.
-( https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#mod-manager )
-We have already generated the hooks for you at '$dir_srs_prefix/files/hook-srs'"
-      if [ $(confirm "$temp_srs_warning") == true ]; then
+( https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#mod-manager )"
+      if [ $(confirm "$temp_srs_warning") == false ]; then
         cp "$dir_srs_prefix/files/hook-srs/Mods" "$dir_prefix/$subdir_dcs_savedgames"
         cp "$dir_srs_prefix/files/hook-srs/Scripts" "$dir_prefix/$subdir_dcs_savedgames"
         echo 'srs hook installed via raw copy... hope it doesnt break later.'
@@ -635,12 +587,8 @@ We have already generated the hooks for you at '$dir_srs_prefix/files/hook-srs'"
 We have generated the srs hooks for you at '$dir_srs_prefix/files/hook-srs'"
     fi
 
-    if [ ! -d "$dir_srs_prefix/runners/$preferred_dir_wine" ]; then #wine runner
-      cd "$dir_srs_prefix/runners"
-      wget "$preferred_url_wine" #--force-progress
-      tar -xvf "$preferred_file_wine"
-      rm -rf "$preferred_file_wine"
-    fi
+    install_prefix_runner 'srs' "$url_wine_11_staging" #    $1_dcs_or_srs   $2_url_forced_selection_runner
+    preferred_dir_wine="$(cat "$dir_srs_prefix/runners/$cfg_preferred_dir_wine")"
 
     cd "$dir_srs_prefix"
     export WINEPREFIX="$dir_srs_prefix"
@@ -650,17 +598,14 @@ We have generated the srs hooks for you at '$dir_srs_prefix/files/hook-srs'"
 
 #     export WINEPREFIX="$dir_srs_prefix"
 #     export WINEDLLOVERRIDES='icu=n,icuin=n,icuuc=n' #d3d9=n
-#     "$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/drive_c/srs/Client/$file_srs_2_3_4_0" # test run
+#     "$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/drive_c/srs/Client/SR-ClientRadio.exe" # test run
     cd "$anchor_dir"
-    echo 'SRS installed.'
+    echo 'SRS 2.3.4.0 installed'
   fi
 }
 
-install_srs_2.1.1.0(){ # FIXME something is preventing sound working properly..
-  preferred_url_wine=$url_wine_11_staging
-  preferred_file_wine=$file_wine_11_staging
-  preferred_dir_wine=$dir_wine_11_staging
-
+install_srs_2.1.1.0(){ # TODO FIXME something is preventing sound working properly..
+  log 'c' 'install_srs_2.1.1.0()'
   anchor_dir="$(pwd)"
 
   dir_srs_install="$(zenity --file-selection --directory --title="Select the directory to install SRS")"
@@ -675,7 +620,6 @@ install_srs_2.1.1.0(){ # FIXME something is preventing sound working properly..
     exit
   else
     mkdir -p "$dir_srs_prefix/cache" "$dir_srs_prefix/runners" "$dir_srs_prefix/files/hook-srs-v2.1.1.0/Scripts" "$dir_srs_prefix/files/hook-srs-v2.1.1.0/Mods/Services" "$dir_srs_prefix/drive_c/srs"
-    echo $preferred_dir_wine > "$dir_srs_prefix/runners/$cfg_preferred_dir_wine"
 
     cd "$dir_srs_prefix/drive_c/srs"
     wget "$url_srs_2_1_1_0" #--force-progress
@@ -686,12 +630,12 @@ install_srs_2.1.1.0(){ # FIXME something is preventing sound working properly..
     cp -r "$dir_srs_prefix/drive_c/srs/Scripts/Export.lua" "$dir_srs_prefix/files/hook-srs-v2.1.1.0/Scripts"
 
     if [ -d "$dir_prefix" ]; then
-      temp_srs_warning="Would you like to auto-install the srs hooks to the game dir?
+      temp_srs_warning="Will you install the srs hooks yourself?
+We have generated the hooks for you at '$dir_srs_prefix/files/hook-srs'
 
 WARNING: Due to case folding and dcs jank, we STRONGLY recommend using a mod manager to avoid problems.
-( https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#mod-manager )
-We have already generated the hooks for you at '$dir_srs_prefix/files/hook-srs-v2.1.1.0'"
-      if [ $(confirm "$temp_srs_warning") == true ]; then
+( https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#mod-manager )"
+      if [ $(confirm "$temp_srs_warning") == false ]; then
         cp "$dir_srs_prefix/files/hook-srs-v2.1.1.0/Mods" "$dir_prefix/$subdir_dcs_savedgames"
         cp "$dir_srs_prefix/files/hook-srs-v2.1.1.0/Scripts" "$dir_prefix/$subdir_dcs_savedgames"
         echo 'srs hook installed via raw copy... hope it doesnt break later.'
@@ -704,12 +648,17 @@ We have generated the srs hooks for you at '$dir_srs_prefix/files/hook-srs-v2.1.
     fi
 
 
-    if [ ! -d "$dir_srs_prefix/runners/$preferred_dir_wine" ]; then #wine runner
-      cd "$dir_srs_prefix/runners"
-      wget "$preferred_url_wine" #--force-progress
-      tar -xvf "$preferred_file_wine"
-      rm -rf "$preferred_file_wine"
-    fi
+    install_prefix_runner 'srs' "$url_wine_11_staging" #    $1_dcs_or_srs   $2_url_forced_selection_runner
+    preferred_dir_wine="$(cat "$dir_srs_prefix/runners/$cfg_preferred_dir_wine")"
+#     echo $preferred_dir_wine > "$dir_srs_prefix/runners/$cfg_preferred_dir_wine"
+#     if [ ! -d "$dir_srs_prefix/runners/$preferred_dir_wine" ]; then #wine runner
+#       cd "$dir_srs_prefix/runners"
+#       wget "$preferred_url_wine" #--force-progress
+#       tar -xvf "$preferred_file_wine"
+#       rm -rf "$preferred_file_wine"
+#     fi
+
+
 
     cd "$dir_srs_prefix"
     export WINEARCH=win64
@@ -723,16 +672,17 @@ We have generated the srs hooks for you at '$dir_srs_prefix/files/hook-srs-v2.1.
 #     export WINEDLLOVERRIDES='d3d9=n,icu=n,icuin=n,icuuc=n'
 #     "$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/drive_c/srs/SR-ClientRadio.exe" # test run
     cd "$anchor_dir"
-    echo 'SRS installed.'
+    echo 'SRS 2.1.1.0 installed'
   fi
 }
 
 menu_main(){
+  log 'c' 'menu_main()'
   while true; do
     menu=(
       [0]="install DCS"
       [1]="change target DCS prefix"
-      [2]="manage runners (NOT IMPLEMENTED!)"
+      [2]="manage runners"
       [3]="manage dxvk"
       [4]="troubleshooting"
       [5]="Simple Radio Standalone"
@@ -768,6 +718,7 @@ DoL Matrix chat/help server: ${url_matrix}"
 }
 
 menu_troubleshooting(){
+  log 'c' 'menu_troubleshooting()'
   while true; do
     menu=(
       [0]="winetricks"
@@ -816,29 +767,24 @@ DoL Matrix chat/help server: ${url_matrix}"
   done
 }
 
-menu_runners(){ #TODO totally nonfunctional at this time
+menu_runners(){
+  log 'c' 'menu_runners()'
   while true; do
     menu=(
       [0]="install a runner"                             #
       [1]="change active runner from installed runners"
       [2]="remove an installed runner"                   #
-
-      [3]="install_a_wine_kron4ek_runner"                #
-      [4]="install_a_wine_sclug_runner_(vr_support)   url_lug_vr_wine_11_staging='https://github.com/starcitizen-lug/lug-wine-experimental/releases/download/11.3-1/lug-wine-tkg-staging-experimental-git-11.3-1.tar.gz'"
-      [5]="install a proton GE runner (not functional)"  #
-      [6]="remove an installed runner2"                  #
+      [3]="install a proton GE runner (not yet implemented!)"  #
     )
 
-    menu_text_zenity="active prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>"
-
-    menu_text="active prefix: ${dir_prefix}"
-
+    menu_text_zenity="active DCS prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>"
+    menu_text="active DCS prefix: ${dir_prefix}"
     menu_cancel_label='main menu'
     menu_cancel_action='m'
-    menu_title="INCOMPLETE, DO NOT USE ANY OPTIONS IN HERE! DoL - Runner menu" #FIXME
+    menu_title="DoL - Runner menu"
     query 'submenu'
     case "$input" in
-      0) install_prefix_runner;;
+      0) install_prefix_runner 'dcs' ;;
       1) modify_prefix_runner 'select' 'dcs';;
       2) modify_prefix_runner 'rm' 'dcs';;
       e) exit 0;;
@@ -851,12 +797,13 @@ menu_runners(){ #TODO totally nonfunctional at this time
 }
 
 menu_dxvk(){
+  log 'c' 'menu_dxvk()'
   while true; do
     menu=(
       [0]="remove all dxvk"
       [1]="install dxvk standard"
       [2]="install dxvk nvapi"
-      [3]="install dxvk git"                 #
+      [3]="install dxvk git (not yet implemented!)"                 #
     )
 
     menu_text_zenity="active prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>"
@@ -882,12 +829,13 @@ menu_dxvk(){
 }
 
 menu_srs(){
+  log 'c' 'menu_srs()'
   while true; do
     menu=(
       [0]="Install SRS latest"
       [1]="change target SRS prefix"
       [2]="Install SRS 2.3.4.0"
-      [3]="Install SRS 2.1.1.0 (incomplete: audio issues)"  #
+      [3]="Install SRS 2.1.1.0 (incomplete: audio issues!)"
     )
 
     menu_text_zenity="<a href='${url_troubleshooting}'>Troubleshooting resources</a>
@@ -917,6 +865,7 @@ DoL Matrix chat/help server: ${url_matrix}"
 }
 
 run_winetricks(){
+  log 'c' 'run_winetricks()'
   path_wine="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/"
   export WINEPREFIX="$dir_prefix"
   export WINE="$path_wine/wine"
@@ -926,31 +875,37 @@ run_winetricks(){
 }
 
 run_wine_control_panel(){
+  log 'c' 'run_wine_control_panel()'
   export WINEPREFIX="$dir_prefix"
   "$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wine" control
 }
 
 run_wine_configuration(){
+  log 'c' 'run_wine_configuration()'
   export WINEPREFIX="$dir_prefix"
   "$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/winecfg"
 }
 
 run_wine_regedit(){
+  log 'c' 'run_wine_regedit()'
   export WINEPREFIX="$dir_prefix"
   "$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/regedit"
 }
 
 run_wine_wineboot_update(){
+  log 'c' 'run_wine_wineboot_update()'
   export WINEPREFIX="$dir_prefix"
   "$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wineboot" -u
 }
 
 kill_wineserver(){
+  log 'c' 'kill_wineserver()'
   export WINEPREFIX="$dir_prefix"
   "$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wineserver" '-k'
 }
 
 fixerscript_textures(){
+  log 'c' 'fixerscript_textures()'
   if [ $(confirm "This will edit game files to fix non-rendering textures (AH64, F18, Mi24, Ka50). This will break textures IC if you slot those aircraft. This can be undone with 'launch-dcs.sh -r' to repair the files, though you should uninstall your mods before repairing
 
 https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#date-unknown-missing-textures" ) == true ]; then
@@ -959,6 +914,7 @@ https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#date-unknown-mis
 }
 
 fixerscript_vanilla_voip_crash(){
+  log 'c' 'fixerscript_vanilla_voip_crash()'
   if [ $(confirm "This will edit game files to disable the vanilla voip system in the event it prevents gameplay. This can be undone with 'launch-dcs.sh -r' to repair the files, though you should uninstall your mods before repairing
 
 https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#date-unknown-game-launches-to-a-black-screen-entirely-or-multiplayer-crashes-on-connect-dcslog-cites-voice-chat-related-things" ) == true ]; then
@@ -967,6 +923,7 @@ https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#date-unknown-gam
 }
 
 fixerscript_delete_shaders(){
+  log 'c' 'fixerscript_delete_shaders()'
   if [ -d "$dir_prefix" ]; then
       if [ $(confirm "remove mesa/dxvk cache in:
 '$dir_prefix'?") == true ]; then
@@ -982,18 +939,37 @@ fixerscript_delete_shaders(){
   fi
 }
 
-get_latest_git_release(){ # TODO - from SCLUG, GPLv3, by TheSane, unused at the moment.
-  # Sanity check
-  if [ "$#" -lt 1 ]; then
-    debug_print exit "Script error: The get_latest_release function expects one argument. Aborting."
-  fi
+get_latest_git_version(){ #     $1_github_or_gitlab    $2_repoOwner/repoName NOTE unused!
+  log 'c' 'get_latest_git_version()' "'$1,$2'"
+  case "$1" in
+    gh) git_url="https://api.github.com/repos/$2/releases/latest";;
+#     gl) git_url="https://gitlab.com/api/v4/projects/$2/releases/permalink/latest";; #the latest permalink seems to just be a redirect. per_page=1 works fine, so using that instead
+    gl) git_url="https://gitlab.com/api/v4/projects/$2/releases?per_page=1";;
+    *?) break;;
+    $nil) break;;
+  esac
+  echo "$(curl -s "$git_url" | grep 'tag_name' | cut -d '"' -f4)" # version
+}
 
-  curl --silent "https://api.github.com/repos/$1/releases/latest" | # Get latest release from GitHub api
-  grep '"tag_name":' |                                            # Get tag line
-  sed -E 's/.*"([^"]+)".*/\1/'                                    # Pluck JSON value
+get_latest_git_release(){ #     $1_github_or_gitlab    $2_repoOwner/repoName    $3_file_grep_filter   TODO FIXME WARNING GITLAB FUNCTIONALITY NOT IMPLEMENTED!!!!!!
+  log 'c' 'get_latest_git_release()' "'$1,$2,$3'"
+  case "$1" in
+    gh)
+      git_url="https://api.github.com/repos/$2/releases/latest"
+      echo "$(curl -s "$git_url" | grep 'browser_download_url' | grep "$3" | cut -d '"' -f4)" # release
+    ;;
+    gl)
+#       git_url="https://gitlab.com/api/v4/projects/$2/releases?per_page=1"
+      git_url="https://gitlab.com/api/v4/projects/$2/releases/permalink/latest"
+      echo "$(curl -s "$git_url" | grep 'browser_download_url' | grep "$3" | cut -d '"' -f4)" # release
+    ;;
+    *?) break;;
+    $nil) break;;
+  esac
 }
 
 remove_all_dxvk(){
+  log 'c' 'remove_all_dxvk()'
   if [ -d "$dir_prefix" ]; then
     export WINEPREFIX="$dir_prefix"
     path_wine="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/"
@@ -1017,6 +993,7 @@ remove_all_dxvk(){
 }
 
 install_dxvk_standard(){
+  log 'c' 'install_dxvk_standard()'
   remove_all_dxvk
   path_wine="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin"
   export WINEPREFIX="$dir_prefix"
@@ -1027,6 +1004,7 @@ install_dxvk_standard(){
 }
 
 install_dxvk_nvapi(){
+  log 'c' 'install_dxvk_nvapi()'
   if [ $(confirm 'I (chaos) am unsure if this can be fully uninstalled once installed. this has not been fully tested for removal. Removal may require a full prefix rebuild (which can be done without redownloading dcs). Proceed?') == true ]; then
     path_wine="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin"
     export WINEPREFIX="$dir_prefix"
@@ -1038,6 +1016,7 @@ install_dxvk_nvapi(){
 }
 
 install_dxvk_git(){ #TODO this is totally non functional as it has no input for the url. this is pseudocode that will eventually work.
+  log 'c' 'install_dxvk_git()'
 notify 'this is unfinished, sorry. exiting.'
 exit 1
   unset url_working
@@ -1073,10 +1052,11 @@ exit 1
 }
 
 self_update(){
+  log 'c' 'self_update()'
   if [ $(confirm 'this will delete and regenerate DoL scripts from git, if you have made modifications, please back them up. Would you like to continue?') == true ]; then
     anchor_dir="$(pwd)"
     if [ $(git rev-parse --is-inside-work-tree) == true ]; then
-      if [ $(confirm 'git tree detected, are you sure you want to continue? (this could remove all your changes to DoL if you are a dev!)') ]; then
+      if [ $(confirm 'git tree detected, are you sure you want to continue? (this could remove all your changes to DoL if you are a dev!)') == true ]; then
         git fetch --all
         git reset --hard origin/main
         git pull origin
@@ -1100,7 +1080,8 @@ self_update(){
   fi
 }
 
-fixerscript_apache_font_crash(){ # TODO FIXME select opensource font and download it in the else statement below.
+fixerscript_apache_font_crash(){ # TODO select opensource font and download it in the else statement below.
+  log 'c' 'fixerscript_apache_font_crash()'
   if [ -f "$dir_prefix/drive_c/windows/Fonts/seguisym.ttf" ]; then
     if [ $(confirm 'detected seguisym.ttf in your prefix. remove it and continue replacing it?') == true ]; then
       rm "$dir_prefix/drive_c/windows/Fonts/seguisym.ttf"
@@ -1133,6 +1114,7 @@ fixerscript_apache_font_crash(){ # TODO FIXME select opensource font and downloa
 }
 
 install_udev_rules(){
+  log 'c' 'install_udev_rules()'
   anchor_dir="$(pwd)"
   error_udev=false
   mkdir -p "$dir_self/tmp"
@@ -1192,9 +1174,213 @@ log(){ # TODO this will be used to output control flow to error logs for debuggi
   esac
 }
 
+install_prefix_runner(){ #    $1_dcs_or_srs   $2_url_forced_selection_runner
+  log 'c' 'install_prefix_runner()' "'$1,$2'"
+  temp_anchor_dir="$(pwd)"
+  case "$1" in
+    srs)
+      dir_working_prefix="$dir_srs_prefix"
+      tag_active_prefix='SRS'
+    ;;
+    dcs)
+      dir_working_prefix="$dir_prefix"
+      tag_active_prefix='DCS'
+    ;;
+    *?) break;;
+    $nil)
+      dir_working_prefix="$dir_prefix"
+      tag_active_prefix='DCS'
+    ;;
+  esac
 
+  if [ "$2" = "$nil" ]; then
+    menu=(
+      [0]="scLuG runner (openXR support for VR)"
+      [1]="standard amd64 runner (Kron4ek)"
+    )
+
+    menu_text_zenity="active $tag_active_prefix prefix: <a href='file://${dir_working_prefix}'>${dir_working_prefix}</a>
+if you do not know, any should work"
+    menu_text="active $tag_active_prefix prefix: ${dir_working_prefix}
+if you do not know, any should work"
+    menu_cancel_label='main menu'
+    menu_cancel_action='m'
+    menu_title="Select a runner type"
+    query 'submenu'
+    case "$input" in
+      0)
+        url_selected_runner="$url_wine_sclug"
+        version_to_download='staging'
+        mapfile -t array_url_wine_download <<< "$(curl -s "$url_selected_runner" | grep "browser_download_url" | grep "$version_to_download" | cut -d '"' -f4)"
+      ;;
+      1)
+        url_selected_runner="$url_wine_Kron4ek"
+        version_to_download='staging-amd64.tar'
+        mapfile -t array_url_wine_download <<< "$(curl -s "$url_selected_runner" | grep -v 'proton' | grep "browser_download_url" | grep "$version_to_download" | cut -d '"' -f4)"
+      ;;
+      e) exit 0;;
+      m) menu_main; break;;
+      *?) echo "ERROR: option $input is not available, please try again";;
+      $nil) echo 'ERROR: please enter a value that is not nil';;
+    esac
+    unset input
+
+    for value in "${array_url_wine_download[@]}"; do
+      menu+=("$(echo "$value" | cut -d '/' -f9)")
+    done
+    temp_url_pretty="$(echo "${url_selected_runner}" | cut -d '?' -f1)"
+    menu_text_zenity="active $tag_active_prefix prefix: <a href='file://${dir_working_prefix}'>${dir_working_prefix}</a>
+downloading from: <a href='${temp_url_pretty}'>${temp_url_pretty}</a>
+If you do not have preference, newer is better, but any should work"
+    menu_text="active $tag_active_prefix prefix: ${dir_working_prefix}
+downloading from: ${temp_url_pretty}
+If you do not have preference, newer is better, but any should work"
+    menu_cancel_label='main menu'
+    menu_cancel_action='m'
+    menu_title="Select a version"
+    query 'submenu'
+    case "$input" in
+      0) url_wine_download="${array_url_wine_download[$input]}";;
+      1) url_wine_download="${array_url_wine_download[$input]}";;
+      2) url_wine_download="${array_url_wine_download[$input]}";;
+      3) url_wine_download="${array_url_wine_download[$input]}";;
+      4) url_wine_download="${array_url_wine_download[$input]}";;
+      5) url_wine_download="${array_url_wine_download[$input]}";;
+      6) url_wine_download="${array_url_wine_download[$input]}";;
+      7) url_wine_download="${array_url_wine_download[$input]}";;
+      8) url_wine_download="${array_url_wine_download[$input]}";;
+      9) url_wine_download="${array_url_wine_download[$input]}";;
+      10) url_wine_download="${array_url_wine_download[$input]}";;
+      11) url_wine_download="${array_url_wine_download[$input]}";;
+      12) url_wine_download="${array_url_wine_download[$input]}";;
+      13) url_wine_download="${array_url_wine_download[$input]}";;
+      14) url_wine_download="${array_url_wine_download[$input]}";;
+      15) url_wine_download="${array_url_wine_download[$input]}";;
+      16) url_wine_download="${array_url_wine_download[$input]}";;
+      17) url_wine_download="${array_url_wine_download[$input]}";;
+      18) url_wine_download="${array_url_wine_download[$input]}";;
+      19) url_wine_download="${array_url_wine_download[$input]}";;
+      e) exit 0;;
+      m) menu_main; break;;
+      *?) echo "ERROR: option $input is not available, please try again";;
+      $nil) echo 'ERROR: please enter a value that is not nil';;
+    esac
+    unset input
+
+    unset url_selected_runner
+    unset version_to_download
+    unset array_url_wine_download
+    unset temp_url_pretty
+  else #invoked with forced url, useful for srs to not need manual selection when it doesnt matter
+    url_wine_download="$2"
+  fi
+  archive_wine_download="$(echo "${url_wine_download}" | cut -d '/' -f9)"
+  dir_wine_download="$(echo "${url_wine_download}" | cut -d '/' -f9 | sed -E 's/\.tar\.gz//' | sed -E 's/\.tar\.xz//')"
+# echo $archive_wine_download
+
+  if [ ! -d "$dir_working_prefix/runners/$dir_wine_download" ]; then
+    cd "$dir_working_prefix/runners"
+    wget "$url_wine_download" #--force-progress
+    tar -xvf "$archive_wine_download"
+    rm -rf "$archive_wine_download"
+    if [ ! -f "$dir_working_prefix/runners/$cfg_preferred_dir_wine" ]; then
+      echo "$dir_wine_download" > "$dir_working_prefix/runners/$cfg_preferred_dir_wine"
+    fi
+  fi
+#     echo $preferred_dir_wine > "$dir_prefix/runners/$cfg_preferred_dir_wine"
+  cd "$temp_anchor_dir"
+}
+
+modify_prefix_runner(){ #    $1_operation_type    $2_prefix_to_operate_on
+  log 'c' 'modify_prefix_runner()' "'$1,$2'"
+  anchor_dir="$(pwd)"
+
+  case "$1" in
+    rm)
+      tag_run_type='Remove'
+    ;;
+    select)
+      tag_run_type='Select active'
+    ;;
+    *?) break;;
+    $nil) break;;
+  esac
+  case "$2" in
+    srs)
+      dir_working_prefix="$dir_srs_prefix"
+      tag_active_prefix='SRS'
+    ;;
+    dcs)
+      dir_working_prefix="$dir_prefix"
+      tag_active_prefix='DCS'
+    ;;
+    *?) break;;
+    $nil)
+      dir_working_prefix="$dir_prefix"
+      tag_active_prefix='DCS'
+    ;;
+  esac
+
+  cd "$dir_working_prefix/runners"
+  array_dirs_installed_runners=(*/)
+#array_dirs_installed_runners=$(sed 's,/*$,,' <<< $array_dirs_installed_runners)
+  for key in "${!array_dirs_installed_runners[@]}"; do
+    array_dirs_installed_runners[$key]="$(echo "${array_dirs_installed_runners[$key]}" | sed 's,/*$,,')"
+  done
+  active_runner="$(cat "${dir_working_prefix}/runners/$cfg_preferred_dir_wine")"
+  menu=("${array_dirs_installed_runners[@]}")
+  menu_text_zenity="active ${tag_active_prefix} prefix: <a href='file://${dir_working_prefix}'>${dir_working_prefix}</a>
+active runner: $active_runner"
+  menu_text="active ${tag_active_prefix} prefix: ${dir_working_prefix}
+active runner: $active_runner"
+  menu_cancel_label='main menu'
+  menu_cancel_action='m'
+  menu_title="$tag_run_type $tag_active_prefix runner"
+  query 'submenu'
+  case "$input" in
+    e) exit 0;;
+    m) menu_main; break;;
+    *?)
+      if [[ "$input" =~ ^[0-9]+$ ]]; then #is number
+        if [ "${array_dirs_installed_runners[$input]}" = "$nil" ]; then
+          notify "ERROR: $input is not a valid selection, no action was performed"
+        else
+          case "$1" in
+            rm)
+              if [ "${array_dirs_installed_runners[$input]}" = "$active_runner" ]; then
+                notify "ERROR: you can not remove ${array_dirs_installed_runners[$input]} because it is the active runner in this prefix! No action was performed"
+              else
+                if [ -d "$dir_working_prefix/runners/${array_dirs_installed_runners[$input]}" ]; then
+                  #notify "TEST: we fake removed that file for you: $dir_working_prefix/runners/${array_dirs_installed_runners[$input]}"
+                  rm -rf "$dir_working_prefix/runners/${array_dirs_installed_runners[$input]}"
+                else
+                  notify "ERROR: we could not find the directory of $dir_working_prefix/runners/${array_dirs_installed_runners[$input]}, no action was performed"
+                fi
+              fi
+            ;;
+            select)
+              echo ${array_dirs_installed_runners[$input]} > "$dir_working_prefix/runners/$cfg_preferred_dir_wine"
+            ;;
+          esac
+        fi
+      else
+        notify "ERROR: $input is not a number, no action was performed"
+      fi
+    ;;
+    $nil) echo 'ERROR: please enter a value that is not nil, no action was performed';;
+  esac
+  unset active_runner
+  unset tag_run_type
+  unset input
+  unset array_dirs_installed_runners
+  unset dir_working_prefix
+  unset tag_active_prefix
+
+  cd "$anchor_dir"
+}
 
 firstrun(){
+  log 'c' 'firstrun()'
   if [ $is_firstrun == true ]; then
     notify "Welcome to the DCS on Linux helper.
 A config has been generated at:
@@ -1205,7 +1391,7 @@ NOTE: when using gui mode, information about what the script wants you to do wil
     is_firstrun=false
     echo $is_firstrun > "$dir_cfg/$cfg_firstrun"
 
-    if [ $(confirm 'would you like automated generic (virpil,vkb,tm,turtle) udev rule install?') ]; then
+    if [ $(confirm 'would you like automated generic (virpil,vkb,tm,turtle) udev rule install?') == true ]; then
       install_udev_rules
     fi
   fi
@@ -1215,6 +1401,7 @@ NOTE: when using gui mode, information about what the script wants you to do wil
 ###################################################################################################
 #startup
 ###################################################################################################
+log 'c' "you are running v$ver of the helper script."
 echo "you are running v$ver of the helper script."
 
 #argument parsing
@@ -1235,7 +1422,6 @@ exeution: $0
     esac
   done
 fi
-
 
 
 if [ ! -d "$dir_cfg" ]; then # load or create configs
@@ -1273,4 +1459,5 @@ fi
 ###################################################################################################
 check_dependency
 firstrun
+log 'c' "STARTUP COMPLETE"
 menu_main
