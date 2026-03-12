@@ -17,7 +17,7 @@
 # Lutris install issues
 > [!important]
 > #### (date unknown) **lutris fails to launch game after install when un-checking install files now**
-> - unchecking "install files now" during the installation process will require you to manually run the updater, because the lutris installer we provide uses dcs.exe instead of dcs_updater.exe. While we do provide an alt-launch config for updating, if the main exe is not there, lutris has a bug where it never offers the alt-launch menu 
+> - unchecking "install files now" during the installation process will require you to manually run the updater, because the lutris installer we provide uses dcs.exe instead of dcs_updater.exe. While we do provide an alt-launcfh config for updating, if the main exe is not there, lutris has a bug where it never offers the alt-launch menu 
 > - To fix this: put the dcs.exe file in the right spot. either move a copy of the game files into the prefix, or, click ``DCS World`` in Lutris > ``up arrow to the right of the wine icon`` > ``run EXE inside Wine prefix`` > Choose ``DCS_updater.exe`` in the game directory and run the updater manually. alternatively, delete the prefix/files and resintall via lutris without unchecking the install files button.
 > <img width="285" height="208" alt="image" src="https://github.com/user-attachments/assets/934fb4bc-166b-473c-b02c-beea9830f731" />
 
@@ -55,10 +55,7 @@
 > - if you intend to use opentrack, you **must** use your home folder drive with steam. (``~/.steam/steam/steamapps/common/``)
 
 # SRS issues
-> [!important]
-> #### (2025/05/25) **srs version 2.2.x.x and up do not function**
-> - the dotnet8 refactor appears to have removed the fix from [issue 621](https://github.com/ciribob/DCS-SimpleRadioStandalone/issues/621), resulting in it no longer working. other info can be found in the srs discord on [this thread](https://discord.com/channels/298054423656005632/1391492248574885918), and the [new issue is here](https://github.com/ciribob/DCS-SimpleRadioStandalone/issues/800). 
-> - Fixed for some users as of 2.3.0.1, however many other severe issues prevent use for some, not all, users
+
 
 # Linux issues
 > [!important]
@@ -91,6 +88,7 @@
 > - we have a script in this repos files, at ``tools/vanillavoipfixer.sh``. edit the path in the script to your install, and execute it, or, follow the below instructions to perform the fix manually.
 > - comment out ``../drive_c/Program Files/Eagle Dynamics/DCS World/MissionEditor/modules/mul_voicechat.lua`` line 2440 (``voice_chat.onPeerConnect(connectData)``)
 > <img alt="voip bug 3" src="https://github.com/user-attachments/assets/114949a1-2069-4892-9ed6-60452ded3a73" />
+>
 > - IF this does NOT fix the issue, you can also try the following lines, which have worked in the past, however you should be done and working now. Some users report issues with the following lines.
 > - attempt to comment out ``../drive_c/Program Files/Eagle Dynamics/DCS World/MissionEditor/modules/Options/optionsDb.lua`` lines 118-131 (``local function getVoiceChatDevices``) and line 457 (``sound('voice_chat'):setValue(true):checkbox()``).
 > - attempt to comment out ``../drive_c/Program Files/Eagle Dynamics/DCS World/MissionEditor/modules/mul_voicechat.lua`` line 2933 (``voice_chat.changeSlot(playerInfo.side, unitId)``)
