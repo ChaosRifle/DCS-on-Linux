@@ -22,6 +22,7 @@ where all good bugs go to rest... hopefully forever.
 # Joystick issues
 # Headtracking issues
 # SRS issues
+
 > [!important]
 > #### (2025/05/25)-(2026/01/04) **srs version 2.2.x.x and up do not function**
 > - the dotnet8 refactor appears to have removed the fix from [issue 621](https://github.com/ciribob/DCS-SimpleRadioStandalone/issues/621), resulting in it no longer working. other info can be found in the srs discord on [this thread](https://discord.com/channels/298054423656005632/1391492248574885918), and the [new issue is here](https://github.com/ciribob/DCS-SimpleRadioStandalone/issues/800). 
@@ -30,6 +31,12 @@ where all good bugs go to rest... hopefully forever.
 
 # Linux issues
 # DCS issues
+
+> [!important]
+> #### (date unknown)-(2026/03/12) **puffy non-continuous contrails and smoke trails**
+> - Currently unfixable, however there is a lead on starting opentrack in the same prefix, first, somehow fixing it, but turning the entire game green. Investigation required. Current work to resolve this [here](https://github.com/doitsujin/dxvk/issues/4327#issuecomment-3109439142).
+> - (2025/08/07) steam version running Proton Experimental appears to fix this issue now
+
 # AMD issues
 # Nvidia issues
 # VR issues
