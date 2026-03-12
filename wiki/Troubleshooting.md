@@ -78,6 +78,11 @@
 > - switching to staging will fix this issue entirely.
 
 > [!important]
+> #### (date unknown) **most things are green**
+> - unsure the cause, ususally only happens when using wineD3D
+> - installing and using dxvk instead of wineD3D should fix this
+
+> [!important]
 > #### (2024/07/12) **game launches to a black window**
 > - this is the launcher, it doesn't render properly. use launch parameter '--no-launcher' or an options.lua 
 
@@ -96,12 +101,6 @@
 > <img alt="voip bug 1" src="https://github.com/user-attachments/assets/450e4fe8-4b64-42eb-a099-a117cc646aa6" />
 > <img alt="voip bug 2" src="https://github.com/user-attachments/assets/2a3fae47-9dfd-415d-8229-3b995a627164" />
 > <img alt="voip bug 4" src="https://github.com/user-attachments/assets/18eaf4ca-74bd-4703-b87f-5bb5a7ac5a13" />
-
-
-> [!important]
-> #### (date unknown) **puffy non-continuous contrails and smoke trails**
-> - Currently unfixable, however there is a lead on starting opentrack in the same prefix, first, somehow fixing it, but turning the entire game green. Investigation required. Current work to resolve this [here](https://github.com/doitsujin/dxvk/issues/4327#issuecomment-3109439142).
-> - (2025/08/07) steam version running Proton Experimental appears to fix this issue now
 
 > [!important]
 > #### (2024/05/21) **jester ui and other heatblur functions are broken (hbui.exe)**
