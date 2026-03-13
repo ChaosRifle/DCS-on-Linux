@@ -1,9 +1,20 @@
 # If you encounter issues please check the [troubleshooting area](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting)
 
 # Select an installation method:
-- [Lutris](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Lutris) [ previous recommendation ]
-- [Wine](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Wine) [ via automation, beta, soon to be recommended ]
-- [Steam](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Steam) [ partially incomplete, not recommended, mildly more vr compatible than lutris ]
+- [Wine](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Wine) [ **recommended**, fully automated! ]
+- [Lutris](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Lutris) [ **Not** recommended ]
+- [Steam](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Steam) [ partially incomplete, **Not** recommended ]
+
+
+
+
+# Wine
+- 1: Download this repo's ``tools`` folder (can be done with ``git clone https://github.com/ChaosRifle/DCS-on-Linux.git``), you may rename the ``tools`` folder and place it anywhere, but keep all the scripts in the same folder
+- 2: ``chmod +x`` all of the scripts in the ``tools`` folder
+- 3: run ``helper-dcs.sh`` to begin a mostly automated installation, select ``install dcs``. please read the prompts carefully, they are important
+- 4: to launch dcs, just run ``launch-dcs.sh`` after installing. running ``launch-dcs.sh -h`` can give more info on available options
+- 4.5: if you want to launch through steam or lutris, simply add the ``launch-dcs.sh`` file with the deisred launch args. playtime tracking,etc will work normally
+- 5: go to [Finalizing install](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#finalizing-install). you can skip SRS, and Fixerscripts as they are included in the helper, you are now nearly done!
 
 
 
@@ -34,20 +45,6 @@
 > If the game is not launching to main menu now, check your runner from step 1, or proceed to [Troubleshooting](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting)
 
 - 5: close your game client if you tested it, and go to [Finalizing install](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#finalizing-install), you are now nearly done!
-
-
-
-
-# Wine
-> [!note]
-> This script is in beta. While it should function, and no prefix-breaking changes will be made to it, be aware that certain functions may not fully work. 
-> If you encounter problems, PLEASE report them in a git issue or on matrix ping Chaos, as it will exit beta and be the recommendation if no issues are reported soon.
-
-- 1: Download this repo's ``tools`` folder, you may rename the folder and place it anywhere, but keep the scripts all in the same folder
-- 2: ``chmod +x`` all of the scripts in the ``tools`` folder
-- 3: run ``helper-dcs.sh`` to begin a mostly automated installation, select ``install dcs``. please follow the prompts carefully in case user action is required
-- 4: to launch dcs, just run ``launch-dcs.sh`` after installing. running ``launch-dcs.sh -h`` can give more info on available options
-- 5: go to [Finalizing install](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#finalizing-install). you can skip SRS, and Fixerscripts as they are included in the helper, you are now nearly done!
 
 
 
@@ -164,9 +161,16 @@ We recommend [Limo](https://github.com/limo-app/limo). The flatpak will work jus
 
 
 ## SRS
+### SRS automated
+- 1: Download this repo's ``tools`` folder (can be done with ``git clone https://github.com/ChaosRifle/DCS-on-Linux.git``), you may rename the ``tools`` folder and place it anywhere, but keep all the scripts in the same folder
+- 2: ``chmod +x`` all of the scripts in the ``tools`` folder
+- 3: run ``helper-dcs.sh`` to begin a mostly automated installation, select ``Simple Radio Standalone``, then one of the ``Install SRS`` options. please read the prompts carefully, they are important
+- 4: to launch srs, just run ``launch-dcs.sh -v`` after installing. running ``launch-dcs.sh -h`` can give more info on available options
+
+
 ### SRS v2.3.4.0 (+)
 > [!note]
-> SRS v2.3.4.0 seems to work for some people, but not everyone. If the following does not work for you, revert to [v2.1.1.0](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#srs-v2110). Assuming you've installed Wine Staging 10.20 on your system, follow the below steps:
+> SRS v2.3.4.0 seems to work now. If the following does not work for you, revert to [v2.1.1.0](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#srs-v2110). Assuming you've installed Wine Staging 10.20+ on your system, follow the below steps:
 
 - 1: Create a new wine prefix (e.g. dcs-srs)
 - 2: Download [.NET Desktop Runtime v 9.X](https://dotnet.microsoft.com/en-us/download/dotnet/9.0) - As of January 2026, 9.0.12 is the latest 9.X version.
@@ -198,9 +202,6 @@ WINEPREFIX=/path/to/new-prefix/dcs-srs winecfg
 [you are now done with SRS, handy link to next section](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#Headtracking)
 
 ### SRS v2.1.1.0
-> [!caution]
-> SRS v2.1.1.0 is the latest known working version for all people on linux, check [troubleshooting for info](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20250525-srs-version-22xx-and-up-do-not-function)
-
 > [!warning]
 > to get SRS v2.1.1.0 or earlier to run, Wine-GE-8.26 is known to work extremely reliably. Versions 9.x and 10.x have been very problematic for many users
 
