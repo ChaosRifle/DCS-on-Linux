@@ -53,6 +53,8 @@
 > #### (date unknown) **Opentrack requires the game be installed to your home-folder drive**
 > - opentrack proton appid hooking only works on the home-folder drive. it does **not** check other drives with steam app-manifests.
 > - if you intend to use opentrack, you **must** use your home folder drive with steam. (``~/.steam/steam/steamapps/common/``)
+> - workaround: symlink the game into your home folder location, as shown above
+
 
 # SRS issues
 
@@ -101,6 +103,7 @@
 > <img alt="voip bug 1" src="https://github.com/user-attachments/assets/450e4fe8-4b64-42eb-a099-a117cc646aa6" />
 > <img alt="voip bug 2" src="https://github.com/user-attachments/assets/2a3fae47-9dfd-415d-8229-3b995a627164" />
 > <img alt="voip bug 4" src="https://github.com/user-attachments/assets/18eaf4ca-74bd-4703-b87f-5bb5a7ac5a13" />
+> NOTES FOR FIX HUNTING: dll override ``msdmo=n`` has shown to prevent crashes on mp connect, however inputs are dropped (cant slot in) despite the game continuing to run. suspected ths is one requirement for a true fix to this bug.
 
 > [!important]
 > #### (2024/05/21) **jester ui and other heatblur functions are broken (hbui.exe)**
@@ -141,6 +144,15 @@
 > - workaround: go to the mirage special settings page and deactivate ```realistic VTB cone of vision```
 > - unknown cause or fix to allow the setting to be used, please notify a maintainer of you figure it out
 
+> [!important]
+> #### (2026/3/24) **Camera Freelook can only go so far before stopping**
+> - Mouse input is being used (be it joystick bound or actual mouse), the mouse is hitting the edge of the screen. 
+> - fix: confine mouse cursor to game window
+
+> [!important]
+> #### (2026/3/24) **Wayland scaling breaks HBUI.exe and some icons**
+> - possible workaround: run in gamescope
+
 
 # AMD issues
 
@@ -165,13 +177,18 @@
 ## known working runners:
 #### Lutris / Wine
 - Proton 9.27 GE
-- wine 10+/11+ staging (staging only!)
+- wine 9.0 - 10.2 stable or staging
+- wine 10.3 - 11.4 Staging
 #### Steam
 - Proton Experimental (2025/07/27)
 
+## known broken runners:
+- wine 10.3 - 11.4 Stable ([debugger issue](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20250121-fails-to-launch-the-updater-with-a-debugger-has-been-found-running-in-your-system-please-unload-it-from-memory-and-restart-your-program))
+- wine 11.5 Stable and Staging ([debugger issue](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20250121-fails-to-launch-the-updater-with-a-debugger-has-been-found-running-in-your-system-please-unload-it-from-memory-and-restart-your-program))
+
 
 ## current required launch arguments
-- ``WINE_SIMULATE_WRITECOPY=1`` for F4's hbui.exe to work correctly
+- ``WINE_SIMULATE_WRITECOPY=1`` for F4's ``hbui.exe`` to work correctly
 - ``WINEDLLOVERRIDES='wbemprox=n'`` for .. some reason. If you remember, ping chaos or open a PR.
 
 ## Logs

@@ -1,5 +1,9 @@
 # If you encounter issues please check the [troubleshooting area](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting)
 
+> [!caution]
+> - Wine 10.15 is broken on Staging and Stable, and will not allow you to update your game. Avoid this version!
+
+
 # Select an installation method:
 - [Wine](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Wine) [ **recommended**, fully automated! ]
 - [Lutris](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Lutris) [ **Not** recommended ]
