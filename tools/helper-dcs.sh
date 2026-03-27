@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.8.0'
+ver='0.8.2'
 
 ###################################################################################################
 #block root use, keep this as the FIRST lines of code in the script
@@ -40,8 +40,8 @@ url_wine_Kron4ek="https://api.github.com/repos/Kron4ek/Wine-Builds/releases?per_
 
 
 
-url_dxvk_gplasync='https://gitlab.com/Ph42oN/dxvk-gplasync/-/jobs/11383149837/artifacts/download?file_type=archive' # Ph42oN%2Fdxvk-gplasync
-file_dxvk_gpl_async='download?file_type=archive'
+url_dxvk_gplasync='https://gitlab.com/Ph42oN/dxvk-gplasync/-/jobs/11383149837/artifacts/download?file_type=archive' # Ph42oN%2Fdxvk-gplasync  FIXME
+file_dxvk_gpl_async='download?file_type=archive' #FIXME
 
 
 
@@ -102,7 +102,7 @@ check_dependency(){
 #   if [ ! -x "$(command -v mapfile)" ]; then selftest='fail'; echo 'ERROR: mapfile missing'; fi # find solution to search for mapfile, should be in bash v4 or higher TODO FIXME
 #   find a solution to check for globbing, ex: x=(*/) TODO FIXME
 
-  if [ ! $selftest = 'pass' ]; then echo 'dependency check failed, exiting..' ; exit 1; fi
+  if [ ! "$selftest" = 'pass' ]; then echo 'dependency check failed, exiting..' ; exit 1; fi
 
   if [ ! "$disable_zenity" -eq 1 ]; then
     if [ -x "$(command -v zenity)" ]; then
@@ -121,48 +121,48 @@ check_dependency(){
 
 terminate(){ # for subshell "exit" functionality in the event of errors
   log 'c' 'terminate()'
-  kill 0 $PPID
+  kill 0 "$PPID"
 }
 
 query(){ #    $1_terminal_exit_prompts
   log 'c' 'query()' "$1"
   unset input
-  if [ $use_zenity -eq 1 ]; then
-    menu_text_zenity_line_count=$(($(echo "$menu_text_zenity" | wc -l)-1))
+  if [ "$use_zenity" -eq 1 ]; then
+    menu_text_zenity_line_count="$(($(echo "$menu_text_zenity" | wc -l)-1))"
     menu_type='radiolist'   # 'checklist'  #'radiolist'
     for value in "${menu[@]}"; do
       array_zenity_menu+=("FALSE")
       array_zenity_menu+=("$value")
     done
     decimal_offset=2
-    menu_text_height=$((273+$decimal_offset+18+(18*$menu_text_zenity_line_count))) #minimum: 325, nominal base(title, zero/one line): 273 ---#
+    menu_text_height="$((273+$decimal_offset+18+(18*$menu_text_zenity_line_count)))" #minimum: 325, nominal base(title, zero/one line): 273 ---#
     menu_height="$((30 * (${#menu[@]}-2) + $menu_text_height))"
     input="$(zenity --list --"$menu_type" --width="510" --height="$menu_height" --text="$menu_text_zenity" --title="$menu_title" --hide-header --cancel-label "$menu_cancel_label" --column="t" --column="o" "${array_zenity_menu[@]}")"
     log 'i' 'query()' "$input"
     if [ "$input" = "$nil" ] ; then #handle cancel button
-      input=$menu_cancel_action
+      input="$menu_cancel_action"
     else
       for key in "${!menu[@]}"; do
         if [ "${menu[$key]}" = "$input" ]; then
-          input=$key
+          input="$key"
           break
         fi
       done
     fi
   else
-    case $1 in
-      mainmenu) menu_exit_prompt=" or [e]:
+    case "$1" in
+      mainmenu) menu_exit_prompt=" or [q]:
 
-  [e] = exit
+  [q] = quit
 ";;
-      submenu) menu_exit_prompt=" or [e/m]:
+      submenu) menu_exit_prompt=" or [q/m]:
 
-  [e] = exit
-  [m] = menu
+  [q] = quit
+  [m] = main menu
 ";;
       *?) menu_exit_prompt=":
 ";;
-      $nil) menu_exit_prompt=":
+      "$nil") menu_exit_prompt=":
 ";;
     esac
     menu_text="      ${menu_title}
@@ -225,7 +225,7 @@ $1
 
 notify(){ #    $1_info_text
   log 'c' 'notify()'
-  if [ $use_zenity = 1 ]; then
+  if [ "$use_zenity" = 1 ]; then
     zenity --width="510" --info  --title="" --text="$1"
   else
     read -p "
@@ -241,9 +241,9 @@ press [enter] to continue
 confirm(){ #    $1_question_text # WARNING only use this function where it is safe to terminate the entire proccess, as unknown or nil entry (terminal use) will exit the code. Perhaps put in a while true loop and remove the terminates for $nil) and ?)
   log 'c' 'confirm()'
   unset confirm_input
-  if [ $use_zenity = 1 ]; then
+  if [ "$use_zenity" = 1 ]; then
     zenity --question --title="Confirmation" --text="$1"
-    case $? in
+    case "$?" in
       0) echo true ;;
       1) echo false ;;
       *?) echo "ERROR: zenity confirmation returned value $?, terminating" > /dev/tty; terminate ;;
@@ -253,7 +253,7 @@ confirm(){ #    $1_question_text # WARNING only use this function where it is sa
 $1
 [y/n]?
 " confirm_input
-    case $confirm_input in
+    case "$confirm_input" in
       y) echo true ;;
       Y) echo true ;;
       yes) echo true ;;
@@ -261,7 +261,7 @@ $1
       N) echo false ;;
       no) echo false ;;
       *?) echo "ERROR: confirmation option $confirm_input is not available, terminating" > /dev/tty; terminate;;
-      $nil) echo "ERROR: confirmation option nil is not available, terminating" > /dev/tty; terminate;;
+      "$nil") echo "ERROR: confirmation option nil is not available, terminating" > /dev/tty; terminate;;
     esac
   fi
 }
@@ -269,9 +269,9 @@ $1
 select_target_dcs_prefix(){
   log 'c' 'select_target_dcs_prefix()'
   while true; do
-    dir_prefix=$(query_filepath "enter the full path to your DCS prefix ('path/to/games/dcs-world')")
+    dir_prefix="$(query_filepath "enter the full path to your DCS prefix ('path/to/games/dcs-world')")"
     if [ ! -d "$dir_prefix" ]; then
-      if [ $(confirm 'the path you specified could not be found. would you like to try again?') == false ]; then
+      if [ "$(confirm 'the path you specified could not be found. would you like to try again?')" == false ]; then
         break
       fi
     else
@@ -285,9 +285,9 @@ select_target_dcs_prefix(){
 select_target_srs_prefix(){
   log 'c' 'select_target_srs_prefix()'
   while true; do
-    dir_srs_prefix=$(query_filepath "enter the full path to your SRS prefix ('path/to/games/srs(-2.1.1.0)')")
+    dir_srs_prefix="$(query_filepath "enter the full path to your SRS prefix ('path/to/games/srs(-2.1.1.0)')")"
     if [ ! -d "$dir_srs_prefix" ]; then
-      if [ $(confirm 'the path you specified could not be found. would you like to try again?') == false ]; then
+      if [ "$(confirm 'the path you specified could not be found. would you like to try again?')" == false ]; then
         break
       fi
     else
@@ -315,9 +315,9 @@ install_dcs(){
   unset runtype
   if [ -d "$dir_prefix" ]; then
     if [ -d "$dir_prefix/$subdir_dcs_corefiles" ] && [ -d "$dir_prefix/$subdir_dcs_savedgames" ]; then
-      if [ $(confirm "'dcs-world' prefix detected, continue with consume-existing-prefix install? (will use existing files to reinstall the game)
+      if [ "$(confirm "'dcs-world' prefix detected, continue with consume-existing-prefix install? (will use existing files to reinstall the game)
 
-WARNING: consume-type installers will move, not copy, the game files into the new prefix") == true ]; then
+WARNING: consume-type installers will move, not copy, the game files into the new prefix")" == true ]; then
         runtype=2
         dir_sacrificial_prefix="$dir_prefix"
       else
@@ -329,7 +329,7 @@ WARNING: consume-type installers will move, not copy, the game files into the ne
       return
     fi
   fi
-  echo $dir_prefix > "$dir_cfg/$cfg_dir_prefix"
+  echo "$dir_prefix" > "$dir_cfg/$cfg_dir_prefix"
   if [ -d "$dir_install/dcs-files" ]; then
     if [ "$runtype" = 2 ]; then
       notify "you already have a 'dcs-files' folder at your install path, consume-existing-prefix install will be unable to contine as it generates one during the sacrifice of the existing prefix. Your existing prefix prevents normal install.  Please rename/remove 'dcs-world'/'dcs-files', or select a different install path. exiting"
@@ -338,10 +338,10 @@ WARNING: consume-type installers will move, not copy, the game files into the ne
       return
     fi
     if [ -d "$dir_install/dcs-files/DCS World" ] && [ -d "$dir_install/dcs-files/DCS" ]; then
-      if [ $(confirm "dcs-files detected, continue with consume-existing-files install? (will use '$dir_install/dcs-files' folder to repopulate new prefix).
+      if [ "$(confirm "dcs-files detected, continue with consume-existing-files install? (will use '$dir_install/dcs-files' folder to repopulate new prefix).
 Selecting no will revert to normal-install.
 
-WARNING: consume-type installers will move, not copy, the game files into the new prefix") == true ]; then
+WARNING: consume-type installers will move, not copy, the game files into the new prefix")" == true ]; then
         runtype=1
       else
         runtype=0
@@ -355,9 +355,9 @@ WARNING: consume-type installers will move, not copy, the game files into the ne
   #manual runtype selection fallback # 0=fresh clean install, 1=file install, 2=prefix reinstall
   if [ "$runtype" = "$nil" ]; then
     menu=(
-      [0]=" normal_install"
-      [1]=" consume_existing_files"
-      [2]=" consume_existing_prefix"
+      [0]="normal install"
+      [1]="consume existing files (dcs-files folder)"
+      [2]="consume existing prefix"
     )
     menu_text_zenity="WARNING: consume-type installers will move, not copy, the game files into the new prefix"
     menu_text="WARNING: consume-type installers will move, not copy, the game files into the new prefix"
@@ -365,19 +365,19 @@ WARNING: consume-type installers will move, not copy, the game files into the ne
     menu_cancel_action='m'
     menu_title="Select an install method"
     query
-    case $input in
+    case "$input" in
       0) runtype=0;;
       1) runtype=1;;
       2) runtype=2;;
       m) return;;
       *?) echo "ERROR: option $input is not available, please try again"; return;;
-      $nil) echo "ERROR: option nil is not available, please try again"; return;;
+      "$nil") echo "ERROR: option nil is not available, please try again"; return;;
     esac
     unset input
   fi
 
   #primary script execution beyond here
-  case $runtype in # 0=fresh clean install, 1=file install, 2=prefix reinstall
+  case "$runtype" in # 0=fresh clean install, 1=file install, 2=prefix reinstall
     0) ;;
 
     1) notify "this should be safe, but please ensure anything important (keybinds/scripts/missions) is backed up before continuing.
@@ -422,6 +422,8 @@ WARNING: this will only work for a stable-release install of dcs - openbeta and 
   install_prefix_runner 'dcs' #    $1_dcs_or_srs   $2_url_forced_selection_runner
   preferred_dir_wine="$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"
 
+  fixerscript_apache_font_crash
+
   cd "$dir_prefix"
   export WINEPREFIX="$dir_prefix"
   export WINEDLLOVERRIDES='wbemprox=n'
@@ -431,7 +433,7 @@ WARNING: this will only work for a stable-release install of dcs - openbeta and 
 
 #"$dir_prefix/runners/$preferred_dir_wine/bin/wineserver" -k #ensure that wine isnt running https://linux.die.net/man/1/wineserver
 
-  case $runtype in # 0=fresh clean install, 1=file install, 2=prefix reinstall, reroutes to 1 here as it needs the same actions
+  case "$runtype" in # 0=fresh clean install, 1=file install, 2=prefix reinstall, reroutes to 1 here as it needs the same actions
     0) temp_string_notify="you must NOT change the default install path!
 
 you may opt to disable the desktop icon
@@ -448,7 +450,7 @@ you may opt to disable the desktop icon";;
   export WINEDLLOVERRIDES='wbemprox=n'
   "$dir_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_prefix/files/$file_dcs"
 #"$dir_prefix/runners/$preferred_dir_wine/bin/wineserver" -k
-  case $runtype in # 0=fresh clean install, 1=file install, 2=prefix reinstall
+  case "$runtype" in # 0=fresh clean install, 1=file install, 2=prefix reinstall
   # NOTE unclear if dcs installer does anything besides files on disk, like registry edits, so to be safe, we run this after the installer, as the installer refuses to run if the files are detected. Done out of caution, not knowledge
     0) ;;
     1) if [ -d "$dir_install/dcs-files/DCS" ] && [ -d "$dir_install/dcs-files/DCS World" ]; then
@@ -465,12 +467,11 @@ you may opt to disable the desktop icon";;
   unset $runtype
   cd "$anchor_dir"
 
-  fixerscript_apache_font_crash
-
   notify "DCS install is now complete.
-To run DCS, execute 'launch-dcs.sh'.
+
+To launch DCS, execute 'launch-dcs.sh'.
+To update DCS, execute 'launch-dcs.sh -u'
 If you would like to know more, use 'launch-dcs.sh -h'
-to update DCS, run 'launch-dcs.sh -u'
 
 If you have issues, check the troubleshooting wiki or ask in matrix
 https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting
@@ -488,7 +489,7 @@ install_srs_latest(){
   echo "install path: $dir_srs_install"
   echo "install prefix: $dir_srs_prefix"
 
-  echo $dir_srs_prefix > "$dir_cfg/$cfg_dir_srs_prefix"
+  echo "$dir_srs_prefix" > "$dir_cfg/$cfg_dir_srs_prefix"
 
   if [ -d "$dir_srs_prefix" ]; then
     notify 'srs prefix already exits, terminating'
@@ -509,7 +510,7 @@ We have generated the hooks for you at '$dir_srs_prefix/files/hook-srs'
 
 WARNING: Due to case folding and dcs jank, we STRONGLY recommend using a mod manager to avoid problems.
 ( https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#mod-manager )"
-      if [ $(confirm "$temp_srs_warning") == false ]; then
+      if [ "$(confirm "$temp_srs_warning")" == false ]; then
         cp "$dir_srs_prefix/files/hook-srs/Mods" "$dir_prefix/$subdir_dcs_savedgames"
         cp "$dir_srs_prefix/files/hook-srs/Scripts" "$dir_prefix/$subdir_dcs_savedgames"
         echo 'srs hook installed via raw copy... hope it doesnt break later.'
@@ -553,7 +554,7 @@ install_srs_2.3.4.0(){
   echo "install path: $dir_srs_install"
   echo "install prefix: $dir_srs_prefix"
 
-  echo $dir_srs_prefix > "$dir_cfg/$cfg_dir_srs_prefix"
+  echo "$dir_srs_prefix" > "$dir_cfg/$cfg_dir_srs_prefix"
 
   if [ -d "$dir_srs_prefix" ]; then
     notify 'srs prefix already exits, terminating'
@@ -575,7 +576,7 @@ We have generated the hooks for you at '$dir_srs_prefix/files/hook-srs'
 
 WARNING: Due to case folding and dcs jank, we STRONGLY recommend using a mod manager to avoid problems.
 ( https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#mod-manager )"
-      if [ $(confirm "$temp_srs_warning") == false ]; then
+      if [ "$(confirm "$temp_srs_warning")" == false ]; then
         cp "$dir_srs_prefix/files/hook-srs/Mods" "$dir_prefix/$subdir_dcs_savedgames"
         cp "$dir_srs_prefix/files/hook-srs/Scripts" "$dir_prefix/$subdir_dcs_savedgames"
         echo 'srs hook installed via raw copy... hope it doesnt break later.'
@@ -613,7 +614,7 @@ install_srs_2.1.1.0(){ # TODO FIXME something is preventing sound working proper
   echo "install path: $dir_srs_install"
   echo "install prefix: $dir_srs_prefix"
 
-  echo $dir_srs_prefix > "$dir_cfg/$cfg_dir_srs_prefix"
+  echo "$dir_srs_prefix" > "$dir_cfg/$cfg_dir_srs_prefix"
 
   if [ -d "$dir_srs_prefix" ]; then
     notify 'srs-2.1.1.0 prefix already exits, terminating'
@@ -635,7 +636,7 @@ We have generated the hooks for you at '$dir_srs_prefix/files/hook-srs'
 
 WARNING: Due to case folding and dcs jank, we STRONGLY recommend using a mod manager to avoid problems.
 ( https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#mod-manager )"
-      if [ $(confirm "$temp_srs_warning") == false ]; then
+      if [ "$(confirm "$temp_srs_warning")" == false ]; then
         cp "$dir_srs_prefix/files/hook-srs-v2.1.1.0/Mods" "$dir_prefix/$subdir_dcs_savedgames"
         cp "$dir_srs_prefix/files/hook-srs-v2.1.1.0/Scripts" "$dir_prefix/$subdir_dcs_savedgames"
         echo 'srs hook installed via raw copy... hope it doesnt break later.'
@@ -650,14 +651,6 @@ We have generated the srs hooks for you at '$dir_srs_prefix/files/hook-srs-v2.1.
 
     install_prefix_runner 'srs' "$url_wine_11_staging" #    $1_dcs_or_srs   $2_url_forced_selection_runner
     preferred_dir_wine="$(cat "$dir_srs_prefix/runners/$cfg_preferred_dir_wine")"
-#     echo $preferred_dir_wine > "$dir_srs_prefix/runners/$cfg_preferred_dir_wine"
-#     if [ ! -d "$dir_srs_prefix/runners/$preferred_dir_wine" ]; then #wine runner
-#       cd "$dir_srs_prefix/runners"
-#       wget "$preferred_url_wine" #--force-progress
-#       tar -xvf "$preferred_file_wine"
-#       rm -rf "$preferred_file_wine"
-#     fi
-
 
 
     cd "$dir_srs_prefix"
@@ -698,7 +691,7 @@ DoL Github: ${url_dol}
 DoL Matrix chat/help server: ${url_matrix}"
 
     menu_cancel_label='exit'
-    menu_cancel_action='e'
+    menu_cancel_action='q'
     menu_title="DCS on Linux Community Helper"
     query 'mainmenu'
     case "$input" in
@@ -709,9 +702,10 @@ DoL Matrix chat/help server: ${url_matrix}"
       4) menu_troubleshooting; break;;
       5) menu_srs; break;;
       6) self_update;;
-      e) exit 0;;
+      q) exit 0;;
+      exit) exit 0;;
       *?) echo "ERROR: option $input is not available, please try again";;
-      $nil) echo 'ERROR: please enter a value that is not nil';;
+      "$nil") echo 'ERROR: please enter a value that is not nil';;
     esac
     unset input
   done
@@ -758,10 +752,11 @@ DoL Matrix chat/help server: ${url_matrix}"
       8) fixerscript_delete_shaders;;
       9) kill_wineserver;;
       10) install_udev_rules;;
-      e) exit 0;;
+      q) exit 0;;
+      exit) exit 0;;
       m) menu_main; break;;
       *?) echo "ERROR: option $input is not available, please try again";;
-      $nil) echo 'ERROR: please enter a value that is not nil';;
+      "$nil") echo 'ERROR: please enter a value that is not nil';;
     esac
     unset input
   done
@@ -771,10 +766,10 @@ menu_runners(){
   log 'c' 'menu_runners()'
   while true; do
     menu=(
-      [0]="install a runner"                             #
+      [0]="install a runner"
       [1]="change active runner from installed runners"
-      [2]="remove an installed runner"                   #
-      [3]="install a proton GE runner (not yet implemented!)"  #
+      [2]="remove an installed runner"
+      [3]="install a proton GE runner (not yet implemented!)"
     )
 
     menu_text_zenity="active DCS prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>"
@@ -787,10 +782,11 @@ menu_runners(){
       0) install_prefix_runner 'dcs' ;;
       1) modify_prefix_runner 'select' 'dcs';;
       2) modify_prefix_runner 'rm' 'dcs';;
-      e) exit 0;;
+      q) exit 0;;
+      exit) exit 0;;
       m) menu_main; break;;
       *?) echo "ERROR: option $input is not available, please try again";;
-      $nil) echo 'ERROR: please enter a value that is not nil';;
+      "$nil") echo 'ERROR: please enter a value that is not nil';;
     esac
     unset input
   done
@@ -803,7 +799,7 @@ menu_dxvk(){
       [0]="remove all dxvk"
       [1]="install dxvk standard"
       [2]="install dxvk nvapi"
-      [3]="install dxvk git (not yet implemented!)"                 #
+      [3]="install dxvk git (not yet implemented!)"
     )
 
     menu_text_zenity="active prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>"
@@ -819,10 +815,11 @@ menu_dxvk(){
       1) install_dxvk_standard;;
       2) install_dxvk_nvapi;;
       3) install_dxvk_git;;
-      e) exit 0;;
+      q) exit 0;;
+      exit) exit 0;;
       m) menu_main; break;;
       *?) echo "ERROR: option $input is not available, please try again";;
-      $nil) echo 'ERROR: please enter a value that is not nil';;
+      "$nil") echo 'ERROR: please enter a value that is not nil';;
     esac
     unset input
   done
@@ -855,10 +852,11 @@ DoL Matrix chat/help server: ${url_matrix}"
       1) select_target_srs_prefix;;
       2) install_srs_2.3.4.0;;
       3) install_srs_2.1.1.0;;
-      e) exit 0;;
+      q) exit 0;;
+      exit) exit 0;;
       m) menu_main; break;;
       *?) echo "ERROR: option $input is not available, please try again";;
-      $nil) echo 'ERROR: please enter a value that is not nil';;
+      "$nil") echo 'ERROR: please enter a value that is not nil';;
     esac
     unset input
   done
@@ -866,7 +864,7 @@ DoL Matrix chat/help server: ${url_matrix}"
 
 run_winetricks(){
   log 'c' 'run_winetricks()'
-  path_wine="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/"
+  path_wine="$dir_prefix/runners/$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")/bin/"
   export WINEPREFIX="$dir_prefix"
   export WINE="$path_wine/wine"
   export WINESERVER="$path_wine/wineserver"
@@ -877,47 +875,47 @@ run_winetricks(){
 run_wine_control_panel(){
   log 'c' 'run_wine_control_panel()'
   export WINEPREFIX="$dir_prefix"
-  "$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wine" control
+  "$dir_prefix/runners/$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")/bin/wine" control
 }
 
 run_wine_configuration(){
   log 'c' 'run_wine_configuration()'
   export WINEPREFIX="$dir_prefix"
-  "$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/winecfg"
+  "$dir_prefix/runners/$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")/bin/winecfg"
 }
 
 run_wine_regedit(){
   log 'c' 'run_wine_regedit()'
   export WINEPREFIX="$dir_prefix"
-  "$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/regedit"
+  "$dir_prefix/runners/$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")/bin/regedit"
 }
 
 run_wine_wineboot_update(){
   log 'c' 'run_wine_wineboot_update()'
   export WINEPREFIX="$dir_prefix"
-  "$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wineboot" -u
+  "$dir_prefix/runners/$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")/bin/wineboot" -u
 }
 
 kill_wineserver(){
   log 'c' 'kill_wineserver()'
   export WINEPREFIX="$dir_prefix"
-  "$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/wineserver" '-k'
+  "$dir_prefix/runners/$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")/bin/wineserver" '-k'
 }
 
 fixerscript_textures(){
   log 'c' 'fixerscript_textures()'
-  if [ $(confirm "This will edit game files to fix non-rendering textures (AH64, F18, Mi24, Ka50). This will break textures IC if you slot those aircraft. This can be undone with 'launch-dcs.sh -r' to repair the files, though you should uninstall your mods before repairing
+  if [ "$(confirm "This will edit game files to fix non-rendering textures (AH64, F18, Mi24, Ka50). This will break textures IC if you slot those aircraft. This can be undone with 'launch-dcs.sh -r' to repair the files, though you should uninstall your mods before repairing
 
-https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#date-unknown-missing-textures" ) == true ]; then
+https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#date-unknown-missing-textures" )" == true ]; then
     "$dir_self/texturefixer.sh" "$dir_prefix"
   fi
 }
 
 fixerscript_vanilla_voip_crash(){
   log 'c' 'fixerscript_vanilla_voip_crash()'
-  if [ $(confirm "This will edit game files to disable the vanilla voip system in the event it prevents gameplay. This can be undone with 'launch-dcs.sh -r' to repair the files, though you should uninstall your mods before repairing
+  if [ "$(confirm "This will edit game files to disable the vanilla voip system in the event it prevents gameplay. This can be undone with 'launch-dcs.sh -r' to repair the files, though you should uninstall your mods before repairing
 
-https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#date-unknown-game-launches-to-a-black-screen-entirely-or-multiplayer-crashes-on-connect-dcslog-cites-voice-chat-related-things" ) == true ]; then
+https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#date-unknown-game-launches-to-a-black-screen-entirely-or-multiplayer-crashes-on-connect-dcslog-cites-voice-chat-related-things" )" == true ]; then
     "$dir_self/vanillavoipfixer.sh" "$dir_prefix"
   fi
 }
@@ -925,8 +923,8 @@ https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#date-unknown-gam
 fixerscript_delete_shaders(){
   log 'c' 'fixerscript_delete_shaders()'
   if [ -d "$dir_prefix" ]; then
-      if [ $(confirm "remove mesa/dxvk cache in:
-'$dir_prefix'?") == true ]; then
+      if [ "$(confirm "remove mesa/dxvk cache in:
+'$dir_prefix'?")" == true ]; then
       rm -rf "$dir_prefix/cache"
       mkdir "$dir_prefix/cache"
     fi
@@ -946,7 +944,7 @@ get_latest_git_version(){ #     $1_github_or_gitlab    $2_repoOwner/repoName NOT
 #     gl) git_url="https://gitlab.com/api/v4/projects/$2/releases/permalink/latest";; #the latest permalink seems to just be a redirect. per_page=1 works fine, so using that instead
     gl) git_url="https://gitlab.com/api/v4/projects/$2/releases?per_page=1";;
     *?) break;;
-    $nil) break;;
+    "$nil") break;;
   esac
   echo "$(curl -s "$git_url" | grep 'tag_name' | cut -d '"' -f4)" # version
 }
@@ -964,7 +962,7 @@ get_latest_git_release(){ #     $1_github_or_gitlab    $2_repoOwner/repoName    
       echo "$(curl -s "$git_url" | grep 'browser_download_url' | grep "$3" | cut -d '"' -f4)" # release
     ;;
     *?) break;;
-    $nil) break;;
+    "$nil") break;;
   esac
 }
 
@@ -995,7 +993,7 @@ remove_all_dxvk(){
 install_dxvk_standard(){
   log 'c' 'install_dxvk_standard()'
   remove_all_dxvk
-  path_wine="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin"
+  path_wine="$dir_prefix/runners/$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")/bin"
   export WINEPREFIX="$dir_prefix"
   export WINE="$path_wine/wine"
   export WINESERVER="$path_wine/wineserver"
@@ -1005,8 +1003,8 @@ install_dxvk_standard(){
 
 install_dxvk_nvapi(){
   log 'c' 'install_dxvk_nvapi()'
-  if [ $(confirm 'I (chaos) am unsure if this can be fully uninstalled once installed. this has not been fully tested for removal. Removal may require a full prefix rebuild (which can be done without redownloading dcs). Proceed?') == true ]; then
-    path_wine="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin"
+  if [ "$(confirm 'I (chaos) am unsure if this can be fully uninstalled once installed. this has not been fully tested for removal. Removal may require a full prefix rebuild (which can be done without redownloading dcs). Proceed?')" == true ]; then
+    path_wine="$dir_prefix/runners/$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")/bin"
     export WINEPREFIX="$dir_prefix"
     export WINE="$path_wine/wine"
     export WINESERVER="$path_wine/wineserver"
@@ -1022,23 +1020,23 @@ exit 1
   unset url_working
   unset file_working
   url_working="$url_dxvk_gplasync"
-  file_working="$file_dxvk_gpl_async"
+  file_working="$file_dxvk_gpl_async" #FIXME should be archive_ not file_
 
   anchor_dir="$(pwd)"
   remove_all_dxvk
   export WINEPREFIX="$dir_prefix"
-  path_wine="$dir_prefix/runners/"$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"/bin/"
+  path_wine="$dir_prefix/runners/$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")/bin/"
 
   cd "$dir_prefix/files"
-  wget $url_working #https://github.com/doitsujin/dxvk/releases/download/vX.X.X/dxvk-X.X.X.tar.gz
+  wget "$url_working" #https://github.com/doitsujin/dxvk/releases/download/vX.X.X/dxvk-X.X.X.tar.gz
   # if tar, then: tar -xzf dxvk-X.X.X.tar.gz
   #if zip, then:
-  unzip $file_working
+  unzip "$file_working"
   #cd dxvk-X.X.X
 
-  cp $dir_prefix/files/x64/*.dll "$dir_prefix/drive_c/windows/system32/"
-  cp $dir_prefix/files/x32/*.dll "$dir_prefix/drive_c/windows/syswow64/"
-  cd $anchor_dir
+  cp $dir_prefix/files/x64/*.dll "$dir_prefix/drive_c/windows/system32/"  #  TODO lacks quotes on command, should be corrected however needs the * wildcard to work
+  cp $dir_prefix/files/x32/*.dll "$dir_prefix/drive_c/windows/syswow64/"  #  TODO lacks quotes on command, should be corrected however needs the * wildcard to work
+  cd "$anchor_dir"
 
     # Register the DLLs, old method based on dxvk.org install instructions and install script form 2.0 and earlier
     #winecfg and manually add native DLL overrides for d3d8, d3d9, d3d10core, d3d11 and dxgi under the Libraries tab
@@ -1053,10 +1051,10 @@ exit 1
 
 self_update(){
   log 'c' 'self_update()'
-  if [ $(confirm 'this will delete and regenerate DoL scripts from git, if you have made modifications, please back them up. Would you like to continue?') == true ]; then
+  if [ "$(confirm 'this will delete and regenerate DoL scripts from git, if you have made modifications, please back them up. Would you like to continue?')" == true ]; then
     anchor_dir="$(pwd)"
-    if [ $(git rev-parse --is-inside-work-tree) == true ]; then
-      if [ $(confirm 'git tree detected, are you sure you want to continue? (this could remove all your changes to DoL if you are a dev!)') == true ]; then
+    if [ "$(git rev-parse --is-inside-work-tree)" == true ]; then
+      if [ "$(confirm 'git tree detected, are you sure you want to continue? (this could remove all your changes to DoL if you are a dev!)')" == true ]; then
         git fetch --all
         git reset --hard origin/main
         git pull origin
@@ -1070,7 +1068,7 @@ self_update(){
       for value in "${array_files_DoL[@]}"; do
         rm "$dir_self/$value"
       done
-      mv $dir_self/tmp/DCS-on-Linux/tools/* "$dir_self"
+      mv $dir_self/tmp/DCS-on-Linux/tools/* "$dir_self"   #  TODO lacks quotes on command, should be corrected however needs the * wildcard to work
       cd "$anchor_dir"
       rm -rf "$dir_self/tmp" #/DCS-on-Linux"
     fi
@@ -1083,20 +1081,20 @@ self_update(){
 fixerscript_apache_font_crash(){ # TODO select opensource font and download it in the else statement below.
   log 'c' 'fixerscript_apache_font_crash()'
   if [ -f "$dir_prefix/drive_c/windows/Fonts/seguisym.ttf" ]; then
-    if [ $(confirm 'detected seguisym.ttf in your prefix. remove it and continue replacing it?') == true ]; then
+    if [ "$(confirm 'detected seguisym.ttf in your prefix. remove it and continue replacing it?')" == true ]; then
       rm "$dir_prefix/drive_c/windows/Fonts/seguisym.ttf"
     else
       return
     fi
   fi
-  if [ $(confirm 'do you have a real copy of seguisym.ttf you would like to use to fix apache chashes?') == true ]; then
+  if [ "$(confirm 'do you have a real copy of seguisym.ttf you would like to use to fix apache chashes?')" == true ]; then
     file_seguisym="seguisym.ttf"
     while true; do
-      dir_seguisym=$(query_filepath 'please provide the filepath to the containing folder of your copy of seguisym.ttf')
+      dir_seguisym="$(query_filepath 'please provide the filepath to the containing folder of your copy of seguisym.ttf')"
       if [ -f "$dir_seguisym/$file_seguisym" ]; then
         break
       else
-        if [ $(confirm "ERROR: file not found at '$dir_seguisym/$file_seguisym'. Would you like to try again?") != true ]; then
+        if [ "$(confirm "ERROR: file not found at '$dir_seguisym/$file_seguisym'. Would you like to try again?")" != true ]; then
           return
         fi
       fi
@@ -1108,7 +1106,7 @@ fixerscript_apache_font_crash(){ # TODO select opensource font and download it i
 #     dir_seguisym=""
 #     file_seguisym=""
   fi
-  mv "$dir_seguisym/$file_seguisym" "$dir_prefix/drive_c/windows/Fonts/seguisym.ttf"
+  cp "$dir_seguisym/$file_seguisym" "$dir_prefix/drive_c/windows/Fonts/seguisym.ttf"
   unset dir_seguisym
   unset file_seguisym
 }
@@ -1122,7 +1120,7 @@ install_udev_rules(){
   echo "$dir_self/../udev/40-virpil.rules"
   if [ -f "$dir_self/../udev/40-virpil.rules" ]; then #if repo skip redundant download
     mkdir -p "$dir_self/tmp/DCS-on-Linux/udev"
-    cp $dir_self/../udev/* "$dir_self/tmp/DCS-on-Linux/udev"
+    cp $dir_self/../udev/* "$dir_self/tmp/DCS-on-Linux/udev"    #  TODO lacks quotes on command, should be corrected however needs the * wildcard to work
   else
     git clone "$url_dol.git"
   fi
@@ -1167,7 +1165,7 @@ log(){ # TODO this will be used to output control flow to error logs for debuggi
       dummy=0
 #       echo "$1"
     ;;
-    $nil)
+    "$nil")
       dummy=0
 #       echo "$1"
     ;;
@@ -1187,7 +1185,7 @@ install_prefix_runner(){ #    $1_dcs_or_srs   $2_url_forced_selection_runner
       tag_active_prefix='DCS'
     ;;
     *?) break;;
-    $nil)
+    "$nil")
       dir_working_prefix="$dir_prefix"
       tag_active_prefix='DCS'
     ;;
@@ -1195,33 +1193,49 @@ install_prefix_runner(){ #    $1_dcs_or_srs   $2_url_forced_selection_runner
 
   if [ "$2" = "$nil" ]; then
     menu=(
-      [0]="scLuG runner (openXR support for VR)"
-      [1]="standard amd64 runner (Kron4ek)"
+#       [0]="Stable  - scLuG runner (openXR support for VR)"
+      [0]="Staging - scLuG runner (openXR support for VR)"
+#       [2]="Stable  - Kron4ek runner"
+      [1]="Staging - Kron4ek runner"
     )
 
     menu_text_zenity="active $tag_active_prefix prefix: <a href='file://${dir_working_prefix}'>${dir_working_prefix}</a>
-if you do not know, any should work"
+WARNING: Wine 11.5+ IS BROKEN ON ALL BRANCHES
+Wine 10.3 to 11.4 requires Staging branch
+If not listed, either will work"
     menu_text="active $tag_active_prefix prefix: ${dir_working_prefix}
-if you do not know, any should work"
+WARNING: Wine 11.5+ IS BROKEN ON ALL BRANCHES
+Wine 10.3 to 11.4 requires Staging branch
+If not listed, either will work"
     menu_cancel_label='main menu'
     menu_cancel_action='m'
     menu_title="Select a runner type"
     query 'submenu'
     case "$input" in
-      0)
+#       0) #stable scLug
+#         url_selected_runner="$url_wine_sclug"
+#         version_to_download='wine-tkg-'
+#         mapfile -t array_url_wine_download <<< "$(curl -s "$url_selected_runner" | grep "browser_download_url" | grep "$version_to_download" | grep -v 'staging' | cut -d '"' -f4)"
+#       ;;
+      0) #staging scLug
         url_selected_runner="$url_wine_sclug"
         version_to_download='staging'
         mapfile -t array_url_wine_download <<< "$(curl -s "$url_selected_runner" | grep "browser_download_url" | grep "$version_to_download" | cut -d '"' -f4)"
       ;;
-      1)
+#       2) #stable kron4ek
+#         url_selected_runner="$url_wine_Kron4ek"
+#         version_to_download='amd64.tar'
+#         mapfile -t array_url_wine_download <<< "$(curl -s "$url_selected_runner" | grep "browser_download_url" | grep "$version_to_download" | grep -v 'proton' | grep -v 'staging' | cut -d '"' -f4)"
+#       ;;
+      1) #staging kron4ek
         url_selected_runner="$url_wine_Kron4ek"
         version_to_download='staging-amd64.tar'
-        mapfile -t array_url_wine_download <<< "$(curl -s "$url_selected_runner" | grep -v 'proton' | grep "browser_download_url" | grep "$version_to_download" | cut -d '"' -f4)"
+        mapfile -t array_url_wine_download <<< "$(curl -s "$url_selected_runner" | grep "browser_download_url" | grep "$version_to_download" | grep -v 'proton' | cut -d '"' -f4)"
       ;;
       e) exit 0;;
       m) menu_main; break;;
       *?) echo "ERROR: option $input is not available, please try again";;
-      $nil) echo 'ERROR: please enter a value that is not nil';;
+      "$nil") echo 'ERROR: please enter a value that is not nil';;
     esac
     unset input
 
@@ -1231,10 +1245,14 @@ if you do not know, any should work"
     temp_url_pretty="$(echo "${url_selected_runner}" | cut -d '?' -f1)"
     menu_text_zenity="active $tag_active_prefix prefix: <a href='file://${dir_working_prefix}'>${dir_working_prefix}</a>
 downloading from: <a href='${temp_url_pretty}'>${temp_url_pretty}</a>
-If you do not have preference, newer is better, but any should work"
+WARNING: Wine 11.5+ IS BROKEN ON ALL BRANCHES
+Wine 10.3 to 11.4 requires Staging branch
+If not listed, either will work"
     menu_text="active $tag_active_prefix prefix: ${dir_working_prefix}
 downloading from: ${temp_url_pretty}
-If you do not have preference, newer is better, but any should work"
+WARNING: Wine 11.5+ IS BROKEN ON ALL BRANCHES
+Wine 10.3 to 11.4 requires Staging branch
+If not listed, either will work"
     menu_cancel_label='main menu'
     menu_cancel_action='m'
     menu_title="Select a version"
@@ -1263,7 +1281,7 @@ If you do not have preference, newer is better, but any should work"
       e) exit 0;;
       m) menu_main; break;;
       *?) echo "ERROR: option $input is not available, please try again";;
-      $nil) echo 'ERROR: please enter a value that is not nil';;
+      "$nil") echo 'ERROR: please enter a value that is not nil';;
     esac
     unset input
 
@@ -1303,7 +1321,7 @@ modify_prefix_runner(){ #    $1_operation_type    $2_prefix_to_operate_on
       tag_run_type='Select active'
     ;;
     *?) break;;
-    $nil) break;;
+    "$nil") break;;
   esac
   case "$2" in
     srs)
@@ -1315,7 +1333,7 @@ modify_prefix_runner(){ #    $1_operation_type    $2_prefix_to_operate_on
       tag_active_prefix='DCS'
     ;;
     *?) break;;
-    $nil)
+    "$nil")
       dir_working_prefix="$dir_prefix"
       tag_active_prefix='DCS'
     ;;
@@ -1359,7 +1377,7 @@ active runner: $active_runner"
               fi
             ;;
             select)
-              echo ${array_dirs_installed_runners[$input]} > "$dir_working_prefix/runners/$cfg_preferred_dir_wine"
+              echo "${array_dirs_installed_runners[$input]}" > "$dir_working_prefix/runners/$cfg_preferred_dir_wine"
             ;;
           esac
         fi
@@ -1367,7 +1385,7 @@ active runner: $active_runner"
         notify "ERROR: $input is not a number, no action was performed"
       fi
     ;;
-    $nil) echo 'ERROR: please enter a value that is not nil, no action was performed';;
+    "$nil") echo 'ERROR: please enter a value that is not nil, no action was performed';;
   esac
   unset active_runner
   unset tag_run_type
@@ -1381,7 +1399,7 @@ active runner: $active_runner"
 
 firstrun(){
   log 'c' 'firstrun()'
-  if [ $is_firstrun == true ]; then
+  if [ "$is_firstrun" == true ]; then
     notify "Welcome to the DCS on Linux helper.
 A config has been generated at:
 /home/$USER/.config/dcs-on-linux
@@ -1389,9 +1407,9 @@ A config has been generated at:
 NOTE: when using gui mode, information about what the script wants you to do will be displayed as a window title (text at the top in dolphin)."
 
     is_firstrun=false
-    echo $is_firstrun > "$dir_cfg/$cfg_firstrun"
+    echo "$is_firstrun" > "$dir_cfg/$cfg_firstrun"
 
-    if [ $(confirm 'would you like automated generic (virpil,vkb,tm,turtle) udev rule install?') == true ]; then
+    if [ "$(confirm 'would you like automated generic (virpil,vkb,tm,turtle) udev rule install?')" == true ]; then
       install_udev_rules
     fi
   fi
@@ -1405,13 +1423,13 @@ log 'c' "you are running v$ver of the helper script."
 echo "you are running v$ver of the helper script."
 
 #argument parsing
-if [ $# -eq 0 ]; then #default run
+if [ "$#" -eq 0 ]; then #default run
   #   $0 -n
   #   exit 1
   echo 'default run detected'
 else
   while getopts "ht" arg; do #arg run
-    case $arg in
+    case "$arg" in
       h) printf "DCS on Linux Helper Script
 exeution: $0
 [-h] help (this message)
@@ -1428,27 +1446,27 @@ if [ ! -d "$dir_cfg" ]; then # load or create configs
   echo "config not found, generating one at $dir_cfg"
   mkdir -p "$dir_cfg"
   is_firstrun=true
-  echo $dir_prefix > "$dir_cfg/$cfg_dir_prefix"
-  echo $is_firstrun > "$dir_cfg/$cfg_firstrun"
-  echo $dir_srs_prefix > "$dir_cfg/$cfg_dir_srs_prefix"
+  echo "$dir_prefix" > "$dir_cfg/$cfg_dir_prefix"
+  echo "$is_firstrun" > "$dir_cfg/$cfg_firstrun"
+  echo "$dir_srs_prefix" > "$dir_cfg/$cfg_dir_srs_prefix"
 else
   if [ -f "$dir_cfg/$cfg_dir_prefix" ]; then #prefix
     dir_prefix="$(cat "$dir_cfg/$cfg_dir_prefix")"
   else
-    echo $dir_prefix > "$dir_cfg/$cfg_dir_prefix"
+    echo "$dir_prefix" > "$dir_cfg/$cfg_dir_prefix"
     echo "config file $cfg_dir_prefix missing, regenerated"
   fi
   if [ -f "$dir_cfg/$cfg_firstrun" ]; then #first run
     is_firstrun="$(cat "$dir_cfg/$cfg_firstrun")"
   else
     is_firstrun=true
-    echo $is_firstrun > "$dir_cfg/$cfg_firstrun"
+    echo "$is_firstrun" > "$dir_cfg/$cfg_firstrun"
     echo "config file $cfg_firstrun missing, regenerated"
   fi
   if [ -f "$dir_cfg/$cfg_dir_srs_prefix" ]; then #prefix
     dir_srs_prefix="$(cat "$dir_cfg/$cfg_dir_srs_prefix")"
   else
-    echo $dir_srs_prefix > "$dir_cfg/$cfg_dir_srs_prefix"
+    echo "$dir_srs_prefix" > "$dir_cfg/$cfg_dir_srs_prefix"
     echo "config file $cfg_dir_srs_prefix missing, regenerated"
   fi
 fi
