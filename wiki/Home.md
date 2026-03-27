@@ -23,4 +23,4 @@ Join the [matrix](https://matrix.to/#/#dcs-on-linux:matrix.org) server for more 
 > none
 
 ### General News
-> none
+> Wine 11.5(+) staging and stable does not work for dcs updater, debugger found. Use other wine versions
