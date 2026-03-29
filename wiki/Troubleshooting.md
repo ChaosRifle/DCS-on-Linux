@@ -16,6 +16,9 @@
 
 
 # Troubleshooting steps
+> [!note]
+> search this page for known issues and their workarounds/resolutions
+
 ## known working runners:
 #### Lutris / Wine
 - Proton 9.27 GE
@@ -39,9 +42,6 @@
 
 
 # Troubleshooting resources
-> [!note]
-> search this page for known issues and their workarounds/resolutions
-
 ### a list of all the recommended information currently available (@ chaos or make a PR if you find something useful!)
 If something is missing, it is probably deliberately left out.
 - live chat [matrix](https://matrix.to/#/#dcs-on-linux:matrix.org) community for questions or help
