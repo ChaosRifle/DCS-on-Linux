@@ -18,11 +18,17 @@ Absolutely no LLM or AI use for contributions to this repo, be it code or docume
 - ``Installation`` sections: these are for step by step get-it-working-for-most-users instructions, meant to be modular for a users install case. If different instructions exist for different install methods (lutris, wine, steam, SA on steam) then your section should be segmented out as such. You may choose to mark the alternate segments as incomplete for methods you are not familliar with (done with ``> [!note] \n> this segment is incomplete``). Try to keep troubleshooting to the troubleshooting wiki, however some discretion exists for what is valid for the installation sections. Ideally for such cases it should also be in the troubleshooting section for people not following the guides to find. an example of this is the apache font problem mentioned in [fixer-scripts](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#fixer-scripts) and the [corrosponding troubleshooting page](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#date-unknown-slotting-into-ah-64d-apache-crashes-game) it links to). Universal issues with the game are accepted and expected, and specific edge cases for hardware or software should be scrutinized (though not nessisarilly rejected). Generally speaking, these are *instructions to be followed*, not tips & tricks or troubleshooting. 
 
 
-### wiki specifics:
+### wiki specifics
 - ordered list should be ``- 3: `` (dash space number colon space) for instruction steps
 - un-ordered lists should be comma separated for single line or dash beginning for multiple lines (like this list here)
 - number identifiers for images should always be formatted as ``[3]`` (bracket number bracket) and be after the words it is labeling. example: click ``button`` [2] to save.
 - text denoting a button to click should use the buttons name if sensible, and be in double backticks(single inline code block) such as the following ``button example`` here.
+
+
+#### needs verification tag
+- if you have information pertaining to the line this is seen on, please inform a maintainer via ping on [matrix](https://matrix.to/#/#dcs-on-linux:matrix.org) or git issue! 
+- creation of information with this tag should be strongly avoided and pull requests with it heavily scrutinized. 
+- only used where the information should be close to perfect, however is unable to be verified for some reason, such as long delays in finding a user able to verify (hardware or intermittent issue). every effort should be made to ensure none of these tags exist in the repo
 
 
 

@@ -6,8 +6,8 @@
 
 # Select an installation method:
 - [Wine](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Wine) [ **recommended**, fully automated! ]
-- [Lutris](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Lutris) [ **Not** recommended ]
-- [Steam](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Steam) [ partially incomplete, **Not** recommended ]
+- [Lutris](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Lutris) [ **NOT** recommended ]
+- [Steam](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Steam) [ partially incomplete, **NOT** recommended ]
 
 
 
@@ -24,6 +24,9 @@
 
 
 # Lutris
+> [!note]
+> - we strongly recommend you use the [helper script](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Wine) in this repo instead, you can add the launch command to lutris and have all the advantages of lutris with none of the drawbacks
+
 - 1: we ***must*** select a lutris default runner before installation. the default 8.26 has several issues and degraded functionality/performance. Open 'Lutris Settings' [1] > 'preferences' [2] > 'Runners' [3] > 'Wine Options' [4] > set 'wine version' to a [known working runner](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#known-working-runners) [5] > 'save' [6]. Unfortunately, the YAML lutris uses will not allow us to define versions that are not in the API (or on your machine), so you must do this to ensure a functional version is used. Lutris needs to add more, and relevant, runners to wine in their API.
 <img alt="lutris runner swap" src="https://github.com/user-attachments/assets/0388f8be-028b-4881-90cb-f6fe54a4a8ca" />
 
@@ -379,15 +382,24 @@ linVAM is a community project, housed [here](https://github.com/stele95/LinVAM)
 
 ## VR
 > [!warning]
-> this segment is incomplete and highly volatile, what works for one headset may not work for others. Here be dragons. Please report and successes or failures to maintainers via an issue or matrix server ping. If you would like to help work on this section, please refer to the [issue](https://github.com/ChaosRifle/DCS-on-Linux/issues/2) for vr data.
+> this segment is incomplete and a stub. Here be dragons. Please report and successes or failures to maintainers via a git issue or [matrix](https://matrix.to/#/#dcs-on-linux:matrix.org) server ping. If you would like to help work on, or wholely take over this section, please refer to the [issue](https://github.com/ChaosRifle/DCS-on-Linux/issues/2) for vr data.
+
 #### contents:
-- [Envision with WiVRn](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#envision-with-wivrn) [ inccomplete, recommended ]
-- [ALVR](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#ALVR) [ incomplete ]
-- [OpenXR](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#OpenXR) [ incomplete ]
+- [VR on Steam game install](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#vr-on-steam-game-install)
+- [VR on Standalone game install](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#vr-on-standalone-game-install)
 
-#### Envision with WiVRn
-some of our penguins recommend the usage of wivrn using [envision](https://lvra.gitlab.io/docs/fossvr/envision/). And the usage of these launch args `WINEJOYSTICK=0 WINEDLLOVERRIDES='wbemprox=n' PRESSURE_VESSEL_IMPORT_OPENXR_1_RUNTIMES=1  %command% --no-launcher --force_enable_VR --force_OpenXR`.
 
-#### ALVR
+#### VR on Steam game install
+- 1: Consult the [VR on Linux](https://wiki.vronlinux.org/#quickstart) site for your [specific headset](https://wiki.vronlinux.org/docs/hardware/#xr-devices) and install the suggested software to interface with OpenXR. This is likely Envision or WiVRn.
+- 2: edit your registry entries [according to vr on linux](https://wiki.vronlinux.org/docs/games/dcs-world/#vr-setup) ((needs verification))[https://github.com/ChaosRifle/DCS-on-Linux/blob/main/CONTRIBUTING.md#needs-verification-tag]
+- 3: set steam launch options `WINEJOYSTICK=0 WINEDLLOVERRIDES='wbemprox=n' PRESSURE_VESSEL_IMPORT_OPENXR_1_RUNTIMES=1  %command% --no-launcher --force_enable_VR --force_OpenXR` ((needs verification))[https://github.com/ChaosRifle/DCS-on-Linux/blob/main/CONTRIBUTING.md#needs-verification-tag]
 
-#### OpenXR
+
+#### VR on Standalone game install
+- 1: Consult the [VR on Linux](https://wiki.vronlinux.org/#quickstart) site for your [specific headset](https://wiki.vronlinux.org/docs/hardware/#xr-devices) and install the suggested software to interface with OpenXR. This is likely Envision or WiVRn.
+
+> [!note]
+> if using the helper script, use `./launch-dcs.sh -v` (use `./launch-dcs.sh -h` to learn more) and you are done, enjoy VR! 
+> WARNING: You can test launch with ``./launch-dcs.sh -v`` now and see if it is already working. the helper has yet to implement the registry keys, and the ``-v`` launch arg is untested. For now, you may need to follow along with step 2 and onward if not already working. 
+
+- 2: if using another method like lutris or manually created: [vr on linux](https://wiki.vronlinux.org/docs/games/dcs-world/) has further information

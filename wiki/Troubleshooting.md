@@ -1,5 +1,7 @@
 # Live chat [matrix](https://matrix.to/#/#dcs-on-linux:matrix.org) community for any and all questions
 #### contents:
+- [Troubleshooting steps](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#troubleshooting-steps)
+- [Troubleshooting resources](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#troubleshooting-resources)
 - [Lutris issues](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#lutris-install-issues)
 - [Wine issues](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#wine-install-issues)
 - [Steam issues](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#steam-install-issues)
@@ -11,8 +13,45 @@
 - [AMD issues](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#amd-issues)
 - [NVidia issues](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#nvidia-issues)
 - [VR issues](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#vr-issues)
-- [Troubleshooting steps](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#troubleshooting-steps)
-- [Troubleshooting resources](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#troubleshooting-resources)
+
+
+# Troubleshooting steps
+## known working runners:
+#### Lutris / Wine
+- Proton 9.27 GE
+- wine 9.0 - 10.2 Stable or Staging
+- wine 10.3 - 11.4 Staging
+#### Steam
+- Proton Experimental (2025/07/27)
+
+## known broken runners:
+- wine 10.3 - 11.4 Stable ([debugger issue](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20250121-fails-to-launch-the-updater-with-a-debugger-has-been-found-running-in-your-system-please-unload-it-from-memory-and-restart-your-program))
+- wine 11.5 Stable and Staging ([debugger issue](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20250121-fails-to-launch-the-updater-with-a-debugger-has-been-found-running-in-your-system-please-unload-it-from-memory-and-restart-your-program))
+
+
+## current required launch arguments
+- ``WINE_SIMULATE_WRITECOPY=1`` for F4's ``hbui.exe`` to work correctly
+- ``WINEDLLOVERRIDES='wbemprox=n'`` for .. some reason. If you remember, ping chaos or open a PR/git issue.
+
+## Logs
+- dcs: ``drive_c/users/$USERNAME/Saved Games/DCS World/Logs/dcs.log``
+- proton: set env vars ``PROTON_LOG=1`` and ``PROTON_LOG_DIR=$path-to-desired-directory/`` to dump to said location
+
+
+# Troubleshooting resources
+> [!note]
+> search this page for known issues and their workarounds/resolutions
+
+### a list of all the recommended information currently available (@ chaos or make a PR if you find something useful!)
+If something is missing, it is probably deliberately left out.
+- live chat [matrix](https://matrix.to/#/#dcs-on-linux:matrix.org) community for questions or help
+- Budderpards [guide](https://github.com/budderpard/DCS_Standalone_on_linux/tree/master?tab=readme-ov-file)
+- Deleterium's [updated](https://github.com/deleterium/dcs_on_linux) version of zoq2's guide
+
+old resources that contain older, less useful, or duplicate information, but may be of use for extended troubleshooting in edge cases.
+- hoggit [wiki](https://wiki.hoggitworld.com/view/DCS_on_linux)
+- proton [issues](https://github.com/ValveSoftware/Proton/issues/1722) if you are in a pinch, a pain to search but occasionally useful
+
 
 # Lutris install issues
 > [!important]
@@ -72,6 +111,11 @@
 > [!important]
 > #### (date unknown) **input devices working at all on linux, but functions on other machines**
 > - UDEV rules, documentation [here](https://www.man7.org/linux/man-pages/man7/udev.7.html) and guide [here](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#udev-rules)
+
+> [!important]
+> #### (1970/01/01) **applications stored on specific drive will not launch**
+> - fstab mount is missing ``exec`` or ``defaults`` which would enable the exec flag. linux defaults to not allowing execution when mounted.
+
 
 # DCS issues
 > [!important]
@@ -164,6 +208,7 @@
 > (date unknown) **framerate goes down after opening F10 map**
 > - the map loads a bunch of textures, this is probably vram exhaustion you are experiencing. lower your settings or try to run on wined3d to see if it helps. wined3d has its own issues. steam param: ``PROTON_USE_WINED3D=1``
 
+
 # Nvidia issues
 
 > [!important]
@@ -171,38 +216,8 @@
 > - there is no known fix for the exhaustion issues, as DCS doesn't respect requests to limit VRAM properly. 
 > - mitigation is possible by lowering VRAM requirements with inferior textures. 
 
+
 # VR issues
+[vr on linux](https://wiki.vronlinux.org/docs/games/dcs-world/) may be helpful
 
-# Troubleshooting steps
-## known working runners:
-#### Lutris / Wine
-- Proton 9.27 GE
-- wine 9.0 - 10.2 stable or staging
-- wine 10.3 - 11.4 Staging
-#### Steam
-- Proton Experimental (2025/07/27)
-
-## known broken runners:
-- wine 10.3 - 11.4 Stable ([debugger issue](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20250121-fails-to-launch-the-updater-with-a-debugger-has-been-found-running-in-your-system-please-unload-it-from-memory-and-restart-your-program))
-- wine 11.5 Stable and Staging ([debugger issue](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20250121-fails-to-launch-the-updater-with-a-debugger-has-been-found-running-in-your-system-please-unload-it-from-memory-and-restart-your-program))
-
-
-## current required launch arguments
-- ``WINE_SIMULATE_WRITECOPY=1`` for F4's ``hbui.exe`` to work correctly
-- ``WINEDLLOVERRIDES='wbemprox=n'`` for .. some reason. If you remember, ping chaos or open a PR.
-
-## Logs
-- dcs: ``drive_c/users/$USERNAME/Saved Games/DCS World/Logs/dcs.log``
-- proton: set env vars ``PROTON_LOG=1`` and ``PROTON_LOG_DIR=$path-to-desired-directory/`` to dump to said location
-
-
-# Troubleshooting resources
-### a list of all the recommended information currently available (@ chaos or make a PR if you find something useful!)
-If something is missing, it is probably deliberately left out.
-- live chat [matrix](https://matrix.to/#/#dcs-on-linux:matrix.org) community for questions or help
-- Budderpards [guide](https://github.com/budderpard/DCS_Standalone_on_linux/tree/master?tab=readme-ov-file)
-- Deleterium's [updated](https://github.com/deleterium/dcs_on_linux) version of zoq2's guide
-
-old resources that contain older, less useful, or duplicate information, but may be of use for extended troubleshooting in edge cases.
-- hoggit [wiki](https://wiki.hoggitworld.com/view/DCS_on_linux)
-- proton [issues](https://github.com/ValveSoftware/Proton/issues/1722) if you are in a pinch, a pain to search but occasionally useful
+other [external resources](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#a-list-of-all-the-recommended-information-currently-available--chaos-or-make-a-pr-if-you-find-something-useful) may prove more helpful until data migration is validated - be warned, much of this information is outdated, though some of it is still very much sound advice
