@@ -172,7 +172,7 @@ We recommend [Limo](https://github.com/limo-app/limo). The flatpak will work jus
 - 1: Download this repo's ``tools`` folder (can be done with ``git clone https://github.com/ChaosRifle/DCS-on-Linux.git``), you may rename the ``tools`` folder and place it anywhere, but keep all the scripts in the same folder
 - 2: ``chmod +x`` all of the scripts in the ``tools`` folder
 - 3: run ``helper-dcs.sh`` to begin a mostly automated installation, select ``Simple Radio Standalone``, then one of the ``Install SRS`` options. please read the prompts carefully, they are important
-- 4: to launch srs, just run ``launch-dcs.sh -v`` after installing. running ``launch-dcs.sh -h`` can give more info on available options
+- 4: to launch srs, just run ``launch-dcs.sh -s`` after installing. running ``launch-dcs.sh -h`` can give more info on available options
 
 
 ### SRS v2.3.4.0 (+)
