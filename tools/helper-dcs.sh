@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.8.2'
+ver='0.8.3'
 
 ###################################################################################################
 #block root use, keep this as the FIRST lines of code in the script
@@ -421,8 +421,10 @@ WARNING: this will only work for a stable-release install of dcs - openbeta and 
 
   install_prefix_runner 'dcs' #    $1_dcs_or_srs   $2_url_forced_selection_runner
   preferred_dir_wine="$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")"
+  PATH_WINE_DCS="$dir_prefix/runners/$preferred_dir_wine/bin/"
 
   fixerscript_apache_font_crash
+  install_vr_registry_edits
 
   cd "$dir_prefix"
   export WINEPREFIX="$dir_prefix"
@@ -726,6 +728,7 @@ menu_troubleshooting(){
       [8]="delete shaders"
       [9]="kill wineserver"
       [10]="install udev rules"
+      [11]="install vr registry entries"
     )
 
     menu_text_zenity="<a href='${url_troubleshooting}'>Troubleshooting resources</a>
@@ -752,6 +755,7 @@ DoL Matrix chat/help server: ${url_matrix}"
       8) fixerscript_delete_shaders;;
       9) kill_wineserver;;
       10) install_udev_rules;;
+      11) install_vr_registry_edits;;
       q) exit 0;;
       exit) exit 0;;
       m) menu_main; break;;
@@ -1397,6 +1401,31 @@ active runner: $active_runner"
   cd "$anchor_dir"
 }
 
+install_vr_registry_edits(){ #    run in subshell to avoid collisions with variable names
+  log 'c' 'install_vr_registry_edits()'
+  export WINEPREFIX="$dir_prefix"
+
+  GPU_PCI_IDS="$(udevadm info -q property -p "/sys/bus/pci/devices/0000:$(lspci | grep 'VGA'| head -n 1 | cut -f1 -d' ')" | grep PCI_ID | sed -re 's|PCI_ID=(\w+):(\w+)$|\1\n\2|g')"  # ATTRIBUTION - line from LVRA @ https://wiki.vronlinux.org/docs/games/dcs-world/#vr-setup
+  GPU_VID="$(echo "${GPU_PCI_IDS}" | head -n 1)"                                                                                                                                      # ATTRIBUTION - line from LVRA @ https://wiki.vronlinux.org/docs/games/dcs-world/#vr-setup
+  GPU_PID="$(echo "${GPU_PCI_IDS}" | tail -n 1)"                                                                                                                                      # ATTRIBUTION - line from LVRA @ https://wiki.vronlinux.org/docs/games/dcs-world/#vr-setup
+
+# echo "$dir_prefix"
+# echo "$PATH_WINE_DCS"
+
+  "$PATH_WINE_DCS/wine" reg delete 'HKEY_CURRENT_USER\Software\Wine\VR' /v openxr_vulkan_device_vid /f  #purge old VID incase user changed gpu
+  "$PATH_WINE_DCS/wine" reg delete 'HKEY_CURRENT_USER\Software\Wine\VR' /v openxr_vulkan_device_pid /f  #purge old PID incase user changed gpu
+
+  "$PATH_WINE_DCS/wine" reg add 'HKEY_CURRENT_USER\Software\Wine\VR' /v openxr_vulkan_device_vid /t REG_DWORD /d "${GPU_VID}" /f
+  "$PATH_WINE_DCS/wine" reg add 'HKEY_CURRENT_USER\Software\Wine\VR' /v openxr_vulkan_device_pid /t REG_DWORD /d "${GPU_PID}" /f
+  "$PATH_WINE_DCS/wine" reg add 'HKEY_CURRENT_USER\Software\Wine\VR' /v state /t REG_DWORD /d 00000001 /f
+  "$PATH_WINE_DCS/wine" reg add 'HKEY_CURRENT_USER\Software\Wine\VR' /v openxr_vulkan_device_extensions /d "VK_KHR_external_fence VK_KHR_external_memory VK_KHR_external_semaphore VK_KHR_dedicated_allocation VK_KHR_get_memory_requirements2 VK_KHR_external_memory_fd VK_KHR_external_semaphore_fd VK_KHR_external_fence_fd VK_KHR_image_format_list VK_KHR_timeline_semaphore" /f # "hello_xr -v -g Vulkan2",  extensions following the xrGetVulkanGraphicsDeviceKHR log lines
+  "$PATH_WINE_DCS/wine" reg add 'HKEY_CURRENT_USER\Software\Wine\VR' /v openxr_vulkan_instance_extensions /d "VK_KHR_external_memory_capabilities VK_KHR_get_physical_device_properties2 VK_KHR_external_semaphore_capabilities VK_KHR_external_fence_capabilities" /f
+
+  unset GPU_PCI_IDS
+  unset GPU_VID
+  unset GPU_PID
+}
+
 firstrun(){
   log 'c' 'firstrun()'
   if [ "$is_firstrun" == true ]; then
@@ -1452,6 +1481,7 @@ if [ ! -d "$dir_cfg" ]; then # load or create configs
 else
   if [ -f "$dir_cfg/$cfg_dir_prefix" ]; then #prefix
     dir_prefix="$(cat "$dir_cfg/$cfg_dir_prefix")"
+    PATH_WINE_DCS="$dir_prefix/runners/$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")/bin/"
   else
     echo "$dir_prefix" > "$dir_cfg/$cfg_dir_prefix"
     echo "config file $cfg_dir_prefix missing, regenerated"
