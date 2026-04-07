@@ -1418,8 +1418,8 @@ install_vr_registry_edits(){ #    run in subshell to avoid collisions with varia
   "$PATH_WINE_DCS/wine" reg add 'HKEY_CURRENT_USER\Software\Wine\VR' /v openxr_vulkan_device_vid /t REG_DWORD /d "${GPU_VID}" /f
   "$PATH_WINE_DCS/wine" reg add 'HKEY_CURRENT_USER\Software\Wine\VR' /v openxr_vulkan_device_pid /t REG_DWORD /d "${GPU_PID}" /f
   "$PATH_WINE_DCS/wine" reg add 'HKEY_CURRENT_USER\Software\Wine\VR' /v state /t REG_DWORD /d 00000001 /f
-  "$PATH_WINE_DCS/wine" reg add 'HKEY_CURRENT_USER\Software\Wine\VR' /v openxr_vulkan_device_extensions /d "VK_KHR_external_fence VK_KHR_external_memory VK_KHR_external_semaphore VK_KHR_dedicated_allocation VK_KHR_get_memory_requirements2 VK_KHR_external_memory_fd VK_KHR_external_semaphore_fd VK_KHR_external_fence_fd VK_KHR_image_format_list VK_KHR_timeline_semaphore" /f # "hello_xr -v -g Vulkan2",  extensions following the xrGetVulkanGraphicsDeviceKHR log lines
-  "$PATH_WINE_DCS/wine" reg add 'HKEY_CURRENT_USER\Software\Wine\VR' /v openxr_vulkan_instance_extensions /d "VK_KHR_external_memory_capabilities VK_KHR_get_physical_device_properties2 VK_KHR_external_semaphore_capabilities VK_KHR_external_fence_capabilities" /f
+  "$PATH_WINE_DCS/wine" reg add 'HKEY_CURRENT_USER\Software\Wine\VR' /v openxr_vulkan_device_extensions /d "VK_KHR_external_fence VK_KHR_external_memory VK_KHR_external_semaphore VK_KHR_dedicated_allocation VK_KHR_get_memory_requirements2 VK_KHR_external_memory_fd VK_KHR_external_semaphore_fd VK_KHR_external_fence_fd VK_KHR_image_format_list VK_KHR_timeline_semaphore" /f # "hello_xr -v -g Vulkan2", extensions following the xrGetVulkanGraphicsDeviceKHR log lines
+  "$PATH_WINE_DCS/wine" reg add 'HKEY_CURRENT_USER\Software\Wine\VR' /v openxr_vulkan_instance_extensions /d "VK_KHR_external_memory_capabilities VK_KHR_get_physical_device_properties2 VK_KHR_external_semaphore_capabilities VK_KHR_external_fence_capabilities" /f # "hello_xr -v -g Vulkan2", extensions following the xrCreateVulkanInstanceKHR log lines
 
   unset GPU_PCI_IDS
   unset GPU_VID
