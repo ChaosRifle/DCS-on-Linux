@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.8.3'
+ver='0.8.4'
 
 ###################################################################################################
 #block root use, keep this as the FIRST lines of code in the script
@@ -486,7 +486,11 @@ install_srs_latest(){
   url_srs_latest="$(get_latest_git_release 'gh' 'ciribob/DCS-SimpleRadioStandalone' '.zip')" #     $1_github_or_gitlab    $2_repoOwner/repoName    $3_file_grep_filter
   archive_srs_latest="$(echo "$url_srs_latest" | cut -d '/' -f9)"
 
-  dir_srs_install="$(zenity --file-selection --directory --title="Select the directory to install SRS")"
+  dir_srs_install="$(query_filepath 'Select the directory to install SRS')"
+  if [ ! -d "$dir_srs_install" ]; then
+    notify 'invalid path, directory doesnt exist!. exiting'
+    return
+  fi
   dir_srs_prefix="$dir_srs_install/srs-latest"
   echo "install path: $dir_srs_install"
   echo "install prefix: $dir_srs_prefix"
@@ -551,7 +555,11 @@ install_srs_2.3.4.0(){
   log 'c' 'install_srs_2.3.4.0()'
   anchor_dir="$(pwd)"
 
-  dir_srs_install="$(zenity --file-selection --directory --title="Select the directory to install SRS")"
+  dir_srs_install="$(query_filepath 'Select the directory to install SRS')"
+  if [ ! -d "$dir_srs_install" ]; then
+    notify 'invalid path, directory doesnt exist!. exiting'
+    return
+  fi
   dir_srs_prefix="$dir_srs_install/srs-2.3.4.0"
   echo "install path: $dir_srs_install"
   echo "install prefix: $dir_srs_prefix"
@@ -611,7 +619,11 @@ install_srs_2.1.1.0(){ # TODO FIXME something is preventing sound working proper
   log 'c' 'install_srs_2.1.1.0()'
   anchor_dir="$(pwd)"
 
-  dir_srs_install="$(zenity --file-selection --directory --title="Select the directory to install SRS")"
+  dir_srs_install="$(query_filepath 'Select the directory to install SRS')"
+  if [ ! -d "$dir_srs_install" ]; then
+    notify 'invalid path, directory doesnt exist!. exiting'
+    return
+  fi
   dir_srs_prefix="$dir_srs_install/srs-2.1.1.0"
   echo "install path: $dir_srs_install"
   echo "install prefix: $dir_srs_prefix"
@@ -836,7 +848,7 @@ menu_srs(){
       [0]="Install SRS latest"
       [1]="change target SRS prefix"
       [2]="Install SRS 2.3.4.0"
-      [3]="Install SRS 2.1.1.0 (incomplete: audio issues!)"
+      [3]="Install SRS 2.1.1.0"
     )
 
     menu_text_zenity="<a href='${url_troubleshooting}'>Troubleshooting resources</a>
