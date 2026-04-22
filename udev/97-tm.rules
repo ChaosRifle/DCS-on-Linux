@@ -1,0 +1,5 @@
+# Thrustmaster TPR Pedal libusb
+ACTION=="add", \
+  ATTRS{idVendor}=="044f", ATTRS{idProduct}=="b68f", \
+  MODE="0664", ENV{ID_INPUT_JOYSTICK}="1", TAG+="uaccess", \
+  RUN+="/usr/bin/evdev-joystick --e %E{DEVNAME} --d 0"
