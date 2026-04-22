@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.8.4'
+ver='0.8.5'
 
 ###################################################################################################
 #block root use, keep this as the FIRST lines of code in the script
@@ -544,7 +544,7 @@ We have generated the srs hooks for you at '$dir_srs_prefix/files/hook-srs'"
     "$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/files/dotnet10/$file_dotnet10"
 
 #     export WINEPREFIX="$dir_srs_prefix"
-#     export WINEDLLOVERRIDES='icu=n,icuin=n,icuuc=n' #d3d9=n
+#     export WINEDLLOVERRIDES='icu=n,icuin=n,icuuc=n' #d3d9=n # d3d9=n fixes rendering of dropdowns to not be black, icu/icuin/icuuc fixes srs installer problems
 #     "$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/drive_c/srs/Client/SR-ClientRadio.exe" # test run
     cd "$anchor_dir"
     echo "SRS installed"
@@ -602,13 +602,14 @@ We have generated the srs hooks for you at '$dir_srs_prefix/files/hook-srs'"
     preferred_dir_wine="$(cat "$dir_srs_prefix/runners/$cfg_preferred_dir_wine")"
 
     cd "$dir_srs_prefix"
+    export WINEDEBUG='-all,+warn' # clean up terminal spam
     export WINEPREFIX="$dir_srs_prefix"
     export WINE="$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" #for winetricks
     export WINESERVER="$dir_srs_prefix/runners/$preferred_dir_wine/bin/wineserver" #for winetricks
     winetricks -q dotnetdesktop9 win10
 
 #     export WINEPREFIX="$dir_srs_prefix"
-#     export WINEDLLOVERRIDES='icu=n,icuin=n,icuuc=n' #d3d9=n
+#     export WINEDLLOVERRIDES='icu=n,icuin=n,icuuc=n' #d3d9=n # d3d9=n fixes rendering of dropdowns to not be black, icu/icuin/icuuc fixes srs installer problems
 #     "$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/drive_c/srs/Client/SR-ClientRadio.exe" # test run
     cd "$anchor_dir"
     echo 'SRS 2.3.4.0 installed'
@@ -676,7 +677,7 @@ We have generated the srs hooks for you at '$dir_srs_prefix/files/hook-srs-v2.1.
 
 #     export WINEARCH=win64
 #     export WINEPREFIX="$dir_srs_prefix"
-#     export WINEDLLOVERRIDES='d3d9=n,icu=n,icuin=n,icuuc=n'
+#     export WINEDLLOVERRIDES='d3d9=n,icu=n,icuin=n,icuuc=n' # d3d9=n fixes rendering of dropdowns to not be black, icu/icuin/icuuc fixes srs installer problems
 #     "$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/drive_c/srs/SR-ClientRadio.exe" # test run
     cd "$anchor_dir"
     echo 'SRS 2.1.1.0 installed'
@@ -1160,7 +1161,7 @@ install_udev_rules(){
   if [ "$error_udev" == false ]; then
     notify 'udev install complete, please unplug and re-plug your devices before trying to use them.
 
-NOTE: This automated udev script currently only supports virpil, vkb, thrustmaster, and turtlebeach devices at this time. If you have hardware unsupported by these rules, please notify a maintainer with your PID and VID (lsusb).'
+NOTE: This automated udev script currently only supports virpil, vkb, thrustmaster, turtlebeach and winwing devices at this time. If you have hardware unsupported by these rules, or an issue caused by these rules, please notify a maintainer with your PID and VID (lsusb).'
   else
     notify 'udev rule install encountered an error and probably did not work, normal operations will continue.
 If you would like to re-try, the troubleshooting menu can do so.'
@@ -1445,12 +1446,14 @@ firstrun(){
 A config has been generated at:
 /home/$USER/.config/dcs-on-linux
 
-NOTE: when using gui mode, information about what the script wants you to do will be displayed as a window title (text at the top in dolphin)."
+NOTE: when using gui mode, information about what the script wants you to do will be displayed as a window title (text at the top in dolphin).
+
+WARNING: VR support is expirimental right now. Testers and help is needed. If you are expecting to run in VR and do not want to troubleshoot, use steam or umu proton installs."
 
     is_firstrun=false
     echo "$is_firstrun" > "$dir_cfg/$cfg_firstrun"
 
-    if [ "$(confirm 'would you like automated generic (virpil,vkb,tm,turtle) udev rule install?')" == true ]; then
+    if [ "$(confirm 'would you like automated generic (virpil,vkb,tm,turtle,winwing) UDEV rule install? UDEV rules tell your pc how to handle your joysticks.')" == true ]; then
       install_udev_rules
     fi
   fi

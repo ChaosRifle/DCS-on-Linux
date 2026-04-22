@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.1.4'
+ver='0.1.5'
 
 
 ###################################################################################################
@@ -53,7 +53,7 @@ load_dcs_wine_config() { #in function so it can be modified by switches
   export DXVK_SHADER_CACHE_PATH="$dir_prefix/cache/dxvk"
   export DXVK_STATE_CACHE="1"
   export DXVK_STATE_CACHE_PATH="$dir_prefix/cache/dxvk"
-  export WINEDEBUG='-all,+openxr' # clean up terminal spam
+  export WINEDEBUG='-all,+warn,+openxr' # clean up terminal spam
 
   if [ "$use_hud" = '1' ]; then
     export DXVK_HUD='version,api,compiler,opacity=0.3' #full, #fps #,compiler
@@ -87,7 +87,7 @@ launch_srs(){
   export WINEPREFIX="$dir_srs_prefix"
   export WINEDEBUG='-all' # clean up terminal spam
   if [ "$(echo "$dir_srs_prefix" | grep "srs-2.1.1.0")" == "$nil" ]; then #check which version is being launched due to file restructures that happened. "if lacking -2.1.1.0 then do"
-    export WINEDLLOVERRIDES='d3d9=n,icu=n,icuin=n,icuuc=n' # d3d9=n fixes rendering of dropdowns to not be black, icu/icuin/icuuc fixes
+    export WINEDLLOVERRIDES='d3d9=n,icu=n,icuin=n,icuuc=n' # d3d9=n fixes rendering of dropdowns to not be black, icu/icuin/icuuc fixes srs installer problems
     "$dir_srs_wine/wine" "$dir_srs_prefix/drive_c/srs/Client/SR-ClientRadio.exe"
   else
     export WINEDLLOVERRIDES='d3d9=n' # d3d9=n fixes rendering of dropdowns to not be black
