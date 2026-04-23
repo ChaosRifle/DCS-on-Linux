@@ -1,4 +1,4 @@
-# Thrustmaster TPR Pedal libusb
+# DCS on Linux, Thrustmaster TPR Pedal, libusb, to correct for it not working with hidraw catchall 40-tm.rules
 ACTION=="add", \
   ATTRS{idVendor}=="044f", ATTRS{idProduct}=="b68f", \
   MODE="0664", ENV{ID_INPUT_JOYSTICK}="1", TAG+="uaccess", \
