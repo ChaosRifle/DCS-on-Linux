@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.8.6'
+ver='0.8.7'
 
 ###################################################################################################
 #block root use, keep this as the FIRST lines of code in the script
@@ -23,7 +23,7 @@ subdir_dcs_corefiles="drive_c/Program Files/Eagle Dynamics/DCS World"
 subdir_dcs_savedgames="drive_c/users/$USER/Saved Games/DCS"
 dynamic_install_list_size='10'
 dir_self="$(dirname $(readlink -f $0))"
-dir_logs="/var/log/dcs-on-linux"
+dir_logs_helper="/var/log/dcs-on-linux" # "$dir_self/../dcs-on-linux-logs"
 
 
 ###################################################################################################
@@ -701,12 +701,14 @@ menu_main(){
     menu_text_zenity="active prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>
 DoL <a href='${url_dol}'>Github</a>
 DoL <a href='${url_matrix}'>Matrix</a> chat/help server
-logs: <a href='file://${dir_logs}'>${dir_logs}</a>  PLACEHOLDER!"
+DoL logs: <a href='file://${dir_logs_helper}'>${dir_logs_helper}</a>  PLACEHOLDER!
+dcs logs: <a href='file://${dir_prefix}/drive_c/users/$USER/Saved Games/DCS/Logs/'>prefix/drive_c/users/$USER/Saved Games/DCS/Logs</a>"
 
     menu_text="active prefix: ${dir_prefix}
 DoL Github: ${url_dol}
 DoL Matrix chat/help server: ${url_matrix}
-logs: ${dir_logs} PLACEHOLDER!"
+DoL logs: ${dir_logs_helper}  PLACEHOLDER!
+dcs logs: ${dir_prefix}/drive_c/users/$USER/Saved Games/DCS/Logs"
 
     menu_cancel_label='exit'
     menu_cancel_action='q'
@@ -749,11 +751,15 @@ menu_troubleshooting(){
 
     menu_text_zenity="<a href='${url_troubleshooting}'>Troubleshooting resources</a>
 active prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>
-DoL <a href='${url_matrix}'>Matrix</a> chat/help server"
+DoL <a href='${url_matrix}'>Matrix</a> chat/help server
+DoL logs: <a href='file://${dir_logs_helper}'>${dir_logs_helper}</a>  PLACEHOLDER!
+dcs logs: <a href='file://${dir_prefix}/drive_c/users/$USER/Saved Games/DCS/Logs/'>prefix/drive_c/users/$USER/Saved Games/DCS/Logs</a>"
 
     menu_text="Troubleshooting resources: ${url_troubleshooting}
 active prefix: ${dir_prefix}
-DoL Matrix chat/help server: ${url_matrix}"
+DoL Matrix chat/help server: ${url_matrix}
+DoL logs: ${dir_logs_helper}  PLACEHOLDER!
+dcs logs: ${dir_prefix}/drive_c/users/$USER/Saved Games/DCS/Logs"
 
     menu_cancel_label='main menu'
     menu_cancel_action='m'
@@ -1466,6 +1472,10 @@ WARNING: VR support is expirimental right now. Testers and help is needed. If yo
 ###################################################################################################
 #startup
 ###################################################################################################
+if [ ! -d "$dir_logs_helper" ]; then # create log path if not existing
+  # mkdir -p "$dir_logs_helper"
+  echo "logging directory $dir_logs_helper missing, regenerated"
+fi
 log 'c' "you are running v$ver of the helper script."
 echo "you are running v$ver of the helper script."
 
@@ -1488,11 +1498,6 @@ exeution: $0
   done
 fi
 
-
-if [ ! -d "$dir_logs" ]; then # create log path if not existing
-  echo "logging directory $dir_logs missing, regenerated"
-  # mkdir -p "$dir_logs"
-fi
 
 if [ ! -d "$dir_cfg" ]; then # load or create configs
   echo "config not found, generating one at $dir_cfg"
