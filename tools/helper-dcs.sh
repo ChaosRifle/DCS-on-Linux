@@ -23,9 +23,26 @@ subdir_dcs_corefiles="drive_c/Program Files/Eagle Dynamics/DCS World"
 subdir_dcs_savedgames="drive_c/users/$USER/Saved Games/DCS"
 dynamic_install_list_size='10'
 dir_self="$(dirname $(readlink -f $0))"
-cmd_log="${dir_self}/dcs_helper_cmd_log.txt" ## Needs a better location (possibly name)
-err_log="${dir_self}/dcs_helper_err_log.txt" ## Needs a better location (possibly name)
+
+
+
+###################################################################################################
+#Setup Logging, this must be as soon as possible in the script to ensure proper functionality
+###################################################################################################
+dir_logs="${dir_self}/logs"
+log_full="${log_dir}/dcs_helper_full_cmd_log.txt"
+log_cmd="${log_dir}/dcs_helper_cmd_log.txt"
+log_err="${log_dir}/dcs_helper_err_log.txt"
 time_stamp="date +%F-%T"
+
+#Setup full script logging into full_log file
+exec > >(tee -a ${log_full}) 2>&1
+
+#Verify logging directory is available
+if [[ ! -d ${dir_log} ]]; then
+  mkdir -p ${dir_log}
+fi
+
 
 ###################################################################################################
 #urls
@@ -1161,19 +1178,19 @@ log(){
   case "$1" in
     c)
       shift
-      echo "$(${time_stamp}) : CONTROL FLOW: $@" >> ${cmd_log}
+      echo "$(${time_stamp}) : CONTROL FLOW: $@" >> ${log_cmd}
     ;;
     i)
       shift
-      echo "$(${time_stamp}) : USER INPUT: $@" >> ${cmd_log}
+      echo "$(${time_stamp}) : USER INPUT: $@" >> ${log_cmd}
     ;;
     *?)
-      echo "$(${time_stamp}) : Unknown Flag ($1) : $@" >> ${cmd_log}
-      echo "$(${time_stamp}) : Unknown Flag ($1) : $@" >> ${err_log}
+      echo "$(${time_stamp}) : Unknown Flag ($1) : $@" >> ${log_cmd}
+      echo "$(${time_stamp}) : Unknown Flag ($1) : $@" >> ${log_err}
     ;;
     "$nil")
-      echo "$(${time_stamp}) : No flag supplied : $@" >> ${cmd_log}
-      echo "$(${time_stamp}) : No flag supplied : $@" >> ${err_log}
+      echo "$(${time_stamp}) : No flag supplied : $@" >> ${log_cmd}
+      echo "$(${time_stamp}) : No flag supplied : $@" >> ${log_err}
     ;;
   esac
 }
