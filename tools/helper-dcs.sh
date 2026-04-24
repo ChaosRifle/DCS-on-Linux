@@ -23,7 +23,9 @@ subdir_dcs_corefiles="drive_c/Program Files/Eagle Dynamics/DCS World"
 subdir_dcs_savedgames="drive_c/users/$USER/Saved Games/DCS"
 dynamic_install_list_size='10'
 dir_self="$(dirname $(readlink -f $0))"
-
+cmd_log="${dir_self}/dcs_helper_cmd_log.txt" ## Needs a better location (possibly name)
+err_log="${dir_self}/dcs_helper_err_log.txt" ## Needs a better location (possibly name)
+time_stamp="date +%F-%T"
 
 ###################################################################################################
 #urls
@@ -1155,23 +1157,23 @@ If you would like to re-try, the troubleshooting menu can do so.'
   fi
 }
 
-log(){ # TODO this will be used to output control flow to error logs for debugging in future releases
+log(){
   case "$1" in
     c)
-      dummy=0
-#       echo "CONTROL FLOW: $2"
+      shift
+      echo "$(${time_stamp}) : CONTROL FLOW: $@" >> ${cmd_log}
     ;;
     i)
-      dummy=0
-#       echo "USER INPUT: $2 $3"
+      shift
+      echo "$(${time_stamp}) : USER INPUT: $@ >> ${cmd_log}"
     ;;
     *?)
-      dummy=0
-#       echo "$1"
+      echo "$(${time_stamp}) : Unknown Flag ($1) : $@" >> ${cmd_log}
+      echo "$(${time_stamp}) : Unknown Flag ($1) : $@" >> ${err_log}
     ;;
     "$nil")
-      dummy=0
-#       echo "$1"
+      echo "$(${time_stamp}) : No flag supplied : $@" >> ${cmd_log}
+      echo "$(${time_stamp}) : No flag supplied : $@" >> ${err_log}
     ;;
   esac
 }
