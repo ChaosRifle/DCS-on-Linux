@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.8.5'
+ver='0.8.6'
 
 ###################################################################################################
 #block root use, keep this as the FIRST lines of code in the script
@@ -23,6 +23,7 @@ subdir_dcs_corefiles="drive_c/Program Files/Eagle Dynamics/DCS World"
 subdir_dcs_savedgames="drive_c/users/$USER/Saved Games/DCS"
 dynamic_install_list_size='10'
 dir_self="$(dirname $(readlink -f $0))"
+dir_logs="/var/log/dcs-on-linux"
 
 
 ###################################################################################################
@@ -699,11 +700,13 @@ menu_main(){
 
     menu_text_zenity="active prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>
 DoL <a href='${url_dol}'>Github</a>
-DoL <a href='${url_matrix}'>Matrix</a> chat/help server"
+DoL <a href='${url_matrix}'>Matrix</a> chat/help server
+logs: <a href='file://${dir_logs}'>${dir_logs}</a>  PLACEHOLDER!"
 
     menu_text="active prefix: ${dir_prefix}
 DoL Github: ${url_dol}
-DoL Matrix chat/help server: ${url_matrix}"
+DoL Matrix chat/help server: ${url_matrix}
+logs: ${dir_logs} PLACEHOLDER!"
 
     menu_cancel_label='exit'
     menu_cancel_action='q'
@@ -1117,7 +1120,7 @@ fixerscript_apache_font_crash(){ # TODO select opensource font and download it i
       fi
     done
   else # download file and then rename it
-    notify 'automatic font download is not yet supported, while we find a suitable, legal, replacement for seguisym.ttf (issue #1 on the github repo). You can get a real copy from the internet, or a windows iso/vm. Normal execution will continue.' # FIXME
+    notify 'You can re-run the apache font fix from the troubleshooting menu. Automatic font download is not yet supported, while we find a suitable, legal, replacement for seguisym.ttf (issue #1 on the github repo). You can get a real copy from the internet, or a windows iso/vm. You can also rename a suitable font to seguisym.ttf and use this script again. Normal execution will continue.' # FIXME
     return #TODO this is not ready for use, we need a legally viable font to use
 #     wget some_seguism_website
 #     dir_seguisym=""
@@ -1485,6 +1488,11 @@ exeution: $0
   done
 fi
 
+
+if [ ! -d "$dir_logs" ]; then # create log path if not existing
+  echo "logging directory $dir_logs missing, regenerated"
+  # mkdir -p "$dir_logs"
+fi
 
 if [ ! -d "$dir_cfg" ]; then # load or create configs
   echo "config not found, generating one at $dir_cfg"
