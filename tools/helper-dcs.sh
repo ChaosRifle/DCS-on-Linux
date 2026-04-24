@@ -1165,7 +1165,7 @@ log(){
     ;;
     i)
       shift
-      echo "$(${time_stamp}) : USER INPUT: $@ >> ${cmd_log}"
+      echo "$(${time_stamp}) : USER INPUT: $@" >> ${cmd_log}
     ;;
     *?)
       echo "$(${time_stamp}) : Unknown Flag ($1) : $@" >> ${cmd_log}
