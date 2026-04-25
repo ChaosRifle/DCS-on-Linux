@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.8.3'
+ver='0.8.8'
 
 ###################################################################################################
 #block root use, keep this as the FIRST lines of code in the script
@@ -23,6 +23,7 @@ subdir_dcs_corefiles="drive_c/Program Files/Eagle Dynamics/DCS World"
 subdir_dcs_savedgames="drive_c/users/$USER/Saved Games/DCS"
 dynamic_install_list_size='10'
 dir_self="$(dirname $(readlink -f $0))"
+dir_logs_helper="/var/log/dcs-on-linux" # "$dir_self/../dcs-on-linux-logs"
 
 
 ###################################################################################################
@@ -147,7 +148,7 @@ query(){ #    $1_terminal_exit_prompts
     done
     decimal_offset=2
     menu_text_height="$((273+$decimal_offset+18+(18*$menu_text_zenity_line_count)))" #minimum: 325, nominal base(title, zero/one line): 273 ---#
-    menu_height="$((30 * (${#menu[@]}-2) + $menu_text_height))"
+    menu_height="$((30 * (${#menu[@]}-3) + $menu_text_height))"
     input="$(zenity --list --"$menu_type" --width="510" --height="$menu_height" --text="$menu_text_zenity" --title="$menu_title" --hide-header --cancel-label "$menu_cancel_label" --column="t" --column="o" "${array_zenity_menu[@]}")"
     log 'i' 'query()' "$input"
     if [ "$input" = "$nil" ] ; then #handle cancel button
@@ -497,7 +498,11 @@ install_srs_latest(){
   url_srs_latest="$(get_latest_git_release 'gh' 'ciribob/DCS-SimpleRadioStandalone' '.zip')" #     $1_github_or_gitlab    $2_repoOwner/repoName    $3_file_grep_filter
   archive_srs_latest="$(echo "$url_srs_latest" | cut -d '/' -f9)"
 
-  dir_srs_install="$(zenity --file-selection --directory --title="Select the directory to install SRS")"
+  dir_srs_install="$(query_filepath 'Select the directory to install SRS')"
+  if [ ! -d "$dir_srs_install" ]; then
+    notify 'invalid path, directory doesnt exist!. exiting'
+    return
+  fi
   dir_srs_prefix="$dir_srs_install/srs-latest"
   screen_log "install path: $dir_srs_install"
   screen_log "install prefix: $dir_srs_prefix"
@@ -551,7 +556,7 @@ We have generated the srs hooks for you at '$dir_srs_prefix/files/hook-srs'"
     "$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/files/dotnet10/$file_dotnet10"
 
 #     export WINEPREFIX="$dir_srs_prefix"
-#     export WINEDLLOVERRIDES='icu=n,icuin=n,icuuc=n' #d3d9=n
+#     export WINEDLLOVERRIDES='icu=n,icuin=n,icuuc=n' #d3d9=n # d3d9=n fixes rendering of dropdowns to not be black, icu/icuin/icuuc fixes srs installer problems
 #     "$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/drive_c/srs/Client/SR-ClientRadio.exe" # test run
     cd "$anchor_dir"
     screen_log "SRS installed"
@@ -562,7 +567,11 @@ install_srs_2.3.4.0(){
   log 'c' 'install_srs_2.3.4.0()' "$@"
   anchor_dir="$(pwd)"
 
-  dir_srs_install="$(zenity --file-selection --directory --title="Select the directory to install SRS")"
+  dir_srs_install="$(query_filepath 'Select the directory to install SRS')"
+  if [ ! -d "$dir_srs_install" ]; then
+    notify 'invalid path, directory doesnt exist!. exiting'
+    return
+  fi
   dir_srs_prefix="$dir_srs_install/srs-2.3.4.0"
   screen_log "install path: $dir_srs_install"
   screen_log "install prefix: $dir_srs_prefix"
@@ -605,13 +614,14 @@ We have generated the srs hooks for you at '$dir_srs_prefix/files/hook-srs'"
     preferred_dir_wine="$(cat "$dir_srs_prefix/runners/$cfg_preferred_dir_wine")"
 
     cd "$dir_srs_prefix"
+    export WINEDEBUG='-all,+warn' # clean up terminal spam
     export WINEPREFIX="$dir_srs_prefix"
     export WINE="$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" #for winetricks
     export WINESERVER="$dir_srs_prefix/runners/$preferred_dir_wine/bin/wineserver" #for winetricks
     winetricks -q dotnetdesktop9 win10
 
 #     export WINEPREFIX="$dir_srs_prefix"
-#     export WINEDLLOVERRIDES='icu=n,icuin=n,icuuc=n' #d3d9=n
+#     export WINEDLLOVERRIDES='icu=n,icuin=n,icuuc=n' #d3d9=n # d3d9=n fixes rendering of dropdowns to not be black, icu/icuin/icuuc fixes srs installer problems
 #     "$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/drive_c/srs/Client/SR-ClientRadio.exe" # test run
     cd "$anchor_dir"
     screen_log 'SRS 2.3.4.0 installed'
@@ -622,7 +632,11 @@ install_srs_2.1.1.0(){ # TODO FIXME something is preventing sound working proper
   log 'c' 'install_srs_2.1.1.0()' "$@"
   anchor_dir="$(pwd)"
 
-  dir_srs_install="$(zenity --file-selection --directory --title="Select the directory to install SRS")"
+  dir_srs_install="$(query_filepath 'Select the directory to install SRS')"
+  if [ ! -d "$dir_srs_install" ]; then
+    notify 'invalid path, directory doesnt exist!. exiting'
+    return
+  fi
   dir_srs_prefix="$dir_srs_install/srs-2.1.1.0"
   screen_log "install path: $dir_srs_install"
   screen_log "install prefix: $dir_srs_prefix"
@@ -675,7 +689,7 @@ We have generated the srs hooks for you at '$dir_srs_prefix/files/hook-srs-v2.1.
 
 #     export WINEARCH=win64
 #     export WINEPREFIX="$dir_srs_prefix"
-#     export WINEDLLOVERRIDES='d3d9=n,icu=n,icuin=n,icuuc=n'
+#     export WINEDLLOVERRIDES='d3d9=n,icu=n,icuin=n,icuuc=n' # d3d9=n fixes rendering of dropdowns to not be black, icu/icuin/icuuc fixes srs installer problems
 #     "$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/drive_c/srs/SR-ClientRadio.exe" # test run
     cd "$anchor_dir"
     screen_log 'SRS 2.1.1.0 installed'
@@ -697,11 +711,15 @@ menu_main(){
 
     menu_text_zenity="active prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>
 DoL <a href='${url_dol}'>Github</a>
-DoL <a href='${url_matrix}'>Matrix</a> chat/help server"
+DoL <a href='${url_matrix}'>Matrix</a> chat/help server
+DoL logs: <a href='file://${dir_logs_helper}'>${dir_logs_helper}</a>  PLACEHOLDER!
+dcs logs: <a href='file://${dir_prefix}/drive_c/users/$USER/Saved Games/DCS/Logs/'>prefix/drive_c/users/$USER/Saved Games/DCS/Logs</a>"
 
     menu_text="active prefix: ${dir_prefix}
 DoL Github: ${url_dol}
-DoL Matrix chat/help server: ${url_matrix}"
+DoL Matrix chat/help server: ${url_matrix}
+DoL logs: ${dir_logs_helper}  PLACEHOLDER!
+dcs logs: ${dir_prefix}/drive_c/users/$USER/Saved Games/DCS/Logs"
 
     menu_cancel_label='exit'
     menu_cancel_action='q'
@@ -744,11 +762,15 @@ menu_troubleshooting(){
 
     menu_text_zenity="<a href='${url_troubleshooting}'>Troubleshooting resources</a>
 active prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>
-DoL <a href='${url_matrix}'>Matrix</a> chat/help server"
+DoL <a href='${url_matrix}'>Matrix</a> chat/help server
+DoL logs: <a href='file://${dir_logs_helper}'>${dir_logs_helper}</a>  PLACEHOLDER!
+dcs logs: <a href='file://${dir_prefix}/drive_c/users/$USER/Saved Games/DCS/Logs/'>prefix/drive_c/users/$USER/Saved Games/DCS/Logs</a>"
 
     menu_text="Troubleshooting resources: ${url_troubleshooting}
 active prefix: ${dir_prefix}
-DoL Matrix chat/help server: ${url_matrix}"
+DoL Matrix chat/help server: ${url_matrix}
+DoL logs: ${dir_logs_helper}  PLACEHOLDER!
+dcs logs: ${dir_prefix}/drive_c/users/$USER/Saved Games/DCS/Logs"
 
     menu_cancel_label='main menu'
     menu_cancel_action='m'
@@ -847,7 +869,7 @@ menu_srs(){
       [0]="Install SRS latest"
       [1]="change target SRS prefix"
       [2]="Install SRS 2.3.4.0"
-      [3]="Install SRS 2.1.1.0 (incomplete: audio issues!)"
+      [3]="Install SRS 2.1.1.0"
     )
 
     menu_text_zenity="<a href='${url_troubleshooting}'>Troubleshooting resources</a>
@@ -1115,7 +1137,7 @@ fixerscript_apache_font_crash(){ # TODO select opensource font and download it i
       fi
     done
   else # download file and then rename it
-    notify 'automatic font download is not yet supported, while we find a suitable, legal, replacement for seguisym.ttf (issue #1 on the github repo). You can get a real copy from the internet, or a windows iso/vm. Normal execution will continue.' # FIXME
+    notify 'You can re-run the apache font fix from the troubleshooting menu. Automatic font download is not yet supported, while we find a suitable, legal, replacement for seguisym.ttf (issue #1 on the github repo). You can get a real copy from the internet, or a windows iso/vm. You can also rename a suitable font to seguisym.ttf and use this script again. Normal execution will continue.' # FIXME
     return #TODO this is not ready for use, we need a legally viable font to use
 #     wget some_seguism_website
 #     dir_seguisym=""
@@ -1159,7 +1181,7 @@ install_udev_rules(){
   if [ "$error_udev" == false ]; then
     notify 'udev install complete, please unplug and re-plug your devices before trying to use them.
 
-NOTE: This automated udev script currently only supports virpil, vkb, thrustmaster, and turtlebeach devices at this time. If you have hardware unsupported by these rules, please notify a maintainer with your PID and VID (lsusb).'
+NOTE: This automated udev script currently only supports virpil, vkb, thrustmaster, turtlebeach and winwing devices at this time. If you have hardware unsupported by these rules, or an issue caused by these rules, please notify a maintainer with your PID and VID (lsusb).'
   else
     notify 'udev rule install encountered an error and probably did not work, normal operations will continue.
 If you would like to re-try, the troubleshooting menu can do so.'
@@ -1460,12 +1482,14 @@ firstrun(){
 A config has been generated at:
 /home/$USER/.config/dcs-on-linux
 
-NOTE: when using gui mode, information about what the script wants you to do will be displayed as a window title (text at the top in dolphin)."
+NOTE: when using gui mode, information about what the script wants you to do will be displayed as a window title (text at the top in dolphin).
+
+WARNING: VR support is expirimental right now. Testers and help is needed. If you are expecting to run in VR and do not want to troubleshoot, use steam or umu proton installs."
 
     is_firstrun=false
     echo "$is_firstrun" > "$dir_cfg/$cfg_firstrun"
 
-    if [ "$(confirm 'would you like automated generic (virpil,vkb,tm,turtle) udev rule install?')" == true ]; then
+    if [ "$(confirm 'would you like automated generic (virpil,vkb,tm,turtle,winwing) UDEV rule install? UDEV rules tell your pc how to handle your joysticks.')" == true ]; then
       install_udev_rules
     fi
   fi
@@ -1480,6 +1504,10 @@ exec > >(stdbuf -oL awk '{ print strftime("%F-%T :"), $0; fflush(); }' >> ${full
 trap 'echo "Error on line $LINENO"' ERR
 
 log 'c' "======= NEW RUN ======"
+if [ ! -d "$dir_logs_helper" ]; then # create log path if not existing
+  # mkdir -p "$dir_logs_helper"
+  echo "logging directory $dir_logs_helper missing, regenerated"
+fi
 log 'c' "you are running v$ver of the helper script."
 screen_log "you are running v$ver of the helper script."
 

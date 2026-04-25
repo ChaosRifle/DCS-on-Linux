@@ -1,0 +1,3 @@
+# DCS on Linux Joystick Udev Rules
+
+KERNEL=="hidraw*", ATTRS{idVendor}=="4098", ATTRS{idProduct}=="*", MODE="0664", TAG+="uaccess"

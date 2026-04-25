@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.1.3'
+ver='0.1.5'
 
 
 ###################################################################################################
@@ -53,7 +53,7 @@ load_dcs_wine_config() { #in function so it can be modified by switches
   export DXVK_SHADER_CACHE_PATH="$dir_prefix/cache/dxvk"
   export DXVK_STATE_CACHE="1"
   export DXVK_STATE_CACHE_PATH="$dir_prefix/cache/dxvk"
-  export WINEDEBUG='-all' # clean up terminal spam
+  export WINEDEBUG='-all,+warn,+openxr' # clean up terminal spam
 
   if [ "$use_hud" = '1' ]; then
     export DXVK_HUD='version,api,compiler,opacity=0.3' #full, #fps #,compiler
@@ -87,9 +87,10 @@ launch_srs(){
   export WINEPREFIX="$dir_srs_prefix"
   export WINEDEBUG='-all' # clean up terminal spam
   if [ "$(echo "$dir_srs_prefix" | grep "srs-2.1.1.0")" == "$nil" ]; then #check which version is being launched due to file restructures that happened. "if lacking -2.1.1.0 then do"
-     export WINEDLLOVERRIDES='d3d9=n,icu=n,icuin=n,icuuc=n'
+    export WINEDLLOVERRIDES='d3d9=n,icu=n,icuin=n,icuuc=n' # d3d9=n fixes rendering of dropdowns to not be black, icu/icuin/icuuc fixes srs installer problems
     "$dir_srs_wine/wine" "$dir_srs_prefix/drive_c/srs/Client/SR-ClientRadio.exe"
   else
+    export WINEDLLOVERRIDES='d3d9=n' # d3d9=n fixes rendering of dropdowns to not be black
     "$dir_srs_wine/wine" "$dir_srs_prefix/drive_c/srs/SR-ClientRadio.exe"
   fi
   cd "$anchor_dir"
@@ -136,7 +137,7 @@ Run-Type switches (mutually exclusive, only the first will function unless other
       s) $(launch_srs) & ;; #run in subshell and continue execution
       l) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS.exe" ;;
       n) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS.exe" "--no-launcher" ;;
-      v) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS.exe" "--no-launcher --force_enable_VR --force_OpenXR";;
+      v) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS.exe" "--force_enable_VR --force_OpenXR --no-launcher";;
 
       r) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS_updater.exe" "repair" ;;
       u) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS_updater.exe" "update" ;;
