@@ -110,7 +110,7 @@ check_dependency(){
   if [ ! -x "$(command -v wc)" ]; then selftest='fail'; screen_log 'ERROR: wc missing'; fi
   if [ ! -x "$(command -v pkexec)" ]; then selftest='fail'; screen_log 'ERROR: pkexec missing'; fi
   if [ ! -x "$(command -v sh)" ]; then selftest='fail'; screen_log 'ERROR: sh missing'; fi
-  if [ ! -x "$(command -v mapfile)" ]; then selftest='fail'; screen_log 'ERROR: mapfile missing'; fi # find solution to search for mapfile, should be in bash v4 or higher TODO FIXME
+  #if [ ! -x "$(command -v mapfile)" ]; then selftest='fail'; screen_log 'ERROR: mapfile missing'; fi # find solution to search for mapfile, should be in bash v4 or higher TODO FIXME
 #   find a solution to check for globbing, ex: x=(*/) TODO FIXME
 
   if [ ! "$selftest" = 'pass' ]; then screen_log 'dependency check failed, exiting..' ; exit 1; fi
