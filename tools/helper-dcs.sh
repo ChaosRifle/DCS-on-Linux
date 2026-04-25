@@ -25,21 +25,15 @@ dynamic_install_list_size='10'
 dir_self="$(dirname $(readlink -f $0))"
 
 
-
 ###################################################################################################
 #Setup Logging, this must be as soon as possible in the script to ensure proper functionality
 ###################################################################################################
-dir_logs=~/.local/state/dcs-on-linux
-full_log="${dir_logs}/dcs_helper_full_log.txt"
-cmd_log="${dir_logs}/dcs_helper_cmd_log.txt"
-err_log="${dir_logs}/dcs_helper_err_log.txt"
+dir_logs_helper=~/.local/state/dcs-on-linux
+full_log="${dir_logs_helper}/dcs_helper_full_log.txt"
+cmd_log="${dir_logs_helper}/dcs_helper_cmd_log.txt"
+err_log="${dir_logs_helper}/dcs_helper_err_log.txt"
 time_stamp="date +%F-%T"
 active_tty="$(tty)"
-
-#Verify logging directory is available
-if [[ ! -d ${dir_logs} ]]; then
-  mkdir -p ${dir_logs}
-fi
 
 
 ###################################################################################################
@@ -116,7 +110,7 @@ check_dependency(){
   if [ ! -x "$(command -v wc)" ]; then selftest='fail'; screen_log 'ERROR: wc missing'; fi
   if [ ! -x "$(command -v pkexec)" ]; then selftest='fail'; screen_log 'ERROR: pkexec missing'; fi
   if [ ! -x "$(command -v sh)" ]; then selftest='fail'; screen_log 'ERROR: sh missing'; fi
-#   if [ ! -x "$(command -v mapfile)" ]; then selftest='fail'; screen_log 'ERROR: mapfile missing'; fi # find solution to search for mapfile, should be in bash v4 or higher TODO FIXME
+  if [ ! -x "$(command -v mapfile)" ]; then selftest='fail'; screen_log 'ERROR: mapfile missing'; fi # find solution to search for mapfile, should be in bash v4 or higher TODO FIXME
 #   find a solution to check for globbing, ex: x=(*/) TODO FIXME
 
   if [ ! "$selftest" = 'pass' ]; then screen_log 'dependency check failed, exiting..' ; exit 1; fi
