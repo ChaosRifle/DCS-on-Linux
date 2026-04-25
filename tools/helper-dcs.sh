@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.8.7'
+ver='0.8.8'
 
 ###################################################################################################
 #block root use, keep this as the FIRST lines of code in the script
@@ -137,7 +137,7 @@ query(){ #    $1_terminal_exit_prompts
     done
     decimal_offset=2
     menu_text_height="$((273+$decimal_offset+18+(18*$menu_text_zenity_line_count)))" #minimum: 325, nominal base(title, zero/one line): 273 ---#
-    menu_height="$((30 * (${#menu[@]}-2) + $menu_text_height))"
+    menu_height="$((30 * (${#menu[@]}-3) + $menu_text_height))"
     input="$(zenity --list --"$menu_type" --width="510" --height="$menu_height" --text="$menu_text_zenity" --title="$menu_title" --hide-header --cancel-label "$menu_cancel_label" --column="t" --column="o" "${array_zenity_menu[@]}")"
     log 'i' 'query()' "$input"
     if [ "$input" = "$nil" ] ; then #handle cancel button
