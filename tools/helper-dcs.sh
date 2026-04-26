@@ -23,12 +23,12 @@ subdir_dcs_corefiles="drive_c/Program Files/Eagle Dynamics/DCS World"
 subdir_dcs_savedgames="drive_c/users/$USER/Saved Games/DCS"
 dynamic_install_list_size='10'
 dir_self="$(dirname $(readlink -f $0))"
+dir_logs_helper="/home/$USER/.local/state/dcs-on-linux" # "$dir_self/../dcs-on-linux-logs"
 
 
 ###################################################################################################
 #Setup Logging, this must be as soon as possible in the script to ensure proper functionality
 ###################################################################################################
-dir_logs_helper=~/.local/state/dcs-on-linux
 full_log="${dir_logs_helper}/dcs_helper_full_log.txt"
 cmd_log="${dir_logs_helper}/dcs_helper_cmd_log.txt"
 err_log="${dir_logs_helper}/dcs_helper_err_log.txt"
