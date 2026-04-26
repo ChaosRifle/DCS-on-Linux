@@ -96,6 +96,10 @@ old resources that contain older, less useful, or duplicate information, but may
 
 
 # SRS issues
+> [!important]
+> #### (2025/03/25) **EAM doesnt work**
+> - something has changed since 2.1.1.0 that has resulted in this not working. One user reported running in proton fixed it, so it is presumed to be a missing dependency
+> - workaround: use srs v2.1.1.0 until this is solved
 
 
 # Linux issues

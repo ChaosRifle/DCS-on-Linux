@@ -1,13 +1,13 @@
 # If you encounter issues please check the [troubleshooting area](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting)
 
 > [!caution]
-> - Wine 10.15 is broken on Staging and Stable, and will not allow you to update your game. Avoid this version!
+> - Wine 10.15+ is broken on Staging and Stable, and will not allow you to update your game. Avoid this version!
 
 
 # Select an installation method:
-- [Wine](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Wine) [ **recommended**, fully automated! ]
-- [Lutris](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Lutris) [ **NOT** recommended ]
-- [Steam](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Steam) [ partially incomplete, **NOT** recommended ]
+- [Wine](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Wine) [ **recommended**, fully automated and fastest! - VR incomplete, needs testers ]
+- [Lutris](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Lutris) [ **NOT** recommended - VR possible ]
+- [Steam](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Steam) [ **NOT** recommended - VR support is somewhat better but install is a very manual process ]
 
 
 
@@ -60,7 +60,7 @@
 
 
 #### choose an install method:
-- [standalone via steam](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#standalone-via-steam-add-non-steam-game) (add non-steam game) [ no gains but some prefer it, recommend using lutris or wine instead ]
+- [standalone via steam](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#standalone-via-steam-add-non-steam-game) (add non-steam game) [ recommend using lutris or wine via helper instead, only benefit is proton for vr support ]
 - [dcs world steam edition](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#dcs-world-steam-edition-the-actual-steam-game) (the actual steam game) [incomplete]
 
 
@@ -73,7 +73,12 @@
 - 2: in steam, click 'Add a Game' in the bottom left corner > 'Add non-steam game' > select your installer.exe. use a [known working runner](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#known-working-runners)
 - 3: once it is done install, close it.
 - 4: run [protontricks](https://github.com/Matoking/protontricks) to install ``d3dcompiler_47.dll`` to the prefix, or copy one from a windows box manually (vm's work for this)
-- 5: in steam, set the working directory to the ``bin`` folder and edit the exe to use dcs.exe over dcs_updater.exe
+- 5: if using wine staging 10.14+, inside winecfg, in the `Staging` tab, check `Hide Wine version from application` to fix the [debugger detected](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20250121-fails-to-launch-the-updater-with-a-debugger-has-been-found-running-in-your-system-please-unload-it-from-memory-and-restart-your-program) error
+- 6: in steam, set the working directory to the ``bin`` folder and edit the exe to use dcs.exe over dcs_updater.exe. The C drive will be found inside your primary storage `compatdata` folder (`/home/your_username/.local/share/Steam/steamapps/compatdata/2526263394/pfx/drive_c/Program Files/Eagle Dynamics/DCS World/`)
+
+> [!note]
+> you can change the DCS installation folder (proton prefix) with `STEAM_COMPAT_DATA_PATH=path/to/the/folder`.
+> This allow you to install DCS on another drive.
 
 > [!important]
 > you must wrap both paths in double quotes, as they contain spaces
@@ -224,8 +229,8 @@ WINEPREFIX=/path/to/new-prefix/dcs-srs winecfg
 
 ## Headtracking
 #### Choose your headtracker:
-- [opentrack linux](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#opentrack-linux) [ recommended for NON trackIR5 users ]
-- [opentrack windows](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#opentrack-windows-inside-dcs-prefix) inside dcs prefix [ incomplete, highly sub-optimal ]
+- [opentrack linux](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#opentrack-linux) [ recommended for NON-trackIR5 users ]
+- [opentrack windows](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#opentrack-windows-inside-dcs-prefix) inside dcs prefix [ highly sub-optimal, incomplete! ]
 - [linuxtrack](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#linuxtrack) [ recommended for trackIR5 users ]
 - other: the star-citizen Linux User Group maintains an excellent wiki on headtrackers, more info can be found on their wiki, [here](https://github.com/starcitizen-lug/knowledge-base/wiki/Head-Tracking)
 
@@ -242,9 +247,9 @@ WINEPREFIX=/path/to/new-prefix/dcs-srs winecfg
 
 #### wine runner
 - 1: select your input method[1] (how you detect your head)
-- 2: select output method of``Wine -- Windows layer for Unix``[2]
+- 2: select output method of ``Wine -- Windows layer for Unix``[2]
 - 3: open the output method configuration menu[3]
-- 4: select the identical version of wine[4] your game install uses.
+- 4: select the identical version of wine[4] your game install uses. For installs using the helper, select ``custom path to Wine executable`` and set the wine path manually. The runner is stored in your ``../dcs-world/runners/$RUNNER_NAME/bin/wine``
 - 5: point opentrack to your game prefix[5]
 - 6: set esync and fsync[6] to be identical to your game installs configuration (usually both enabled)
 - 7: select the output protocol[7] that your game should see. (usually this is ``Both``)
