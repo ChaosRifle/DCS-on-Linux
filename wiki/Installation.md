@@ -99,7 +99,7 @@
 > [!important]
 > you must wrap both paths in double quotes, as they contain spaces
 
-- 6: set your launch argument to ``WINE_SIMULATE_WRITECOPY=1 WINEDLLOVERRIDES='wbemprox=n' %command%``. Check [here](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#current-required-launch-arguments) for the latest info. you may also append `` --no-launcher`` to this command to skip the mostly useless launcher that may or may not even function (this can also be done via options.lua or options menu)
+- 6: set your launch argument to ``WINE_SIMULATE_WRITECOPY=1 WINEDLLOVERRIDES='wbemprox=n' WINE_LARGE_ADDRESS_AWARE=1 %command%``. Check [here](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#current-required-launch-arguments) for the latest info. you may also append `` --no-launcher`` to this command to skip the mostly useless launcher that may or may not even function (this can also be done via options.lua or options menu)
 - 7: optionally repeat the add steam game and point it to the dcs_updater.exe with argument ``update``, and again for argument ``repair``
 - 8: go to [Finalizing install](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#finalizing-install), you are now nearly done!
 
