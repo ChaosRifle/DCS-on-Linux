@@ -69,16 +69,32 @@
 > [!note]
 > this segment is a stub, less support is offered for this method, and it is far more manually involved than other methods. please only choose this if you are okay with this, as support for this method is limited
 
+
+> [!note]
+> You can install DCS on another drive using **symbolic links**. First, launch and quit the online installer (cancel the installation). Then, in a terminal, run:
+>
+> ```bash
+> ln -s /home/<user>/.local/share/Steam/steamapps/compatdata/<appid>/ /mnt/another_drive/dcs_compatdata
+> ```
+>
+> This allows you to install DCS on another drive without breaking **protontricks**.
+>
+> **Important:**
+> - The `<appid>` for DCS is longer than for most other Steam games. If you’re unsure, proceed with the installation and download a bit of the game in the installer, then cancel. You should then look for an **Eagle Dynamics** folder in `Program Files`.
+>
+> Alternatively, you can use:
+> ```bash
+> STEAM_COMPAT_DATA_PATH=/mnt/another_drive/dcs_compatdata
+> ```
+> **But note:** This will make protontricks **unable** to detect the game and will prevent you from installing required DLLs.
+
+
 - 1: manually download the game installer
 - 2: in steam, click 'Add a Game' in the bottom left corner > 'Add non-steam game' > select your installer.exe. use a [known working runner](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#known-working-runners)
 - 3: once it is done install, close it.
 - 4: run [protontricks](https://github.com/Matoking/protontricks) to install ``d3dcompiler_47.dll`` to the prefix, or copy one from a windows box manually (vm's work for this)
 - 5: if using wine staging 10.14+, inside winecfg, in the `Staging` tab, check `Hide Wine version from application` to fix the [debugger detected](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20250121-fails-to-launch-the-updater-with-a-debugger-has-been-found-running-in-your-system-please-unload-it-from-memory-and-restart-your-program) error
-- 6: in steam, set the working directory to the ``bin`` folder and edit the exe to use dcs.exe over dcs_updater.exe. The C drive will be found inside your primary storage `compatdata` folder (`/home/your_username/.local/share/Steam/steamapps/compatdata/2526263394/pfx/drive_c/Program Files/Eagle Dynamics/DCS World/`)
-
-> [!note]
-> you can change the DCS installation folder (proton prefix) with `STEAM_COMPAT_DATA_PATH=path/to/the/folder`.
-> This allow you to install DCS on another drive.
+- 6: in steam, set the working directory to the ``bin`` folder and edit the exe to use dcs.exe over dcs_updater.exe. The C drive will be found inside your primary storage `compatdata` folder (`/home/your_username/.local/share/Steam/steamapps/compatdata/<very long id>/pfx/drive_c/Program Files/Eagle Dynamics/DCS World/`)
 
 > [!important]
 > you must wrap both paths in double quotes, as they contain spaces
