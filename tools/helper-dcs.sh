@@ -24,16 +24,9 @@ subdir_dcs_savedgames="drive_c/users/$USER/Saved Games/DCS"
 dynamic_install_list_size='10'
 dir_self="$(dirname $(readlink -f $0))"
 dir_logs_helper="/home/$USER/.local/state/dcs-on-linux" # "$dir_self/../dcs-on-linux-logs"
-
-
-###################################################################################################
-#Setup Logging, this must be as soon as possible in the script to ensure proper functionality
-###################################################################################################
-full_log="${dir_logs_helper}/dcs_helper_full_log.txt"
-cmd_log="${dir_logs_helper}/dcs_helper_cmd_log.txt"
-err_log="${dir_logs_helper}/dcs_helper_err_log.txt"
-time_stamp="date +%F-%T"
-active_tty="$(tty)"
+full_log="${dir_logs_helper}/dcs_helper_full.log"
+cmd_log="${dir_logs_helper}/dcs_helper_cmd.log"
+err_log="${dir_logs_helper}/dcs_helper_err.log"
 
 
 ###################################################################################################
@@ -94,26 +87,26 @@ array_files_DoL=(
 check_dependency(){
   log 'c' 'check_dependency()' "$@"
   selftest='pass'
-  if [ ! -x "$(command -v wine)" ]; then selftest='fail'; screen_log 'ERROR: wine missing'; fi
-  if [ ! -x "$(command -v winetricks)" ]; then selftest='fail'; screen_log 'ERROR: winetricks missing'; fi
-  if [ ! -x "$(command -v git)" ]; then selftest='fail'; screen_log 'ERROR: git missing'; fi
-  if [ ! -x "$(command -v wget)" ]; then selftest='fail'; screen_log 'ERROR: wget missing'; fi
-  if [ ! -x "$(command -v curl)" ]; then selftest='fail'; screen_log 'ERROR: curl missing'; fi
-  if [ ! -x "$(command -v cabextract)" ]; then selftest='fail'; screen_log 'ERROR: cabextract missing'; fi
-  if [ ! -x "$(command -v tar)" ]; then selftest='fail'; screen_log 'ERROR: tar missing'; fi
-  if [ ! -x "$(command -v unzip)" ]; then selftest='fail'; screen_log 'ERROR: unzip missing'; fi
-  if [ ! -x "$(command -v touch)" ]; then selftest='fail'; screen_log 'ERROR: touch missing'; fi
-  if [ ! -x "$(command -v mkdir)" ]; then selftest='fail'; screen_log 'ERROR: mkdir missing'; fi
-  if [ ! -x "$(command -v chmod)" ]; then selftest='fail'; screen_log 'ERROR: chmod missing'; fi
-  if ! grep -q "avx" /proc/cpuinfo; then selftest='fail'; screen_log 'ERROR: your cpu doesnt support avx'; fi
-  if [ ! -x "$(command -v tty)" ]; then selftest='fail'; screen_log 'ERROR: tty missing'; fi
-  if [ ! -x "$(command -v wc)" ]; then selftest='fail'; screen_log 'ERROR: wc missing'; fi
-  if [ ! -x "$(command -v pkexec)" ]; then selftest='fail'; screen_log 'ERROR: pkexec missing'; fi
-  if [ ! -x "$(command -v sh)" ]; then selftest='fail'; screen_log 'ERROR: sh missing'; fi
-  #if [ ! -x "$(command -v mapfile)" ]; then selftest='fail'; screen_log 'ERROR: mapfile missing'; fi # find solution to search for mapfile, should be in bash v4 or higher TODO FIXME
+  #if [ ! -x "$(command -v wine)" ]; then selftest='fail'; log 's' 'ERROR: wine missing'; fi
+  if [ ! -x "$(command -v winetricks)" ]; then selftest='fail'; log 's' 'ERROR: winetricks missing'; fi
+  if [ ! -x "$(command -v git)" ]; then selftest='fail'; log 's' 'ERROR: git missing'; fi
+  if [ ! -x "$(command -v wget)" ]; then selftest='fail'; log 's' 'ERROR: wget missing'; fi
+  if [ ! -x "$(command -v curl)" ]; then selftest='fail'; log 's' 'ERROR: curl missing'; fi
+  if [ ! -x "$(command -v cabextract)" ]; then selftest='fail'; log 's' 'ERROR: cabextract missing'; fi
+  if [ ! -x "$(command -v tar)" ]; then selftest='fail'; log 's' 'ERROR: tar missing'; fi
+  if [ ! -x "$(command -v unzip)" ]; then selftest='fail'; log 's' 'ERROR: unzip missing'; fi
+  if [ ! -x "$(command -v touch)" ]; then selftest='fail'; log 's' 'ERROR: touch missing'; fi
+  if [ ! -x "$(command -v mkdir)" ]; then selftest='fail'; log 's' 'ERROR: mkdir missing'; fi
+  if [ ! -x "$(command -v chmod)" ]; then selftest='fail'; log 's' 'ERROR: chmod missing'; fi
+  if ! grep -q "avx" /proc/cpuinfo; then selftest='fail'; log 's' 'ERROR: your cpu doesnt support avx'; fi
+  if [ ! -x "$(command -v tty)" ]; then selftest='fail'; log 's' 'ERROR: tty missing'; fi
+  if [ ! -x "$(command -v wc)" ]; then selftest='fail'; log 's' 'ERROR: wc missing'; fi
+  if [ ! -x "$(command -v pkexec)" ]; then selftest='fail'; log 's' 'ERROR: pkexec missing'; fi
+  if [ ! -x "$(command -v sh)" ]; then selftest='fail'; log 's' 'ERROR: sh missing'; fi
+  #if [ ! -x "$(command -v mapfile)" ]; then selftest='fail'; log 's' 'ERROR: mapfile missing'; fi # find solution to search for mapfile, should be in bash v4 or higher TODO FIXME
 #   find a solution to check for globbing, ex: x=(*/) TODO FIXME
 
-  if [ ! "$selftest" = 'pass' ]; then screen_log 'dependency check failed, exiting..' ; exit 1; fi
+  if [ ! "$selftest" = 'pass' ]; then log 's' 'dependency check failed, exiting..' ; exit 1; fi
 
   if [ ! "$disable_zenity" -eq 1 ]; then
     if [ -x "$(command -v zenity)" ]; then
@@ -185,7 +178,7 @@ enter a choice [0-$((${#menu[@]}-1))]${menu_exit_prompt}"
       menu_text="${menu_text}
   [$key] = ${menu[$key]}"
     done
-    screen_log '
+    log 's' '
 '
     menu_text="${menu_text}
 
@@ -231,7 +224,7 @@ $1
       break
     fi
   done
-  screen_log "$filepath_input"
+  echo "$filepath_input"
 }
 
 notify(){ #    $1_info_text
@@ -257,7 +250,7 @@ confirm(){ #    $1_question_text # WARNING only use this function where it is sa
     case "$?" in
       0) echo true ;;
       1) echo false ;;
-      *?) screen_log "ERROR: zenity confirmation returned value $?, terminating"; terminate ;;
+      *?) log 's' "ERROR: zenity confirmation returned value $?, terminating"; terminate ;;
     esac
   else
     read -p "
@@ -271,8 +264,8 @@ $1
       n) echo false ;;
       N) echo false ;;
       no) echo false ;;
-      *?) screen_log "ERROR: confirmation option $confirm_input is not available, terminating"; terminate;;
-      "$nil") screen_log "ERROR: confirmation option nil is not available, terminating"; terminate;;
+      *?) log 's' "ERROR: confirmation option $confirm_input is not available, terminating"; terminate;;
+      "$nil") log 's' "ERROR: confirmation option nil is not available, terminating"; terminate;;
     esac
   fi
 }
@@ -290,7 +283,7 @@ select_target_dcs_prefix(){
     fi
   done
   echo $dir_prefix > "$dir_cfg/$cfg_dir_prefix"
-  screen_log $dir_prefix
+  echo $dir_prefix
 }
 
 select_target_srs_prefix(){
@@ -306,7 +299,7 @@ select_target_srs_prefix(){
     fi
   done
   echo $dir_srs_prefix > "$dir_cfg/$cfg_dir_srs_prefix"
-  screen_log $dir_srs_prefix
+  echo $dir_srs_prefix
 }
 
 install_dcs(){
@@ -319,8 +312,8 @@ install_dcs(){
     return
   fi
   dir_prefix="$dir_install/dcs-world"
-  screen_log "install path: $dir_install"
-  screen_log "install prefix: $dir_prefix"
+  log 's' "install path: $dir_install"
+  log 's' "install prefix: $dir_prefix"
 
   #automatic runtype detection # 0=fresh clean install, 1=file install, 2=prefix reinstall
   unset runtype
@@ -381,8 +374,8 @@ WARNING: consume-type installers will move, not copy, the game files into the ne
       1) runtype=1;;
       2) runtype=2;;
       m) return;;
-      *?) screen_log "ERROR: option $input is not available, please try again"; return;;
-      "$nil") screen_log "ERROR: option nil is not available, please try again"; return;;
+      *?) log 's' "ERROR: option $input is not available, please try again"; return;;
+      "$nil") log 's' "ERROR: option nil is not available, please try again"; return;;
     esac
     unset input
   fi
@@ -503,8 +496,8 @@ install_srs_latest(){
     return
   fi
   dir_srs_prefix="$dir_srs_install/srs-latest"
-  screen_log "install path: $dir_srs_install"
-  screen_log "install prefix: $dir_srs_prefix"
+  log 's' "install path: $dir_srs_install"
+  log 's' "install prefix: $dir_srs_prefix"
 
   echo "$dir_srs_prefix" > "$dir_cfg/$cfg_dir_srs_prefix"
 
@@ -558,7 +551,7 @@ We have generated the srs hooks for you at '$dir_srs_prefix/files/hook-srs'"
 #     export WINEDLLOVERRIDES='icu=n,icuin=n,icuuc=n' #d3d9=n # d3d9=n fixes rendering of dropdowns to not be black, icu/icuin/icuuc fixes srs installer problems
 #     "$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/drive_c/srs/Client/SR-ClientRadio.exe" # test run
     cd "$anchor_dir"
-    screen_log "SRS installed"
+    log 's' "SRS installed"
   fi
 }
 
@@ -572,8 +565,8 @@ install_srs_2.3.4.0(){
     return
   fi
   dir_srs_prefix="$dir_srs_install/srs-2.3.4.0"
-  screen_log "install path: $dir_srs_install"
-  screen_log "install prefix: $dir_srs_prefix"
+  log 's' "install path: $dir_srs_install"
+  log 's' "install prefix: $dir_srs_prefix"
 
   echo "$dir_srs_prefix" > "$dir_cfg/$cfg_dir_srs_prefix"
 
@@ -623,7 +616,7 @@ We have generated the srs hooks for you at '$dir_srs_prefix/files/hook-srs'"
 #     export WINEDLLOVERRIDES='icu=n,icuin=n,icuuc=n' #d3d9=n # d3d9=n fixes rendering of dropdowns to not be black, icu/icuin/icuuc fixes srs installer problems
 #     "$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/drive_c/srs/Client/SR-ClientRadio.exe" # test run
     cd "$anchor_dir"
-    screen_log 'SRS 2.3.4.0 installed'
+    log 's' 'SRS 2.3.4.0 installed'
   fi
 }
 
@@ -637,8 +630,8 @@ install_srs_2.1.1.0(){ # TODO FIXME something is preventing sound working proper
     return
   fi
   dir_srs_prefix="$dir_srs_install/srs-2.1.1.0"
-  screen_log "install path: $dir_srs_install"
-  screen_log "install prefix: $dir_srs_prefix"
+  log 's' "install path: $dir_srs_install"
+  log 's' "install prefix: $dir_srs_prefix"
 
   echo "$dir_srs_prefix" > "$dir_cfg/$cfg_dir_srs_prefix"
 
@@ -691,7 +684,7 @@ We have generated the srs hooks for you at '$dir_srs_prefix/files/hook-srs-v2.1.
 #     export WINEDLLOVERRIDES='d3d9=n,icu=n,icuin=n,icuuc=n' # d3d9=n fixes rendering of dropdowns to not be black, icu/icuin/icuuc fixes srs installer problems
 #     "$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" "$dir_srs_prefix/drive_c/srs/SR-ClientRadio.exe" # test run
     cd "$anchor_dir"
-    screen_log 'SRS 2.1.1.0 installed'
+    log 's' 'SRS 2.1.1.0 installed'
   fi
 }
 
@@ -734,8 +727,8 @@ dcs logs: ${dir_prefix}/drive_c/users/$USER/Saved Games/DCS/Logs"
       6) self_update;;
       q) exit 0;;
       exit) exit 0;;
-      *?) screen_log "ERROR: option $input is not available, please try again";;
-      "$nil") screen_log 'ERROR: please enter a value that is not nil';;
+      *?) log 's' "ERROR: option $input is not available, please try again";;
+      "$nil") log 's' 'ERROR: please enter a value that is not nil';;
     esac
     unset input
   done
@@ -791,8 +784,8 @@ dcs logs: ${dir_prefix}/drive_c/users/$USER/Saved Games/DCS/Logs"
       q) exit 0;;
       exit) exit 0;;
       m) menu_main; break;;
-      *?) screen_log "ERROR: option $input is not available, please try again";;
-      "$nil") screen_log 'ERROR: please enter a value that is not nil';;
+      *?) log 's' "ERROR: option $input is not available, please try again";;
+      "$nil") log 's' 'ERROR: please enter a value that is not nil';;
     esac
     unset input
   done
@@ -821,8 +814,8 @@ menu_runners(){
       q) exit 0;;
       exit) exit 0;;
       m) menu_main; break;;
-      *?) screen_log "ERROR: option $input is not available, please try again";;
-      "$nil") screen_log 'ERROR: please enter a value that is not nil';;
+      *?) log 's' "ERROR: option $input is not available, please try again";;
+      "$nil") log 's' 'ERROR: please enter a value that is not nil';;
     esac
     unset input
   done
@@ -854,8 +847,8 @@ menu_dxvk(){
       q) exit 0;;
       exit) exit 0;;
       m) menu_main; break;;
-      *?) screen_log "ERROR: option $input is not available, please try again";;
-      "$nil") screen_log 'ERROR: please enter a value that is not nil';;
+      *?) log 's' "ERROR: option $input is not available, please try again";;
+      "$nil") log 's' 'ERROR: please enter a value that is not nil';;
     esac
     unset input
   done
@@ -891,8 +884,8 @@ DoL Matrix chat/help server: ${url_matrix}"
       q) exit 0;;
       exit) exit 0;;
       m) menu_main; break;;
-      *?) screen_log "ERROR: option $input is not available, please try again";;
-      "$nil") screen_log 'ERROR: please enter a value that is not nil';;
+      *?) log 's' "ERROR: option $input is not available, please try again";;
+      "$nil") log 's' 'ERROR: please enter a value that is not nil';;
     esac
     unset input
   done
@@ -982,7 +975,7 @@ get_latest_git_version(){ #     $1_github_or_gitlab    $2_repoOwner/repoName NOT
     *?) break;;
     "$nil") break;;
   esac
-  screen_log "$(curl -s "$git_url" | grep 'tag_name' | cut -d '"' -f4)" # version
+  echo "$(curl -s "$git_url" | grep 'tag_name' | cut -d '"' -f4)" # version
 }
 
 get_latest_git_release(){ #     $1_github_or_gitlab    $2_repoOwner/repoName    $3_file_grep_filter   TODO FIXME WARNING GITLAB FUNCTIONALITY NOT IMPLEMENTED!!!!!!
@@ -990,12 +983,12 @@ get_latest_git_release(){ #     $1_github_or_gitlab    $2_repoOwner/repoName    
   case "$1" in
     gh)
       git_url="https://api.github.com/repos/$2/releases/latest"
-      screen_log "$(curl -s "$git_url" | grep 'browser_download_url' | grep "$3" | cut -d '"' -f4)" # release
+      echo "$(curl -s "$git_url" | grep 'browser_download_url' | grep "$3" | cut -d '"' -f4)" # release
     ;;
     gl)
 #       git_url="https://gitlab.com/api/v4/projects/$2/releases?per_page=1"
       git_url="https://gitlab.com/api/v4/projects/$2/releases/permalink/latest"
-      screen_log "$(curl -s "$git_url" | grep 'browser_download_url' | grep "$3" | cut -d '"' -f4)" # release
+      echo "$(curl -s "$git_url" | grep 'browser_download_url' | grep "$3" | cut -d '"' -f4)" # release
     ;;
     *?) break;;
     "$nil") break;;
@@ -1153,7 +1146,7 @@ install_udev_rules(){
   error_udev=false
   mkdir -p "$dir_self/tmp"
   cd "$dir_self/tmp"
-  screen_log "$dir_self/../udev/40-virpil.rules"
+  echo "$dir_self/../udev/40-virpil.rules"
   if [ -f "$dir_self/../udev/40-virpil.rules" ]; then #if repo skip redundant download
     mkdir -p "$dir_self/tmp/DCS-on-Linux/udev"
     cp $dir_self/../udev/* "$dir_self/tmp/DCS-on-Linux/udev"    #  TODO lacks quotes on command, should be corrected however needs the * wildcard to work
@@ -1166,13 +1159,13 @@ install_udev_rules(){
   exit_code="$?"
   if [ "$exit_code" -eq 126 ] || [ "$exit_code" -eq 127 ]; then
     error_udev=true
-    screen_log 'ERROR: pkexec returned an error attempting to move udev rules'
+    log 's' 'ERROR: pkexec returned an error attempting to move udev rules'
   fi
   pkexec sh -c "sudo udevadm control --reload && sudo udevadm trigger"
   exit_code="$?"
   if [ "$exit_code" -eq 126 ] || [ "$exit_code" -eq 127 ]; then
     error_udev=true
-    screen_log 'ERROR: pkexec returned an error attempting to reload udev rules'
+    log 's' 'ERROR: pkexec returned an error attempting to reload udev rules'
   fi
 
   cd "$anchor_dir"
@@ -1202,6 +1195,10 @@ log(){
       shift
       echo "$(${time_stamp}) : ERROR FLOW: $@" >> ${err_log}
     ;;
+    s)
+      shift
+      echo "$(${time_stamp}) : $@" | tee -a ${cmd_log} ${full_log} >${active_tty}
+    ;;
     *?)
       echo "$(${time_stamp}) : ERROR Unknown Flag ($1): $@" | tee -a ${cmd_log} >> ${full_log}
       echo "$(${time_stamp}) : ERROR Unknown Flag ($1): $@" >> ${err_log}
@@ -1214,15 +1211,15 @@ log(){
 }
 
 #Log command used to output to terminal/screen, as well as to internal log files
-screen_log(){
-  if [[ -p /dev/stdin ]]; then
-    line="$(cat)"
-    echo "$(${time_stamp}) : ${line}" | tee -a ${cmd_log} ${full_log} >${active_tty}
-  else
-    # Handle argument input
-    echo "$(${time_stamp}) : $@" | tee -a ${cmd_log} ${full_log} >${active_tty}
-  fi
-}
+#screen_log(){
+#  if [[ -p /dev/stdin ]]; then
+#    line="$(cat)"
+#    echo "$(${time_stamp}) : ${line}" | tee -a ${cmd_log} ${full_log} >${active_tty}
+#  else
+#    # Handle argument input
+#    echo "$(${time_stamp}) : $@" | tee -a ${cmd_log} ${full_log} >${active_tty}
+#  fi
+#}
 
 install_prefix_runner(){ #    $1_dcs_or_srs   $2_url_forced_selection_runner
   log 'c' 'install_prefix_runner()' "$@"
@@ -1286,8 +1283,8 @@ If not listed, either will work"
       ;;
       e) exit 0;;
       m) menu_main; break;;
-      *?) screen_log "ERROR: option $input is not available, please try again";;
-      "$nil") screen_log 'ERROR: please enter a value that is not nil';;
+      *?) log 's' "ERROR: option $input is not available, please try again";;
+      "$nil") log 's' 'ERROR: please enter a value that is not nil';;
     esac
     unset input
 
@@ -1332,8 +1329,8 @@ If not listed, either will work"
       19) url_wine_download="${array_url_wine_download[$input]}";;
       e) exit 0;;
       m) menu_main; break;;
-      *?) screen_log "ERROR: option $input is not available, please try again";;
-      "$nil") screen_log 'ERROR: please enter a value that is not nil';;
+      *?) log 's' "ERROR: option $input is not available, please try again";;
+      "$nil") log 's' 'ERROR: please enter a value that is not nil';;
     esac
     unset input
 
@@ -1437,7 +1434,7 @@ active runner: $active_runner"
         notify "ERROR: $input is not a number, no action was performed"
       fi
     ;;
-    "$nil") screen_log 'ERROR: please enter a value that is not nil, no action was performed';;
+    "$nil") log 's' 'ERROR: please enter a value that is not nil, no action was performed';;
   esac
   unset active_runner
   unset tag_run_type
@@ -1501,38 +1498,40 @@ WARNING: VR support is expirimental right now. Testers and help is needed. If yo
 #Setup full script logging into full_log file
 exec > >(stdbuf -oL awk '{ print strftime("%F-%T :"), $0; fflush(); }' >> ${full_log}) 2>&1
 trap 'echo "Error on line $LINENO"' ERR
+time_stamp="date +%F-%T"
+active_tty="$(tty)"
 
 log 'c' "======= NEW RUN ======"
 if [ ! -d "$dir_logs_helper" ]; then # create log path if not existing
-  # mkdir -p "$dir_logs_helper"
+  mkdir -p "$dir_logs_helper"
   echo "logging directory $dir_logs_helper missing, regenerated"
 fi
 log 'c' "you are running v$ver of the helper script."
-screen_log "you are running v$ver of the helper script."
+log 's' "you are running v$ver of the helper script."
 
 #argument parsing
 if [ "$#" -eq 0 ]; then #default run
   #   $0 -n
   #   exit 1
-  screen_log 'default run detected'
+  log 's' 'default run detected'
 else
   while getopts "ht" arg; do #arg run
     case "$arg" in
-      h) screen_log "DCS on Linux Helper Script
+      h) log 's' "DCS on Linux Helper Script
 
 execution: $0
 [-h] help (this message)
 [-t] terminal mode (disable zenity even if present)
 "; exit 0 ;;
-      t) disable_zenity=1 ; screen_log 'zenity overridden' ;;
-      *?) screen_log "error: option -${OPTARG} is not implemented, use -h to see available swithes"; exit 1;;
+      t) disable_zenity=1 ; log 's' 'zenity overridden' ;;
+      *?) log 's' "error: option -${OPTARG} is not implemented, use -h to see available swithes"; exit 1;;
     esac
   done
 fi
 
 
 if [ ! -d "$dir_cfg" ]; then # load or create configs
-  screen_log "config not found, generating one at $dir_cfg"
+  log 's' "config not found, generating one at $dir_cfg"
   mkdir -p "$dir_cfg"
   is_firstrun=true
   echo "$dir_prefix" > "$dir_cfg/$cfg_dir_prefix"
@@ -1544,20 +1543,20 @@ else
     PATH_WINE_DCS="$dir_prefix/runners/$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")/bin/"
   else
     echo "$dir_prefix" > "$dir_cfg/$cfg_dir_prefix"
-    screen_log "config file $cfg_dir_prefix missing, regenerated"
+    log 's' "config file $cfg_dir_prefix missing, regenerated"
   fi
   if [ -f "$dir_cfg/$cfg_firstrun" ]; then #first run
     is_firstrun="$(cat "$dir_cfg/$cfg_firstrun")"
   else
     is_firstrun=true
     echo "$is_firstrun" > "$dir_cfg/$cfg_firstrun"
-    screen_log "config file $cfg_firstrun missing, regenerated"
+    log 's' "config file $cfg_firstrun missing, regenerated"
   fi
   if [ -f "$dir_cfg/$cfg_dir_srs_prefix" ]; then #prefix
     dir_srs_prefix="$(cat "$dir_cfg/$cfg_dir_srs_prefix")"
   else
     echo "$dir_srs_prefix" > "$dir_cfg/$cfg_dir_srs_prefix"
-    screen_log "config file $cfg_dir_srs_prefix missing, regenerated"
+    log 's' "config file $cfg_dir_srs_prefix missing, regenerated"
   fi
 fi
 
