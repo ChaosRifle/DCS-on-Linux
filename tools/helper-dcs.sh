@@ -87,7 +87,7 @@ array_files_DoL=(
 check_dependency(){
   log 'c' 'check_dependency()' "$@"
   selftest='pass'
-  #if [ ! -x "$(command -v wine)" ]; then selftest='fail'; log 's' 'ERROR: wine missing'; fi
+  if [ ! -x "$(command -v wine)" ]; then selftest='fail'; log 's' 'ERROR: wine missing'; fi
   if [ ! -x "$(command -v winetricks)" ]; then selftest='fail'; log 's' 'ERROR: winetricks missing'; fi
   if [ ! -x "$(command -v git)" ]; then selftest='fail'; log 's' 'ERROR: git missing'; fi
   if [ ! -x "$(command -v wget)" ]; then selftest='fail'; log 's' 'ERROR: wget missing'; fi
