@@ -2,8 +2,10 @@
 #### contents:
 - [Troubleshooting steps](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#troubleshooting-steps)
 - [Troubleshooting resources](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#troubleshooting-resources)
+- [Performance tuning](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#performance-tuning)
 - [Lutris issues](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#lutris-install-issues)
 - [Wine issues](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#wine-install-issues)
+- [DXVK issues](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#dxvk-issues)
 - [Steam issues](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#steam-install-issues)
 - [Joystick issues](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#joystick-issues)
 - [Headtracking issues](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#headtracking-issues)
@@ -53,6 +55,17 @@ old resources that contain older, less useful, or duplicate information, but may
 - proton [issues](https://github.com/ValveSoftware/Proton/issues/1722) if you are in a pinch, a pain to search but occasionally useful
 
 
+# Performance Tuning
+#### Runner Performance Tuning
+- Use of a modern runner version is strongly recommended. Latest or second to latest major version is suggested. IE: if wine 11 just released, 10 or 11 is suggested.
+
+- high core count cpu's with multi-die architecture (amd threadripper confirmed affected) can see improvements by using the environment variable ``WINE_CPU_TOPOLOGY=number-of-threads:comma-separated-list-of-thread-index-numbers``. ``lstopo`` can be used to view the indexes, and topology of your cpu. your env var should look similar to the following example: ``WINE_CPU_TOPOLOGY=8:0,1,2,3,4,5,6,7``. play around with how many cores you dedicate, see what performs best for you
+
+#### DXVK Performance Tuning
+- use the latest version of DXVK
+- alternate builds of DXVK may provide additional options for tuning, like Ph42oN/dxvk-gplasync's ``dxvk.enableGraphicsPipelineLibrary=false`` in ``dxvk.conf`` to save vram for severly low vram gpu's, or ``DXVK_ASYNC=1`` environment variable, or ``dxvk.enableAsync=true`` in ``dxvk.conf`` to reduce stuttering due to shaders compiling while playing
+
+
 # Lutris install issues
 > [!important]
 > #### (date unknown) **lutris fails to launch game after install when un-checking install files now**
@@ -61,6 +74,10 @@ old resources that contain older, less useful, or duplicate information, but may
 > <img width="285" height="208" alt="image" src="https://github.com/user-attachments/assets/934fb4bc-166b-473c-b02c-beea9830f731" />
 
 # Wine install issues
+
+
+# DXVK issues
+
 
 # Steam install issues
 > [!important]
