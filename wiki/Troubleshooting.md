@@ -37,6 +37,8 @@
 ## current required launch arguments
 - ``WINE_SIMULATE_WRITECOPY=1`` for F4's ``hbui.exe`` to work correctly
 - ``WINEDLLOVERRIDES='wbemprox=n'`` for .. some reason. If you remember, ping chaos or open a PR/git issue.
+- ``WINE_LARGE_ADDRESS_AWARE=1`` to prevent crash caused by an `ACCESS_VIOLATION` on the `d3d11.dll`, mainly on custom proton like Proton-GE or CachyOS's proton.
+- If you experience poor performance related to shader processing, add `DXVK_ASYNC=1`, this will allow DXVK to compile shader in parallel.
 
 ## Logs
 - dcs: ``drive_c/users/$USERNAME/Saved Games/DCS World/Logs/dcs.log``
