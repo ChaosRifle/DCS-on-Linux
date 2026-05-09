@@ -87,7 +87,7 @@ array_files_DoL=(
 check_dependency(){
   log 'c' "$@"
   selftest='pass'
-  if [ ! -x "$(command -v wine)" ]; then selftest='fail'; log 's' 'ERROR: wine missing'; fi # possibly not needed, unclear if winetricks or standalone wine would ref system wine binaries/libraries
+  #if [ ! -x "$(command -v wine)" ]; then selftest='fail'; log 's' 'ERROR: wine missing'; fi # possibly not needed, unclear if winetricks or standalone wine would ref system wine binaries/libraries
   if [ ! -x "$(command -v winetricks)" ]; then selftest='fail'; log 's' 'ERROR: winetricks missing'; fi
   if [ ! -x "$(command -v git)" ]; then selftest='fail'; log 's' 'ERROR: git missing'; fi
   if [ ! -x "$(command -v wget)" ]; then selftest='fail'; log 's' 'ERROR: wget missing'; fi
@@ -1199,27 +1199,27 @@ log(){
   case "$1" in
     c) #control flow of the script itself
       shift
-      echo "(CONTROL FLOW): ${FUNCNAME[1]}() - '$@'" | tee -a ${file_log_control} #${file_log_full}
+      echo "(CONTROL FLOW): ${FUNCNAME[1]}() - '$@'" >> ${file_log_control} #${file_log_full}
     ;;
     u) #user input that was provided
       shift
-      echo "(USER INPUT): '$@'" | tee -a ${file_log_control} #${file_log_full}
+      echo "(USER INPUT): '$@'" >> ${file_log_control} #${file_log_full}
     ;;
     d) #debug data - informational logging like script version, args used to launch the script, filepath to the script, etc
       shift
-      echo "(DEBUG): ${FUNCNAME[1]}() - '$@'" | tee -a ${file_log_control} #${file_log_full}
+      echo "(DEBUG): ${FUNCNAME[1]}() - '$@'" >> ${file_log_control} #${file_log_full}
     ;;
 
     e) #external application logs
       shift
-      echo "(EXTERNAL APPLICTION): ${FUNCNAME[1]}() - '$@'" | tee -a ${file_log_control} ${file_log_external_applications} #${file_log_full}
+      echo "(EXTERNAL APPLICTION): ${FUNCNAME[1]}() - '$@'" | tee -a ${file_log_control} >> ${file_log_external_applications} #${file_log_full}
     ;;
 
 
 
     s) #print to screen
       shift
-      echo "$@" > ${active_tty}
+      echo "$@" | tee -a ${active_tty}
       # echo "$(${time_stamp}) : $@" | tee -a ${file_log_control} ${file_log_full}
     ;;
 
@@ -1240,11 +1240,9 @@ log(){
 
     *?)
       echo "$(${time_stamp}) : ERROR Unknown Flag ($1): $@" | tee -a ${file_log_control} >> ${file_log_full}
-      echo "$(${time_stamp}) : ERROR Unknown Flag ($1): $@" >> ${err_log}
     ;;
     "$nil")
       echo "$(${time_stamp}) : ERROR nil value supplied: $@" | tee -a ${file_log_control} >> ${file_log_full}
-      echo "$(${time_stamp}) : ERROR nil value supplied: $@" >> ${err_log}
     ;;
   esac
 }
