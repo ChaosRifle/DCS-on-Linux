@@ -87,7 +87,9 @@ array_files_DoL=(
 check_dependency(){
   log 'c' "$@"
   selftest='pass'
-  if [ ! -x "$(command -v wine)" ]; then selftest='fail'; send_to_screen 'ERROR: wine missing'; fi # possibly not needed, unclear if winetricks or standalone wine would ref system wine binaries/libraries
+  if [ ! -x "$(command -v wine)" ]; then send_to_screen 'WARNING: wine missing. Possibly not needed.'; fi # possibly not needed, unclear if winetricks or standalone wine would ref system wine binaries/libraries
+  if [ ! -x "$(command -v pkexec)" ]; then selftest='fail'; send_to_screen 'WARNING: pkexec missing, you will be unable to auto-install udev rules'; fi # FIXME TODO add flag for has-polkit(pkexec) that will be used to disable udev rule auto installer.
+
   if [ ! -x "$(command -v winetricks)" ]; then selftest='fail'; send_to_screen 'ERROR: winetricks missing'; fi
   if [ ! -x "$(command -v git)" ]; then selftest='fail'; send_to_screen 'ERROR: git missing'; fi
   if [ ! -x "$(command -v wget)" ]; then selftest='fail'; send_to_screen 'ERROR: wget missing'; fi
@@ -98,13 +100,18 @@ check_dependency(){
   if [ ! -x "$(command -v touch)" ]; then selftest='fail'; send_to_screen 'ERROR: touch missing'; fi
   if [ ! -x "$(command -v mkdir)" ]; then selftest='fail'; send_to_screen 'ERROR: mkdir missing'; fi
   if [ ! -x "$(command -v chmod)" ]; then selftest='fail'; send_to_screen 'ERROR: chmod missing'; fi
-  if ! grep -q "avx" /proc/cpuinfo; then selftest='fail'; send_to_screen 'ERROR: your cpu doesnt support avx'; fi
+  if ! grep -q "avx" /proc/cpuinfo; then selftest='fail'; send_to_screen 'ERROR: your cpu does not support avx: some or multiple modules will not work'; fi
   if [ ! -x "$(command -v tty)" ]; then selftest='fail'; send_to_screen 'ERROR: tty missing'; fi
   if [ ! -x "$(command -v wc)" ]; then selftest='fail'; send_to_screen 'ERROR: wc missing'; fi
-  if [ ! -x "$(command -v pkexec)" ]; then selftest='fail'; send_to_screen 'ERROR: pkexec missing'; fi
   if [ ! -x "$(command -v sh)" ]; then selftest='fail'; send_to_screen 'ERROR: sh missing'; fi
-  #if [ ! -x "$(command -v mapfile)" ]; then selftest='fail'; send_to_screen 'ERROR: mapfile missing'; fi # find solution to search for mapfile, should be in bash v4 or higher TODO FIXME
-#   find a solution to check for globbing, ex: x=(*/) TODO FIXME
+  if [ ! -x "$(command -v stdbuf)" ]; then selftest='fail'; send_to_screen 'ERROR: stdbuf missing'; fi
+  if [ ! -x "$(command -v awk)" ]; then selftest='fail'; send_to_screen 'ERROR: awk missing'; fi
+  if [ ! -x "$(command -v cat)" ]; then selftest='fail'; send_to_screen 'ERROR: cat missing'; fi
+  if [ ! -x "$(command -v date)" ]; then selftest='fail'; send_to_screen 'ERROR: date missing'; fi
+  if [ ! -x "$(command -v tee)" ]; then selftest='fail'; send_to_screen 'ERROR: tee missing'; fi
+  # find solution to search for mapfile, should be in bash v4 or higher TODO FIXME
+  #check if 'shift' and 'trap' builtins have a minimum bash version like mapfile, if so, find a way to check against it
+  # find a solution to check for globbing being enabled, ex: x=(*/) TODO FIXME
 
   if [ ! "$selftest" = 'pass' ]; then send_to_screen 'dependency check failed, exiting..' ; exit 1; fi
 
@@ -144,6 +151,7 @@ query(){ #    $1_terminal_exit_prompts
     decimal_offset=2
     menu_text_height="$((273+$decimal_offset+18+(18*$menu_text_zenity_line_count)))" #minimum: 325, nominal base(title, zero/one line): 273 ---#
     menu_height="$((30 * (${#menu[@]}-3) + $menu_text_height))"
+    log 's' "$menu_text_zenity"
     input="$(zenity --list --"$menu_type" --width="510" --height="$menu_height" --text="$menu_text_zenity" --title="$menu_title" --hide-header --cancel-label "$menu_cancel_label" --column="t" --column="o" "${array_zenity_menu[@]}")"
     if [ "$input" = "$nil" ] ; then #handle cancel button
       input="$menu_cancel_action"
@@ -182,12 +190,13 @@ enter a choice [0-$((${#menu[@]}-1))]${menu_exit_prompt}"
       menu_text="${menu_text}
   [$key] = ${menu[$key]}"
     done
-    send_to_screen '
-'
-    menu_text="${menu_text}
 
+    menu_text="
+
+${menu_text}
 "
-    read -p "$menu_text" input 2>${active_tty}
+    send_to_screen "$menu_text"
+    read input
     log 'u' "$input"
   fi
   unset menu_exit_prompt
@@ -211,6 +220,7 @@ query_filepath(){ #    $1_prompt_text
   while true; do
     unset filepath_input
     if [ $use_zenity = 1 ]; then
+      log 's' "$1"
       filepath_input="$(zenity --file-selection --directory --title="$1")"
       if [ $? -eq 1 ]; then
         filepath_input="$nil"
@@ -219,9 +229,10 @@ query_filepath(){ #    $1_prompt_text
         log 'u' "$filepath_input"
       fi
     else
-      read -p "
+      send_to_screen "
 $1
-" filepath_input 2>${active_tty}
+"
+      read filepath_input
       log 'u' "$filepath_input"
     fi
 
@@ -233,24 +244,22 @@ $1
       break
     fi
   done
-  log 'u' "final input: $filepath_input"
   echo "$filepath_input"
 }
 
 notify(){ #    $1_info_text
   log 'c' "$@"
   if [ "$use_zenity" = 1 ]; then
+    log 's' "$1"
     zenity --width="510" --info  --title="" --text="$1"
     log 'u' "user continued"
   else
-    read -p "
+    send_to_screen "
 $1
 press [enter] to continue
-" dummy 2>${active_tty}
+"
+    read dummy
     log 'u' "user continued"
-#     echo "
-# $1
-# "
   fi
 }
 
@@ -258,18 +267,20 @@ confirm(){ #    $1_question_text # WARNING only use this function where it is sa
   log 'c' "$@"
   unset confirm_input
   if [ "$use_zenity" = 1 ]; then
+    log 's' "$1"
     zenity --question --title="Confirmation" --text="$1"
     log 'u' "$?"
     case "$?" in #0=true 1=false, bashism, aligns with exit codes 0 success, anything else failure
       0) return 0 ;;
       1) return 1 ;;
-      *?) send_to_screen "ERROR: zenity confirmation returned value $?, terminating"; terminate ;;
+      *?) log 'x' "zenity confirmation returned value '$?', terminating"; terminate ;;
     esac
   else
-    read -p "
+    send_to_screen "
 $1
 [y/n]?
-" confirm_input 2>${active_tty}
+"
+    read confirm_input
     log 'u' "$confirm_input"
     case "$confirm_input" in #0=true 1=false, bashism, aligns with exit codes 0 success, anything else failure
       y) return 0 ;;
@@ -278,8 +289,8 @@ $1
       n) return 1 ;;
       N) return 1 ;;
       no) return 1 ;;
-      *?) send_to_screen "ERROR: confirmation option $confirm_input is not available, terminating"; terminate;;
-      "$nil") send_to_screen "ERROR: confirmation option nil is not available, terminating"; terminate;;
+      *?) log 'x' "confirmation option '$confirm_input' is not available, terminating"; terminate;;
+      "$nil") log 'x' "confirmation option nil is not available, terminating"; terminate;;
     esac
   fi
 }
@@ -290,9 +301,11 @@ select_target_dcs_prefix(){
     dir_prefix="$(query_filepath "enter the full path to your DCS prefix ('path/to/games/dcs-world')")"
     if [ ! -d "$dir_prefix" ]; then
       if ! confirm 'the path you specified could not be found. would you like to try again?'; then
+        log 'd' "prefix not found, user canceled"
         break
       fi
     else
+      log 'd' "prefix found"
       break
     fi
   done
@@ -304,12 +317,13 @@ select_target_srs_prefix(){
   log 'c' "$@"
   while true; do
     dir_srs_prefix="$(query_filepath "enter the full path to your SRS prefix ('path/to/srs')")"
-    log 'd' "dir_srs_prefix: ${dir_srs_prefix}"
     if [ ! -d "$dir_srs_prefix" ]; then
       if ! confirm 'the path you specified could not be found. would you like to try again?'; then
+        log 'd' "prefix not found, user canceled"
         break
       fi
     else
+      log 'd' "prefix found"
       break
     fi
   done
@@ -389,8 +403,8 @@ WARNING: consume-type installers will move, not copy, the game files into the ne
       1) runtype=1;;
       2) runtype=2;;
       m) return;;
-      *?) send_to_screen "ERROR: option $input is not available, please try again"; return;;
-      "$nil") send_to_screen "ERROR: option nil is not available, please try again"; return;;
+      *?) log 'x' "option '$input' is not available, please try again"; return;;
+      "$nil") log 'x' "option nil is not available, please try again"; return;;
     esac
     unset input
   fi
@@ -742,8 +756,8 @@ dcs logs: ${dir_prefix}/drive_c/users/$USER/Saved Games/DCS/Logs"
       6) self_update;;
       q) exit 0;;
       exit) exit 0;;
-      *?) send_to_screen "ERROR: option $input is not available, please try again";;
-      "$nil") send_to_screen 'ERROR: please enter a value that is not nil';;
+      *?) log 'x' "option '$input' is not available, please try again";;
+      "$nil") log 'x' 'please enter a value that is not nil';;
     esac
     unset input
   done
@@ -799,8 +813,8 @@ dcs logs: ${dir_prefix}/drive_c/users/$USER/Saved Games/DCS/Logs"
       q) exit 0;;
       exit) exit 0;;
       m) menu_main; break;;
-      *?) send_to_screen "ERROR: option $input is not available, please try again";;
-      "$nil") send_to_screen 'ERROR: please enter a value that is not nil';;
+      *?) log 'x' "option '$input' is not available, please try again";;
+      "$nil") log 'x' 'please enter a value that is not nil';;
     esac
     unset input
   done
@@ -829,8 +843,8 @@ menu_runners(){
       q) exit 0;;
       exit) exit 0;;
       m) menu_main; break;;
-      *?) send_to_screen "ERROR: option $input is not available, please try again";;
-      "$nil") send_to_screen 'ERROR: please enter a value that is not nil';;
+      *?) log 'x' "option '$input' is not available, please try again";;
+      "$nil") log 'x' 'please enter a value that is not nil';;
     esac
     unset input
   done
@@ -862,8 +876,8 @@ menu_dxvk(){
       q) exit 0;;
       exit) exit 0;;
       m) menu_main; break;;
-      *?) send_to_screen "ERROR: option $input is not available, please try again";;
-      "$nil") send_to_screen 'ERROR: please enter a value that is not nil';;
+      *?) log 'x' "option '$input' is not available, please try again";;
+      "$nil") log 'x' 'please enter a value that is not nil';;
     esac
     unset input
   done
@@ -899,8 +913,8 @@ DoL Matrix chat/help server: ${url_matrix}"
       q) exit 0;;
       exit) exit 0;;
       m) menu_main; break;;
-      *?) send_to_screen "ERROR: option $input is not available, please try again";;
-      "$nil") send_to_screen 'ERROR: please enter a value that is not nil';;
+      *?) log 'x' "option '$input' is not available, please try again";;
+      "$nil") log 'x' 'please enter a value that is not nil';;
     esac
     unset input
   done
@@ -1195,59 +1209,60 @@ If you would like to re-try, the troubleshooting menu can do so.'
   fi
 }
 
-log(){
+log(){ #     $1_mode_of_logging    $2_data_to_log
   case "$1" in
     c) #control flow of the script itself
       shift
-      echo "(CONTROL FLOW): ${FUNCNAME[1]}() - '$@'" >> ${file_log_control} #${file_log_full}
+      echo "$(${time_stamp}) : (CONTROL FLOW): ${FUNCNAME[1]}() - '$@'" | tee -a ${file_log_control} >> ${file_log_full}
     ;;
     u) #user input that was provided
       shift
-      echo "(USER INPUT): '$@'" >> ${file_log_control} #${file_log_full}
+      echo "$(${time_stamp}) : (USER INPUT): ${FUNCNAME[2]}() - '$@'" | tee -a ${file_log_control} >> ${file_log_full}
     ;;
-    d) #debug data - informational logging like script version, args used to launch the script, filepath to the script, etc
+    d) #debug data - informational logging like script version, args used to launch the script, filepath to the script, key variable data for a functions execution, etc
       shift
-      echo "(DEBUG): ${FUNCNAME[1]}() - '$@'" >> ${file_log_control} #${file_log_full}
+      echo "$(${time_stamp}) : (DEBUG): ${FUNCNAME[1]}() - '$@'" | tee -a ${file_log_control} >> ${file_log_full}
     ;;
-    e) #external application logs
+    e) #external application logs, such as wine or winetricks
       shift
-      echo "(EXTERNAL APPLICTION): ${FUNCNAME[1]}() - '$@'" | tee -a ${file_log_control} >> ${file_log_external_applications} #${file_log_full}
+      if [[ -p /dev/stdin ]]; then # Handle piped input
+        line="$(cat)"
+        echo "$(${time_stamp}) : (EXTERNAL APPLICTION): ${FUNCNAME[1]}() - $1 - '${line}'" | tee -a ${file_log_external_applications} >> ${file_log_full}
+      else # Handle argument input
+        echo "$(${time_stamp}) : (EXTERNAL APPLICTION): ${FUNCNAME[1]}() - '$@'" | tee -a ${file_log_external_applications} >> ${file_log_full}
+      fi
     ;;
     s) #send_to_screen logging
       shift
-      echo "$(${time_stamp}) : (ERROR): $@" | tee -a ${file_log_control} >> ${file_log_full}
-      echo "(ERROR): $@" > ${active_tty}
+      if [[ "${FUNCNAME[1]}" == 'send_to_screen' ]]; then #handle calls from send_to_screen
+        echo "$(${time_stamp}) : (SCREEN OUTPUT): ${FUNCNAME[2]}() - '$@'" | tee -a ${file_log_control} >> ${file_log_full}
+      else # handle zenity menu text
+        echo "$(${time_stamp}) : (SCREEN OUTPUT): ${FUNCNAME[1]}() - zenity - '$@'" | tee -a ${file_log_control} >> ${file_log_full}
+      fi
     ;;
-    x) #error UNUSED
+
+    x) #error or critical warning, logged and sent to terminal. NOT intended to be used to notify users, use notify() for that
       shift
-      echo "$(${time_stamp}) : (ERROR): $@" | tee -a ${file_log_control} >> ${file_log_full}
-      echo "(ERROR): $@" > ${active_tty}
+      echo "$(${time_stamp}) : (ERROR / WARNING): ${FUNCNAME[1]}() - '$@'" | tee -a ${file_log_control} ${file_log_full} >> ${active_tty}
     ;;
-    w) #warning UNUSED
-      shift
-      echo "$(${time_stamp}) : (WARNING): $@" | tee -a ${file_log_control} >> ${file_log_full}
-      echo "(WARNING): $@" > ${active_tty}
-    ;;
+
     *?)
-      echo "$(${time_stamp}) : ERROR Unknown Flag ($1): $@" | tee -a ${file_log_control} >> ${file_log_full}
+      echo "$(${time_stamp}) : ERROR Unknown Flag ($1): ${FUNCNAME[1]}() - '$@'" | tee -a ${file_log_control} >> ${file_log_full}
     ;;
     "$nil")
-      echo "$(${time_stamp}) : ERROR nil value supplied: $@" | tee -a ${file_log_control} >> ${file_log_full}
+      echo "$(${time_stamp}) : ERROR nil value supplied: ${FUNCNAME[1]}() - '$@'" | tee -a ${file_log_control} >> ${file_log_full}
     ;;
   esac
 }
 
-#Log command used to output to terminal/screen, as well as to internal log files
-send_to_screen(){
-  if [[ -p /dev/stdin ]]; then
-    # Handle piped input
+send_to_screen(){ #     $1_thing_to_send_to_screen
+  if [[ -p /dev/stdin ]]; then # Handle piped input
     line="$(cat)"
     echo "${line}" >> ${active_tty}
     log 's' ${line}
-  else
-    # Handle argument input
+  else # Handle argument input
     echo "$@" >> ${active_tty}
-    log 's' $@
+    log 's' "$@"
   fi
 }
 
@@ -1313,7 +1328,7 @@ If not listed, either will work"
       ;;
       e) exit 0;;
       m) menu_main; break;;
-      *?) send_to_screen "ERROR: option $input is not available, please try again";;
+      *?) log 'x' "option '$input' is not available, please try again";;
       "$nil") sent_to_screen 'ERROR: please enter a value that is not nil';;
     esac
     unset input
@@ -1359,8 +1374,8 @@ If not listed, either will work"
       19) url_wine_download="${array_url_wine_download[$input]}";;
       e) exit 0;;
       m) menu_main; break;;
-      *?) send_to_screen "ERROR: option $input is not available, please try again";;
-      "$nil") send_to_screen 'ERROR: please enter a value that is not nil';;
+      *?) log 'x' "option '$input' is not available, please try again";;
+      "$nil") log 'x' 'please enter a value that is not nil';;
     esac
     unset input
 
@@ -1461,10 +1476,10 @@ active runner: $active_runner"
           esac
         fi
       else
-        notify "ERROR: $input is not a number, no action was performed"
+        notify "ERROR: '$input' is not a number, no action was performed"
       fi
     ;;
-    "$nil") send_to_screen 'ERROR: please enter a value that is not nil, no action was performed';;
+    "$nil") log 'x' 'please enter a value that is not nil, no action was performed';;
   esac
   unset active_runner
   unset tag_run_type
@@ -1504,6 +1519,7 @@ install_vr_registry_edits(){ #    run in subshell to avoid collisions with varia
 firstrun(){
   log 'c' "$@"
   if [ "$is_firstrun" == true ]; then
+    log 'd' "first run detected"
     notify "Welcome to the DCS on Linux helper.
 A config has been generated at:
 /home/$USER/.config/dcs-on-linux
@@ -1515,7 +1531,7 @@ WARNING: VR support is expirimental right now. Testers and help is needed. If yo
     is_firstrun=false
     echo "$is_firstrun" > "$dir_cfg/$cfg_firstrun"
 
-    if confirm 'would you like automated generic (virpil,vkb,tm,turtle,winwing) UDEV rule install? UDEV rules tell your pc how to handle your joysticks.'; then
+    if confirm 'would you like automated generic (virpil,vkb,tm,turtle,winwing) UDEV rule install? UDEV rules tell your pc how to handle your joysticks. This requires pkexec from polkit.'; then
       install_udev_rules
     fi
   fi
@@ -1547,6 +1563,7 @@ trap 'echo "Error on line $LINENO"' ERR
 time_stamp="date +%F-%T"
 active_tty="$(tty)"
 log 'd' "============================================= NEW RUN ============================================="
+echo "$(${time_stamp}) : ============================================= NEW RUN =============================================" >> ${file_log_external_applications}
 log 'd' "v$ver of the helper script"
 log 'd' "dir_self: $dir_self"
 log 'd' "shell flags: $-"
@@ -1570,7 +1587,7 @@ else
 [-t] terminal mode (disable zenity even if present)
 "; exit 0 ;;
       t) disable_zenity=1 ; log 'd' 'zenity overridden' ;;
-      *?) send_to_screen "error: option $1 is not implemented, use -h to see available swithes"; exit 1;; #formerly $OPTARG, unclear why broken, even on v0.8.8
+      *?) log 'x' "option '$1' is not implemented, use -h to see available swithes"; exit 1;; #formerly $OPTARG, unclear why broken, even on v0.8.8
     esac
   done
 fi
