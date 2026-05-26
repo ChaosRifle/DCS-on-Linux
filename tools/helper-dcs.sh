@@ -26,7 +26,6 @@ dir_self="$(dirname $(readlink -f $0))"
 dir_logs_helper="/home/$USER/.local/state/dcs-on-linux"
 file_log_full="${dir_logs_helper}/dcs_helper_full.log"
 file_log_control="${dir_logs_helper}/dcs_helper_control.log"
-file_log_external_applications="${dir_logs_helper}/dcs_helper_external_applications.log"
 
 
 ###################################################################################################
@@ -87,9 +86,11 @@ array_files_DoL=(
 check_dependency(){
   log 'c' "$@"
   selftest='pass'
+  # optional for functionality or modularly disabled when failed
   if [ ! -x "$(command -v wine)" ]; then send_to_screen 'WARNING: wine missing. Possibly not needed.'; fi # possibly not needed, unclear if winetricks or standalone wine would ref system wine binaries/libraries
-  if [ ! -x "$(command -v pkexec)" ]; then selftest='fail'; send_to_screen 'WARNING: pkexec missing, you will be unable to auto-install udev rules'; fi # FIXME TODO add flag for has-polkit(pkexec) that will be used to disable udev rule auto installer.
+  if [ ! -x "$(command -v pkexec)" ]; then send_to_screen 'WARNING: pkexec missing, you will be unable to auto-install udev rules'; fi # TODO add flag for has-polkit(pkexec) that will be used to disable udev rule auto installer.
 
+  #required for function
   if [ ! -x "$(command -v winetricks)" ]; then selftest='fail'; send_to_screen 'ERROR: winetricks missing'; fi
   if [ ! -x "$(command -v git)" ]; then selftest='fail'; send_to_screen 'ERROR: git missing'; fi
   if [ ! -x "$(command -v wget)" ]; then selftest='fail'; send_to_screen 'ERROR: wget missing'; fi
@@ -109,9 +110,11 @@ check_dependency(){
   if [ ! -x "$(command -v cat)" ]; then selftest='fail'; send_to_screen 'ERROR: cat missing'; fi
   if [ ! -x "$(command -v date)" ]; then selftest='fail'; send_to_screen 'ERROR: date missing'; fi
   if [ ! -x "$(command -v tee)" ]; then selftest='fail'; send_to_screen 'ERROR: tee missing'; fi
+  if [ ! "$(command -v exec)" ]; then send_to_screen 'ERROR: exec unsupported? Either this check is broken or your version of bash is very weird. Please report your bash version and distro to a maintainer, thank you!'; fi
   # find solution to search for mapfile, should be in bash v4 or higher TODO FIXME
   #check if 'shift' and 'trap' builtins have a minimum bash version like mapfile, if so, find a way to check against it
   # find a solution to check for globbing being enabled, ex: x=(*/) TODO FIXME
+  # find a solution to check stdbuf can use fflush() TODO
 
   if [ ! "$selftest" = 'pass' ]; then send_to_screen 'dependency check failed, exiting..' ; exit 1; fi
 
@@ -269,10 +272,9 @@ confirm(){ #    $1_question_text # WARNING only use this function where it is sa
   if [ "$use_zenity" = 1 ]; then
     log 's' "$1"
     zenity --question --title="Confirmation" --text="$1"
-    log 'u' "$?"
     case "$?" in #0=true 1=false, bashism, aligns with exit codes 0 success, anything else failure
-      0) return 0 ;;
-      1) return 1 ;;
+      0) log 'u' "0"; return 0 ;;
+      1) log 'u' "1"; return 1 ;;
       *?) log 'x' "zenity confirmation returned value '$?', terminating"; terminate ;;
     esac
   else
@@ -301,11 +303,11 @@ select_target_dcs_prefix(){
     dir_prefix="$(query_filepath "enter the full path to your DCS prefix ('path/to/games/dcs-world')")"
     if [ ! -d "$dir_prefix" ]; then
       if ! confirm 'the path you specified could not be found. would you like to try again?'; then
-        log 'd' "prefix not found, user canceled"
+        log 'd' "folder not found, user canceled"
         break
       fi
     else
-      log 'd' "prefix found"
+      log 'd' "folder found"
       break
     fi
   done
@@ -464,6 +466,7 @@ WARNING: this will only work for a stable-release install of dcs - openbeta and 
   export WINEDLLOVERRIDES='wbemprox=n'
   export WINE="$dir_prefix/runners/$preferred_dir_wine/bin/wine" #for winetricks
   export WINESERVER="$dir_prefix/runners/$preferred_dir_wine/bin/wineserver" #for winetricks
+  send_to_screen "setting up prefix, this may take a few minutes.."
   winetricks -q corefonts xact_x64 d3dcompiler_47 vcrun2022 win10 dxvk
 
 #"$dir_prefix/runners/$preferred_dir_wine/bin/wineserver" -k #ensure that wine isnt running https://linux.die.net/man/1/wineserver
@@ -511,6 +514,7 @@ If you would like to know more, use 'launch-dcs.sh -h'
 If you have issues, check the troubleshooting wiki or ask in matrix
 https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting
 https://matrix.to/#/#dcs-on-linux:matrix.org"
+  send_to_screen 'DCS installed'
 }
 
 install_srs_latest(){
@@ -568,6 +572,7 @@ We have generated the srs hooks for you at '$dir_srs_prefix/files/hook-srs'"
     export WINEPREFIX="$dir_srs_prefix"
     export WINE="$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" #for winetricks
     export WINESERVER="$dir_srs_prefix/runners/$preferred_dir_wine/bin/wineserver" #for winetricks
+    send_to_screen "setting up prefix, this may take a few minutes.."
     winetricks -q win10
 
     # Temporary manual install of .NET Desktop 10 until winetricks has equivalent built-in command
@@ -639,6 +644,7 @@ We have generated the srs hooks for you at '$dir_srs_prefix/files/hook-srs'"
     export WINEPREFIX="$dir_srs_prefix"
     export WINE="$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" #for winetricks
     export WINESERVER="$dir_srs_prefix/runners/$preferred_dir_wine/bin/wineserver" #for winetricks
+    send_to_screen "setting up prefix, this may take a few minutes.."
     winetricks -q dotnetdesktop9 win10
 
 #     export WINEPREFIX="$dir_srs_prefix"
@@ -706,6 +712,7 @@ We have generated the srs hooks for you at '$dir_srs_prefix/files/hook-srs-v2.1.
     export WINEPREFIX="$dir_srs_prefix"
     export WINE="$dir_srs_prefix/runners/$preferred_dir_wine/bin/wine" #for winetricks
     export WINESERVER="$dir_srs_prefix/runners/$preferred_dir_wine/bin/wineserver" #for winetricks
+    send_to_screen "setting up prefix, this may take a few minutes.."
     winetricks -q dotnet48 vcrun2022 win10 # dxvk dotnetdesktop9 xact_x64
 
 #     export WINEARCH=win64
@@ -1207,6 +1214,7 @@ NOTE: This automated udev script currently only supports virpil, vkb, thrustmast
     notify 'udev rule install encountered an error and probably did not work, normal operations will continue.
 If you would like to re-try, the troubleshooting menu can do so.'
   fi
+  unset exit_code
 }
 
 log(){ #     $1_mode_of_logging    $2_data_to_log
@@ -1223,16 +1231,7 @@ log(){ #     $1_mode_of_logging    $2_data_to_log
       shift
       echo "$(${time_stamp}) : (DEBUG): ${FUNCNAME[1]}() - '$@'" | tee -a ${file_log_control} >> ${file_log_full}
     ;;
-    e) #external application logs, such as wine or winetricks
-      shift
-      if [[ -p /dev/stdin ]]; then # Handle piped input
-        line="$(cat)"
-        echo "$(${time_stamp}) : (EXTERNAL APPLICTION): ${FUNCNAME[1]}() - $1 - '${line}'" | tee -a ${file_log_external_applications} >> ${file_log_full}
-      else # Handle argument input
-        echo "$(${time_stamp}) : (EXTERNAL APPLICTION): ${FUNCNAME[1]}() - '$@'" | tee -a ${file_log_external_applications} >> ${file_log_full}
-      fi
-    ;;
-    s) #send_to_screen logging
+    s) #send_to_screen and zenity logging
       shift
       if [[ "${FUNCNAME[1]}" == 'send_to_screen' ]]; then #handle calls from send_to_screen
         echo "$(${time_stamp}) : (SCREEN OUTPUT): ${FUNCNAME[2]}() - '$@'" | tee -a ${file_log_control} >> ${file_log_full}
@@ -1553,17 +1552,12 @@ if [ ! -f "$file_log_control" ]; then
   touch "$file_log_control"
   echo "$file_log_control missing, regenerated"
 fi
-if [ ! -f "$file_log_external_applications" ]; then
-  touch "$file_log_external_applications"
-  echo "$file_log_external_applications missing, regenerated"
-fi
 
 exec > >(stdbuf -oL awk '{ print strftime("%F-%T :"), $0; fflush(); }' >> ${file_log_full}) 2>&1 #Setup full script logging into file_log_full
 trap 'echo "Error on line $LINENO"' ERR
 time_stamp="date +%F-%T"
 active_tty="$(tty)"
 log 'd' "============================================= NEW RUN ============================================="
-echo "$(${time_stamp}) : ============================================= NEW RUN =============================================" >> ${file_log_external_applications}
 log 'd' "v$ver of the helper script"
 log 'd' "dir_self: $dir_self"
 log 'd' "shell flags: $-"
