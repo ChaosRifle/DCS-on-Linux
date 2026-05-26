@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.9.0'
+ver='0.9.1'
 
 ###################################################################################################
 #block root use, keep this as the FIRST lines of code in the script
@@ -1286,18 +1286,19 @@ install_prefix_runner(){ #    $1_dcs_or_srs   $2_url_forced_selection_runner
 
   if [ "$2" = "$nil" ]; then
     menu=(
-#       [0]="Stable  - scLuG runner (openXR support for VR)"
-      [0]="Staging - scLuG runner (openXR support for VR)"
-#       [2]="Stable  - Kron4ek runner"
-      [1]="Staging - Kron4ek runner"
+#       [0]="Stable  - Kron4ek runner"
+      [0]="Staging - Kron4ek runner"
+#       [2]="Stable  - scLuG runner (openXR support for VR)"
+      [1]="Staging - scLuG runner (experimental! openXR for VR, must tinker!)"
+
     )
 
     menu_text_zenity="active $tag_active_prefix prefix: <a href='file://${dir_working_prefix}'>${dir_working_prefix}</a>
-WARNING: Wine 11.5+ IS BROKEN ON ALL BRANCHES
+WARNING: Wine 11.5-11.8 IS BROKEN ON ALL BRANCHES
 Wine 10.3 to 11.4 requires Staging branch
 If not listed, either will work"
     menu_text="active $tag_active_prefix prefix: ${dir_working_prefix}
-WARNING: Wine 11.5+ IS BROKEN ON ALL BRANCHES
+WARNING: Wine 11.5-11.8 IS BROKEN ON ALL BRANCHES
 Wine 10.3 to 11.4 requires Staging branch
 If not listed, either will work"
     menu_cancel_label='main menu'
@@ -1305,25 +1306,25 @@ If not listed, either will work"
     menu_title="Select a runner type"
     query 'submenu'
     case "$input" in
-#       0) #stable scLug
-#         url_selected_runner="$url_wine_sclug"
-#         version_to_download='wine-tkg-'
-#         mapfile -t array_url_wine_download <<< "$(curl -s "$url_selected_runner" | grep "browser_download_url" | grep "$version_to_download" | grep -v 'staging' | cut -d '"' -f4)"
-#       ;;
-      0) #staging scLug
-        url_selected_runner="$url_wine_sclug"
-        version_to_download='staging'
-        mapfile -t array_url_wine_download <<< "$(curl -s "$url_selected_runner" | grep "browser_download_url" | grep "$version_to_download" | cut -d '"' -f4)"
-      ;;
-#       2) #stable kron4ek
+#       0) #stable kron4ek
 #         url_selected_runner="$url_wine_Kron4ek"
 #         version_to_download='amd64.tar'
 #         mapfile -t array_url_wine_download <<< "$(curl -s "$url_selected_runner" | grep "browser_download_url" | grep "$version_to_download" | grep -v 'proton' | grep -v 'staging' | cut -d '"' -f4)"
 #       ;;
-      1) #staging kron4ek
+      0) #staging kron4ek
         url_selected_runner="$url_wine_Kron4ek"
         version_to_download='staging-amd64.tar'
         mapfile -t array_url_wine_download <<< "$(curl -s "$url_selected_runner" | grep "browser_download_url" | grep "$version_to_download" | grep -v 'proton' | cut -d '"' -f4)"
+      ;;
+#       2) #stable scLug
+#         url_selected_runner="$url_wine_sclug"
+#         version_to_download='wine-tkg-'
+#         mapfile -t array_url_wine_download <<< "$(curl -s "$url_selected_runner" | grep "browser_download_url" | grep "$version_to_download" | grep -v 'staging' | cut -d '"' -f4)"
+#       ;;
+      1) #staging scLug
+        url_selected_runner="$url_wine_sclug"
+        version_to_download='staging'
+        mapfile -t array_url_wine_download <<< "$(curl -s "$url_selected_runner" | grep "browser_download_url" | grep "$version_to_download" | cut -d '"' -f4)"
       ;;
       e) exit 0;;
       m) menu_main; break;;
@@ -1338,12 +1339,12 @@ If not listed, either will work"
     temp_url_pretty="$(echo "${url_selected_runner}" | cut -d '?' -f1)"
     menu_text_zenity="active $tag_active_prefix prefix: <a href='file://${dir_working_prefix}'>${dir_working_prefix}</a>
 downloading from: <a href='${temp_url_pretty}'>${temp_url_pretty}</a>
-WARNING: Wine 11.5+ IS BROKEN ON ALL BRANCHES
+WARNING: Wine 11.5-11.8 IS BROKEN ON ALL BRANCHES
 Wine 10.3 to 11.4 requires Staging branch
 If not listed, either will work"
     menu_text="active $tag_active_prefix prefix: ${dir_working_prefix}
 downloading from: ${temp_url_pretty}
-WARNING: Wine 11.5+ IS BROKEN ON ALL BRANCHES
+WARNING: Wine 11.5-11.8 IS BROKEN ON ALL BRANCHES
 Wine 10.3 to 11.4 requires Staging branch
 If not listed, either will work"
     menu_cancel_label='main menu'
