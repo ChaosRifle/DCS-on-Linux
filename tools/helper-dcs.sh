@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='PLACEHOLDER'
+ver='0.9.0'
 
 ###################################################################################################
 #block root use, keep this as the FIRST lines of code in the script
