@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.9.1'
+ver='0.9.2'
 
 ###################################################################################################
 #block root use, keep this as the FIRST lines of code in the script
@@ -21,11 +21,11 @@ cfg_dir_srs_prefix="srs_prefix.cfg"
 cfg_preferred_dir_wine="preferred_wine.cfg"
 subdir_dcs_corefiles="drive_c/Program Files/Eagle Dynamics/DCS World"
 subdir_dcs_savedgames="drive_c/users/$USER/Saved Games/DCS"
-dynamic_install_list_size='10'
 dir_self="$(dirname $(readlink -f $0))"
 dir_logs_helper="/home/$USER/.local/state/dcs-on-linux"
 file_log_full="${dir_logs_helper}/dcs_helper_full.log"
 file_log_control="${dir_logs_helper}/dcs_helper_control.log"
+cfg_runner_display_count='10'
 
 
 ###################################################################################################
@@ -38,8 +38,8 @@ url_dol='https://github.com/ChaosRifle/DCS-on-Linux'
 url_troubleshooting='https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting'
 url_matrix='https://matrix.to/#/#dcs-on-linux:matrix.org'
 
-url_wine_sclug="https://api.github.com/repos/starcitizen-lug/lug-wine/releases?per_page=$dynamic_install_list_size"
-url_wine_Kron4ek="https://api.github.com/repos/Kron4ek/Wine-Builds/releases?per_page=$dynamic_install_list_size"
+url_wine_sclug="https://api.github.com/repos/starcitizen-lug/lug-wine/releases?per_page=100"
+url_wine_Kron4ek="https://api.github.com/repos/Kron4ek/Wine-Builds/releases?per_page=100"
 
 
 
@@ -79,6 +79,107 @@ array_files_DoL=(
   "vanillavoipfixer.sh"
 )
 
+array_bad_runners_kron4ek_x86=() #32bit UNUSED
+array_bad_runners_kron4ek_x86_staging=() #32bit UNUSED
+array_bad_runners_kron4ek_amd64=(
+  # # "10.3 to 11.7" debugger found
+  # # "10.2" GOOD
+  "10.3"
+  "10.4"
+  "10.5"
+  "10.6"
+  "10.7"
+  "10.8"
+  "10.9"
+  "10.10"
+  "10.11"
+  "10.12"
+  "10.13"
+  "10.14"
+  "10.15"
+  "10.16"
+  "10.17"
+  "10.18"
+  "10.19"
+  "10.20"
+  "11.0"
+  "11.1"
+  "11.2"
+  "11.3"
+  "11.4"
+  "11.5"
+  "11.6"
+  "11.7"
+  # # "11.8" GOOD
+)
+array_bad_runners_kron4ek_amd64_staging=(
+  # # "11.5 to 11.7" debugger found
+  # "11.4" GOOD
+  "11.5"
+  "11.6"
+  "11.7"
+  # "11.8" GOOD
+  # 11.9 GOOD
+)
+array_bad_runners_kron4ek_amd64_wow64=() #64bit only, lacks 32bit libs UNUSED
+array_bad_runners_kron4ek_amd64_wow64_staging=() #64bit only, lacks 32bit libs UNUSED
+array_bad_runners_kron4ek_tkg_amd64_wow64_staging=() #64bit only, lacks 32bit libs UNUSED
+array_bad_runners_kron4ek_tkg_amd64_staging=(
+  # # "11.5 to 11.7" debugger found
+  # "11.4" GOOD
+  "11.5"
+  "11.6"
+  "11.7"
+  # "11.8" GOOD
+  # "11.9" GOOD
+  # "11.10" GOOD
+)
+array_bad_runners_kron4ek_tkg_x86_staging=() #32bit UNUSED
+array_bad_runners_lugwine_tkg=(
+  # # "10.18 to 11.10" debugger found
+  "10.18"
+  "10.19"
+  "10.20"
+  "11.0rc1"
+  # "11.0rc2" doesnt exist
+  "11.0rc3"
+  "11.0"
+  "11.1"
+  "11.2"
+  "11.3"
+  "11.4"
+  "11.5"
+  "11.6"
+  "11.7"
+  "11.8"
+  "11.9"
+  "11.10"
+)
+array_bad_runners_lugwine_tkg_staging=(
+  # # 10.12 to 11.0 lacks openxr components, making usage pointless
+  "10.12"
+  "10.13"
+  "10.14"
+  "10.15"
+  "10.16"
+  # "10.17" doesnt exist
+  "10.18"
+  "10.19"
+  "10.20"
+  "11.0rc1"
+  # "11.0rc2" doesnt exist
+  "11.0rc3"
+  "11.0"
+  # # "11.5 to 11.7" debugger found
+  # "11.4" GOOD
+  "11.5"
+  "11.6"
+  "11.7"
+  "11.8"
+  "11.9"
+  "11.10"
+)
+
 
 ###################################################################################################
 #function defines
@@ -86,37 +187,46 @@ array_files_DoL=(
 check_dependency(){
   log 'c' "$@"
   selftest='pass'
+  temp_report_occurance='Either this check is broken or your version of bash is very weird. Please report your bash version and distro to a maintainer, thank you!'
+
   # optional for functionality or modularly disabled when failed
-  if [ ! -x "$(command -v wine)" ]; then send_to_screen 'WARNING: wine missing. Possibly not needed.'; fi # possibly not needed, unclear if winetricks or standalone wine would ref system wine binaries/libraries
-  if [ ! -x "$(command -v pkexec)" ]; then send_to_screen 'WARNING: pkexec missing, you will be unable to auto-install udev rules'; fi # TODO add flag for has-polkit(pkexec) that will be used to disable udev rule auto installer.
+  if [ ! -x "$(command -v wine)" ]; then log 'x' 'WARNING: wine missing. Possibly not needed.'; fi # possibly not needed, unclear if winetricks or standalone wine would ref system wine binaries/libraries
+  if [ ! -x "$(command -v pkexec)" ]; then log 'x' 'WARNING: pkexec missing, you will be unable to auto-install pre-made udev rules'; fi # TODO add flag for has-polkit(pkexec) that will be used to disable udev rule auto installer.
+  if ! grep -q "avx" /proc/cpuinfo; then log 'x' 'WARNING: your cpu does not support avx - some or multiple dcs modules will not work'; fi
 
   #required for function
-  if [ ! -x "$(command -v winetricks)" ]; then selftest='fail'; send_to_screen 'ERROR: winetricks missing'; fi
-  if [ ! -x "$(command -v git)" ]; then selftest='fail'; send_to_screen 'ERROR: git missing'; fi
-  if [ ! -x "$(command -v wget)" ]; then selftest='fail'; send_to_screen 'ERROR: wget missing'; fi
-  if [ ! -x "$(command -v curl)" ]; then selftest='fail'; send_to_screen 'ERROR: curl missing'; fi
-  if [ ! -x "$(command -v cabextract)" ]; then selftest='fail'; send_to_screen 'ERROR: cabextract missing'; fi
-  if [ ! -x "$(command -v tar)" ]; then selftest='fail'; send_to_screen 'ERROR: tar missing'; fi
-  if [ ! -x "$(command -v unzip)" ]; then selftest='fail'; send_to_screen 'ERROR: unzip missing'; fi
-  if [ ! -x "$(command -v touch)" ]; then selftest='fail'; send_to_screen 'ERROR: touch missing'; fi
-  if [ ! -x "$(command -v mkdir)" ]; then selftest='fail'; send_to_screen 'ERROR: mkdir missing'; fi
-  if [ ! -x "$(command -v chmod)" ]; then selftest='fail'; send_to_screen 'ERROR: chmod missing'; fi
-  if ! grep -q "avx" /proc/cpuinfo; then selftest='fail'; send_to_screen 'ERROR: your cpu does not support avx: some or multiple modules will not work'; fi
-  if [ ! -x "$(command -v tty)" ]; then selftest='fail'; send_to_screen 'ERROR: tty missing'; fi
-  if [ ! -x "$(command -v wc)" ]; then selftest='fail'; send_to_screen 'ERROR: wc missing'; fi
-  if [ ! -x "$(command -v sh)" ]; then selftest='fail'; send_to_screen 'ERROR: sh missing'; fi
-  if [ ! -x "$(command -v stdbuf)" ]; then selftest='fail'; send_to_screen 'ERROR: stdbuf missing'; fi
-  if [ ! -x "$(command -v awk)" ]; then selftest='fail'; send_to_screen 'ERROR: awk missing'; fi
-  if [ ! -x "$(command -v cat)" ]; then selftest='fail'; send_to_screen 'ERROR: cat missing'; fi
-  if [ ! -x "$(command -v date)" ]; then selftest='fail'; send_to_screen 'ERROR: date missing'; fi
-  if [ ! -x "$(command -v tee)" ]; then selftest='fail'; send_to_screen 'ERROR: tee missing'; fi
-  if [ ! "$(command -v exec)" ]; then send_to_screen 'ERROR: exec unsupported? Either this check is broken or your version of bash is very weird. Please report your bash version and distro to a maintainer, thank you!'; fi
-  # find solution to search for mapfile, should be in bash v4 or higher TODO FIXME
-  #check if 'shift' and 'trap' builtins have a minimum bash version like mapfile, if so, find a way to check against it
-  # find a solution to check for globbing being enabled, ex: x=(*/) TODO FIXME
-  # find a solution to check stdbuf can use fflush() TODO
+  if [ ! -x "$(command -v winetricks)" ]; then selftest='fail'; log 'x' 'ERROR: winetricks missing'; fi
+  if [ ! -x "$(command -v git)" ]; then selftest='fail'; log 'x' 'ERROR: git missing'; fi
+  if [ ! -x "$(command -v wget)" ]; then selftest='fail'; log 'x' 'ERROR: wget missing'; fi
+  if [ ! -x "$(command -v curl)" ]; then selftest='fail'; log 'x' 'ERROR: curl missing'; fi
+  if [ ! -x "$(command -v cabextract)" ]; then selftest='fail'; log 'x' 'ERROR: cabextract missing'; fi
+  if [ ! -x "$(command -v tar)" ]; then selftest='fail'; log 'x' 'ERROR: tar missing'; fi
+  if [ ! -x "$(command -v unzip)" ]; then selftest='fail'; log 'x' 'ERROR: unzip missing'; fi
+  if [ ! -x "$(command -v touch)" ]; then selftest='fail'; log 'x' 'ERROR: touch missing'; fi
+  if [ ! -x "$(command -v mkdir)" ]; then selftest='fail'; log 'x' 'ERROR: mkdir missing'; fi
+  if [ ! -x "$(command -v chmod)" ]; then selftest='fail'; log 'x' 'ERROR: chmod missing'; fi
+  if [ ! -x "$(command -v tty)" ]; then selftest='fail'; temp_err="$(${time_stamp}) : (ERROR / WARNING): ${FUNCNAME[0]}() - 'ERROR: tty missing'"; echo "$temp_err" | tee -a ${file_log_control} >> ${file_log_full}; unset temp_err; fi
+  if [ ! -x "$(command -v wc)" ]; then selftest='fail'; log 'x' 'ERROR: wc missing'; fi
+  if [ ! -x "$(command -v sh)" ]; then selftest='fail'; log 'x' 'ERROR: sh missing'; fi
+  if [ ! -x "$(command -v stdbuf)" ]; then selftest='fail'; log 'x' 'ERROR: stdbuf missing'; fi
+  if [ ! -x "$(command -v awk)" ]; then selftest='fail'; log 'x' 'ERROR: awk missing'; fi
+  if [ ! -x "$(command -v cat)" ]; then selftest='fail'; log 'x' 'ERROR: cat missing'; fi
+  if [ ! -x "$(command -v date)" ]; then selftest='fail'; log 'x' 'ERROR: date missing'; fi
+  if [ ! -x "$(command -v tee)" ]; then selftest='fail'; temp_err="$(${time_stamp}) : (ERROR / WARNING): ${FUNCNAME[0]}() - 'ERROR: tee missing'"; echo "$temp_err" >> ${file_log_control}; echo "$temp_err" >> ${file_log_full}; echo "$temp_err" >> ${active_tty}; unset temp_err; fi
+  if [ ! "$(command -v exec)" ]; then log 'x' "ERROR: exec unsupported? $temp_report_occurance"; fi
+  if [ ! "$(command -v mapfile)" ]; then log 'x' "ERROR: mapfile unsupported? $temp_report_occurance"; fi
+  if [ ! "$(command -v shift)" ]; then echo "$(${time_stamp}) : (ERROR / WARNING): ${FUNCNAME[0]}() - 'ERROR: shift unsupported? $temp_report_occurance'" | tee -a ${file_log_control} ${file_log_full} >> ${active_tty}; fi
+  if [ ! "$(command -v trap)" ]; then log 'x' "ERROR: trap unsupported? $temp_report_occurance"; fi
+  if [ ! "$(command -v echo)" ]; then cat <<< "$(${time_stamp}) : (ERROR / WARNING): ${FUNCNAME[0]}() - 'ERROR: echo unsupported? $temp_report_occurance'" | tee -a ${file_log_control} ${file_log_full} >> ${active_tty}; fi
+  if [ ! "$(command -v grep)" ]; then selftest='fail'; log 'x' 'ERROR: grep missing'; fi
+  if [ ! -x "$(command -v sed)" ]; then selftest='fail'; log 'x' 'ERROR: sed missing'; fi
+  if [ ! -x "$(command -v cut)" ]; then selftest='fail'; log 'x' 'ERROR: cut missing'; fi
 
-  if [ ! "$selftest" = 'pass' ]; then send_to_screen 'dependency check failed, exiting..' ; exit 1; fi
+  # find a solution to check for globbing being enabled, ex: x=(*/) TODO
+  # find a solution to check stdbuf can use fflush() TODO
+  unset temp_report_occurance
+
+  if [ ! "$selftest" = 'pass' ]; then log 'x' 'dependency check failed, exiting..'; unset selftest; exit 1; fi
 
   if [ ! "$disable_zenity" -eq 1 ]; then
     if [ -x "$(command -v zenity)" ]; then
@@ -343,8 +453,8 @@ install_dcs(){
     return
   fi
   dir_prefix="$dir_install/dcs-world"
-  send_to_screen "install path: $dir_install"
-  send_to_screen "install prefix: $dir_prefix"
+  log 'd' "dcs install path: $dir_install"
+  log 'd' "dcs install prefix: $dir_prefix"
 
   #automatic runtype detection # 0=fresh clean install, 1=file install, 2=prefix reinstall
   unset runtype
@@ -529,8 +639,8 @@ install_srs_latest(){
     return
   fi
   dir_srs_prefix="$dir_srs_install/srs-latest"
-  send_to_screen "install path: $dir_srs_install"
-  send_to_screen "install prefix: $dir_srs_prefix"
+  log 'd' "srs install path: $dir_srs_install"
+  log 'd' "srs install prefix: $dir_srs_prefix"
 
   echo "$dir_srs_prefix" > "$dir_cfg/$cfg_dir_srs_prefix"
 
@@ -599,8 +709,8 @@ install_srs_2.3.4.0(){
     return
   fi
   dir_srs_prefix="$dir_srs_install/srs-2.3.4.0"
-  send_to_screen "install path: $dir_srs_install"
-  send_to_screen "install prefix: $dir_srs_prefix"
+  log 'd' "srs install path: $dir_srs_install"
+  log 'd' "srs install prefix: $dir_srs_prefix"
 
   echo "$dir_srs_prefix" > "$dir_cfg/$cfg_dir_srs_prefix"
 
@@ -665,8 +775,8 @@ install_srs_2.1.1.0(){
     return
   fi
   dir_srs_prefix="$dir_srs_install/srs-2.1.1.0"
-  send_to_screen "install path: $dir_srs_install"
-  send_to_screen "install prefix: $dir_srs_prefix"
+  log 'd' "srs install path: $dir_srs_install"
+  log 'd' "srs install prefix: $dir_srs_prefix"
 
   echo "$dir_srs_prefix" > "$dir_cfg/$cfg_dir_srs_prefix"
 
@@ -834,7 +944,7 @@ menu_runners(){
       [0]="install a runner"
       [1]="change active runner from installed runners"
       [2]="remove an installed runner"
-      [3]="install a proton GE runner (not yet implemented!)"
+      # [3]="install a proton GE runner (not yet implemented!)"
     )
 
     menu_text_zenity="active DCS prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>"
@@ -1195,13 +1305,13 @@ install_udev_rules(){
   exit_code="$?"
   if [ "$exit_code" -eq 126 ] || [ "$exit_code" -eq 127 ]; then
     error_udev=true
-    send_to_screen 'ERROR: pkexec returned an error attempting to move udev rules'
+    log 'x' 'ERROR: pkexec returned an error attempting to move udev rules'
   fi
   pkexec sh -c "sudo udevadm control --reload && sudo udevadm trigger"
   exit_code="$?"
   if [ "$exit_code" -eq 126 ] || [ "$exit_code" -eq 127 ]; then
     error_udev=true
-    send_to_screen 'ERROR: pkexec returned an error attempting to reload udev rules'
+    log 'x' 'ERROR: pkexec returned an error attempting to reload udev rules'
   fi
 
   cd "$anchor_dir"
@@ -1286,121 +1396,127 @@ install_prefix_runner(){ #    $1_dcs_or_srs   $2_url_forced_selection_runner
 
   if [ "$2" = "$nil" ]; then
     menu=(
-#       [0]="Stable  - Kron4ek runner"
-      [0]="Staging - Kron4ek runner"
-#       [2]="Stable  - scLuG runner (openXR support for VR)"
-      [1]="Staging - scLuG runner (experimental! openXR for VR, must tinker!)"
-
+      [0]="Kron4ek amd64 runner"
+      [1]="Kron4ek amd64 runner - Staging"
+      # [2]="scLuG runner (experimental! openXR for VR, must tinker!)" #disabled due to no valid runner working
+      [2]="scLuG runner - Staging (experimental! openXR for VR, must tinker!)"
+      # [4]="Kron4ek amd64 TKG runner - Staging"
     )
 
-    menu_text_zenity="active $tag_active_prefix prefix: <a href='file://${dir_working_prefix}'>${dir_working_prefix}</a>
-WARNING: Wine 11.5-11.8 IS BROKEN ON ALL BRANCHES
-Wine 10.3 to 11.4 requires Staging branch
-If not listed, either will work"
-    menu_text="active $tag_active_prefix prefix: ${dir_working_prefix}
-WARNING: Wine 11.5-11.8 IS BROKEN ON ALL BRANCHES
-Wine 10.3 to 11.4 requires Staging branch
-If not listed, either will work"
+    menu_text_zenity="active $tag_active_prefix prefix: <a href='file://${dir_working_prefix}'>${dir_working_prefix}</a>"
+    menu_text="active $tag_active_prefix prefix: ${dir_working_prefix}"
     menu_cancel_label='main menu'
     menu_cancel_action='m'
     menu_title="Select a runner type"
     query 'submenu'
     case "$input" in
-#       0) #stable kron4ek
-#         url_selected_runner="$url_wine_Kron4ek"
-#         version_to_download='amd64.tar'
-#         mapfile -t array_url_wine_download <<< "$(curl -s "$url_selected_runner" | grep "browser_download_url" | grep "$version_to_download" | grep -v 'proton' | grep -v 'staging' | cut -d '"' -f4)"
-#       ;;
-      0) #staging kron4ek
+      0) #stable kron4ek
+        url_selected_runner="$url_wine_Kron4ek"
+        version_to_download='amd64.tar'
+        temp_download_list="$(curl -s "$url_selected_runner" | grep "browser_download_url" | grep "$version_to_download" | grep -v 'proton' | grep -v 'staging' | cut -d '"' -f4)"
+        for value in "${array_bad_runners_kron4ek_amd64[@]}"; do
+          temp_download_list="$(grep -v "wine-$value-" <<< "$temp_download_list")" # NOTE BUG seems to be if your search starts with '-' then it breaks, but 'wine-' works fine
+        done
+      ;;
+      1) #staging kron4ek
         url_selected_runner="$url_wine_Kron4ek"
         version_to_download='staging-amd64.tar'
-        mapfile -t array_url_wine_download <<< "$(curl -s "$url_selected_runner" | grep "browser_download_url" | grep "$version_to_download" | grep -v 'proton' | cut -d '"' -f4)"
+        temp_download_list="$(curl -s "$url_selected_runner" | grep "browser_download_url" | grep "$version_to_download" | grep -v 'proton' | cut -d '"' -f4)"
+        for value in "${array_bad_runners_kron4ek_amd64_staging[@]}"; do
+          temp_download_list="$(grep -v "wine-$value-" <<< "$temp_download_list")" # NOTE BUG seems to be if your search starts with '-' then it breaks, but 'wine-' works fine
+        done
       ;;
-#       2) #stable scLug
-#         url_selected_runner="$url_wine_sclug"
-#         version_to_download='wine-tkg-'
-#         mapfile -t array_url_wine_download <<< "$(curl -s "$url_selected_runner" | grep "browser_download_url" | grep "$version_to_download" | grep -v 'staging' | cut -d '"' -f4)"
-#       ;;
-      1) #staging scLug
+
+      # 4) #staging TKG kron4ek
+      #   url_selected_runner="$url_wine_Kron4ek"
+      #   version_to_download='staging-tkg-amd64.tar'
+      #   temp_download_list="$(curl -s "$url_selected_runner" | grep "browser_download_url" | grep "$version_to_download" | grep -v 'proton' | cut -d '"' -f4)"
+      #   for value in "${array_bad_runners_kron4ek_tkg_amd64_staging[@]}"; do
+      #     temp_download_list="$(grep -v "wine-$value-" <<< "$temp_download_list")" # NOTE BUG seems to be if your search starts with '-' then it breaks, but 'wine-' works fine
+      #   done
+      # ;;
+
+
+      # 2) #stable scLug #disabled due to no valid runner working
+      #   url_selected_runner="$url_wine_sclug"
+      #   version_to_download='wine-tkg-'
+      #   temp_download_list="$(curl -s "$url_selected_runner" | grep "browser_download_url" | grep "$version_to_download" | grep -v 'staging' | grep -v 'sync' | cut -d '"' -f4)"
+      #   for value in "${array_bad_runners_lugwine_tkg[@]}"; do
+      #     temp_download_list="$(grep -v "git-$value-" <<< "$temp_download_list")" # NOTE BUG seems to be if your search starts with '-' then it breaks, but 'wine-' works fine
+      #   done
+      # ;;
+      2) #staging scLug
         url_selected_runner="$url_wine_sclug"
         version_to_download='staging'
-        mapfile -t array_url_wine_download <<< "$(curl -s "$url_selected_runner" | grep "browser_download_url" | grep "$version_to_download" | cut -d '"' -f4)"
+        temp_download_list="$(curl -s "$url_selected_runner" | grep "browser_download_url" | grep "$version_to_download" | grep -v 'sync' | cut -d '"' -f4)"
+        for value in "${array_bad_runners_lugwine_tkg_staging[@]}"; do
+          temp_download_list="$(grep -v "git-$value-" <<< "$temp_download_list")" # NOTE BUG seems to be if your search starts with '-' then it breaks, but 'wine-' works fine
+        done
       ;;
       e) exit 0;;
       m) menu_main; break;;
       *?) log 'x' "option '$input' is not available, please try again";;
-      "$nil") sent_to_screen 'ERROR: please enter a value that is not nil';;
+      "$nil") lox 'x' 'ERROR: please enter a value that is not nil';;
     esac
+    unset value
+    unset version_to_download
     unset input
-
-    for value in "${array_url_wine_download[@]}"; do
+    mapfile -t array_url_runner_download <<< $(head -n "$cfg_runner_display_count" <<< "$temp_download_list")
+    unset temp_download_list
+    for value in "${array_url_runner_download[@]}"; do
       menu+=("$(echo "$value" | cut -d '/' -f9)")
     done
+    unset value
     temp_url_pretty="$(echo "${url_selected_runner}" | cut -d '?' -f1)"
     menu_text_zenity="active $tag_active_prefix prefix: <a href='file://${dir_working_prefix}'>${dir_working_prefix}</a>
-downloading from: <a href='${temp_url_pretty}'>${temp_url_pretty}</a>
-WARNING: Wine 11.5-11.8 IS BROKEN ON ALL BRANCHES
-Wine 10.3 to 11.4 requires Staging branch
-If not listed, either will work"
+downloading from: <a href='${temp_url_pretty}'>${temp_url_pretty}</a>"
     menu_text="active $tag_active_prefix prefix: ${dir_working_prefix}
-downloading from: ${temp_url_pretty}
-WARNING: Wine 11.5-11.8 IS BROKEN ON ALL BRANCHES
-Wine 10.3 to 11.4 requires Staging branch
-If not listed, either will work"
+downloading from: ${temp_url_pretty}"
     menu_cancel_label='main menu'
     menu_cancel_action='m'
     menu_title="Select a version"
     query 'submenu'
     case "$input" in
-      0) url_wine_download="${array_url_wine_download[$input]}";;
-      1) url_wine_download="${array_url_wine_download[$input]}";;
-      2) url_wine_download="${array_url_wine_download[$input]}";;
-      3) url_wine_download="${array_url_wine_download[$input]}";;
-      4) url_wine_download="${array_url_wine_download[$input]}";;
-      5) url_wine_download="${array_url_wine_download[$input]}";;
-      6) url_wine_download="${array_url_wine_download[$input]}";;
-      7) url_wine_download="${array_url_wine_download[$input]}";;
-      8) url_wine_download="${array_url_wine_download[$input]}";;
-      9) url_wine_download="${array_url_wine_download[$input]}";;
-      10) url_wine_download="${array_url_wine_download[$input]}";;
-      11) url_wine_download="${array_url_wine_download[$input]}";;
-      12) url_wine_download="${array_url_wine_download[$input]}";;
-      13) url_wine_download="${array_url_wine_download[$input]}";;
-      14) url_wine_download="${array_url_wine_download[$input]}";;
-      15) url_wine_download="${array_url_wine_download[$input]}";;
-      16) url_wine_download="${array_url_wine_download[$input]}";;
-      17) url_wine_download="${array_url_wine_download[$input]}";;
-      18) url_wine_download="${array_url_wine_download[$input]}";;
-      19) url_wine_download="${array_url_wine_download[$input]}";;
       e) exit 0;;
       m) menu_main; break;;
-      *?) log 'x' "option '$input' is not available, please try again";;
       "$nil") log 'x' 'please enter a value that is not nil';;
+      *[!0123456789]*) log 'x' "'$input' is not a number, please privide a number";;
+      *) if [ "$input" -lt "$cfg_runner_display_count" ]; then
+          url_runner_download="${array_url_runner_download[$input]}"
+        else
+          log 'x' "option '$input' is not available, please try again"
+        fi;;
     esac
     unset input
-
     unset url_selected_runner
-    unset version_to_download
-    unset array_url_wine_download
+    unset array_url_runner_download
     unset temp_url_pretty
   else #invoked with forced url, useful for srs to not need manual selection when it doesnt matter
-    url_wine_download="$2"
+    url_runner_download="$2"
   fi
-  archive_wine_download="$(echo "${url_wine_download}" | cut -d '/' -f9)"
-  dir_wine_download="$(echo "${url_wine_download}" | cut -d '/' -f9 | sed -E 's/\.tar\.gz//' | sed -E 's/\.tar\.xz//')"
-# echo $archive_wine_download
+  archive_wine_download="$(echo "${url_runner_download}" | cut -d '/' -f9)"
+  dir_runner_download="$(echo "${url_runner_download}" | cut -d '/' -f9 | sed -E 's/\.tar\.gz//' | sed -E 's/\.tar\.xz//')"
 
-  if [ ! -d "$dir_working_prefix/runners/$dir_wine_download" ]; then
+  if [ ! -d "$dir_working_prefix/runners/$dir_runner_download" ]; then
     cd "$dir_working_prefix/runners"
-    wget "$url_wine_download" #--force-progress
+    wget "$url_runner_download" #--force-progress
     tar -xvf "$archive_wine_download"
     rm -rf "$archive_wine_download"
     if [ ! -f "$dir_working_prefix/runners/$cfg_preferred_dir_wine" ]; then
-      echo "$dir_wine_download" > "$dir_working_prefix/runners/$cfg_preferred_dir_wine"
+      echo "$dir_runner_download" > "$dir_working_prefix/runners/$cfg_preferred_dir_wine"
     fi
   fi
-#     echo $preferred_dir_wine > "$dir_prefix/runners/$cfg_preferred_dir_wine"
+
+  # echo "$dir_runner_download" > "$dir_prefix/runners/$cfg_preferred_dir_wine" for rapid debug testing
+
+  unset archive_wine_download
+  unset tag_active_prefix
+  unset dir_working_prefix
+  unset url_runner_download
+  unset dir_runner_download
+
   cd "$temp_anchor_dir"
+  unset temp_anchor_dir
 }
 
 modify_prefix_runner(){ #    $1_operation_type    $2_prefix_to_operate_on
