@@ -1,0 +1,4 @@
+# DCS on Linux Joystick Udev Rules, Total Controls
+
+#apache keyboard unit
+KERNEL=="hidraw*", ATTRS{idVendor}=="04d8", ATTRS{idProduct}=="e570", MODE="0664", TAG+="uaccess" 
