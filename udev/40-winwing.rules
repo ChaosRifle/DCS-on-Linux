@@ -1,3 +1,4 @@
-# DCS on Linux Joystick Udev Rules
+# DCS on Linux Joystick Udev Rules, winwing
 
+# catchall for all devices, beleived to all want hidraw at this time
 KERNEL=="hidraw*", ATTRS{idVendor}=="4098", ATTRS{idProduct}=="*", MODE="0664", TAG+="uaccess"

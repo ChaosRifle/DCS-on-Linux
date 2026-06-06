@@ -22,6 +22,9 @@ script:
     - args: repair
       exe: $GAMEDIR/drive_c/Program Files/Eagle Dynamics/DCS World/bin/DCS_updater.exe
       name: DCS repair
+    - args: --no-launcher --force_enable_VR --force_OpenXR
+      exe: $GAMEDIR/drive_c/Program Files/Eagle Dynamics/DCS World/bin/DCS.exe
+      name: DCS VR
     prefix: $GAMEDIR
   install_complete_text: Please check https://github.com/ChaosRifle/DCS-on-Linux for
     more information on fixing current problems with the game that lutris cant solve,
@@ -38,6 +41,47 @@ script:
       description: Installing dlls and deps
       name: winetricks
       prefix: $GAMEDIR
+  # - execute:
+  #     description: get gpu vid
+  #     command: 'udevadm info -q property -p "/sys/bus/pci/devices/0000:$(lspci | grep "VGA" | head -n 1 | cut -f1 -d" ")" | grep PCI_ID | sed -re "s|PCI_ID=(\w+):(\w+)$|\1\n\2|g" | head -n 1 | cat'
+  # - execute:
+  #     description: get gpu pid
+  #     command: 'udevadm info -q property -p "/sys/bus/pci/devices/0000:$(lspci | grep "VGA" | head -n 1 | cut -f1 -d" ")" | grep PCI_ID | sed -re "s|PCI_ID=(\w+):(\w+)$|\1\n\2|g" | tail -n 1 | cat'
+  - task:
+      name: set_regedit
+      description: apply vr regedits - state
+      path: HKEY_CURRENT_USER\Software\Wine\VR
+      key: state
+      value: '1'
+      type: REG_DWORD
+  - task:
+      name: set_regedit
+      description: apply vr regedits - device extensions
+      path: HKEY_CURRENT_USER\Software\Wine\VR
+      key: openxr_vulkan_device_extensions
+      value: 'VK_KHR_external_fence VK_KHR_external_memory VK_KHR_external_semaphore VK_KHR_dedicated_allocation VK_KHR_get_memory_requirements2 VK_KHR_external_memory_fd VK_KHR_external_semaphore_fd VK_KHR_external_fence_fd VK_KHR_image_format_list VK_KHR_timeline_semaphore'
+      type: REG_SZ
+  - task:
+      name: set_regedit
+      description: apply vr regedits - instance extensions
+      path: HKEY_CURRENT_USER\Software\Wine\VR
+      key: openxr_vulkan_instance_extensions
+      value: 'VK_KHR_external_memory_capabilities VK_KHR_get_physical_device_properties2 VK_KHR_external_semaphore_capabilities VK_KHR_external_fence_capabilities'
+      type: REG_SZ
+  # - task:
+  #     name: set_regedit
+  #     description: apply vr regedits - gpu VID
+  #     path: HKEY_CURRENT_USER\Software\Wine\VR
+  #     key: openxr_vulkan_device_vid
+  #     value: 'replaceme'
+  #     type: REG_DWORD
+  # - task:
+  #     name: set_regedit
+  #     description: apply vr regedits - gpu PID
+  #     path: HKEY_CURRENT_USER\Software\Wine\VR
+  #     key: openxr_vulkan_device_pid
+  #     value: 'replaceme'
+  #     type: REG_DWORD
   - task:
       arch: win64
       args: /S
@@ -50,6 +94,7 @@ script:
       WINE_SIMULATE_WRITECOPY: 1
       __GL_SHADER_DISK_CACHE: 1
       __GL_SHADER_DISK_CACHE_PATH: $GAMEDIR
+      PRESSURE_VESSEL_IMPORT_OPENXR_1_RUNTIMES: 1
   wine:
     overrides:
       wbemprox: n

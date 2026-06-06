@@ -6,8 +6,8 @@
 
 # Select an installation method:
 - [Wine](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Wine) [ **recommended**, fully automated and fastest! - VR incomplete, needs testers ]
-- [Lutris](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Lutris) [ **NOT** recommended - VR possible ]
-- [Steam](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Steam) [ **NOT** recommended - VR support is somewhat better but install is a very manual process ]
+- [Lutris](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Lutris) [ recommended for VR use ]
+- [Steam](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Steam) [ **NOT** recommended ]
 
 
 
@@ -25,33 +25,39 @@
 
 # Lutris
 > [!note]
-> - we strongly recommend you use the [helper script](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Wine) in this repo instead, you can add the launch command to lutris and have all the advantages of lutris with none of the drawbacks
+> for non-VR users, we strongly recommend you use the [helper script](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Wine) in this repo instead, you can add the launch command to lutris and have all the advantages of lutris with none of the drawbacks
 
-- 1: we ***must*** select a lutris default runner before installation. the default 8.26 has several issues and degraded functionality/performance. Open 'Lutris Settings' [1] > 'preferences' [2] > 'Runners' [3] > 'Wine Options' [4] > set 'wine version' to a [known working runner](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#known-working-runners) [5] > 'save' [6]. Unfortunately, the YAML lutris uses will not allow us to define versions that are not in the API (or on your machine), so you must do this to ensure a functional version is used. Lutris needs to add more, and relevant, runners to wine in their API.
+- 1: you ***must*** select a lutris default [runner](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Knowledge-Base#runner) before installation. the default 8.26 has several issues and degraded or broken functionality/performance. Open 'Lutris Settings' [1] > ``preferences`` [2] > ``Runners`` [3] > ``Wine Options`` [4] > set ``wine version`` to a [known working runner](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#known-working-runners) [5] (For VR, you must use proton, we suggest vanilla proton from steam like proton 11) > ``save`` [6]. Unfortunately, lutris' YAML will not allow us to do this for you because the versions included in their API are not suitable for DCS.
 <img alt="lutris runner swap" src="https://github.com/user-attachments/assets/0388f8be-028b-4881-90cb-f6fe54a4a8ca" />
 
 > [!note]
-> - If you do not have runners you like, use [Proton Plus](https://github.com/Vysp3r/protonplus) or [ProtonUp-QT](https://davidotek.github.io/protonup-qt/) to install and manage runners easily. Proton plus is our primary recommendation for wine/proton/dxvk management. 
-> - Alternatively, drop runners in ```~/.local/share/lutris/runners/``` if you know what you are doing
+> - If you do not have runners you like, use Steam (just search proton in your games library), [Proton Plus](https://github.com/Vysp3r/protonplus) or [ProtonUp-QT](https://davidotek.github.io/protonup-qt/) to install and manage runners easily. Steam or Proton Plus is our primary recommendations. 
+> - Alternatively, drop runners in ``~/.local/share/lutris/runners/`` if you know what you are doing
 
 > [!caution]
-> - once the runner is selected and install has begun, do not change major versions (ie, wine to proton, or 9.x to 10.x, or vice versa. this can corrupt the prefix, so minor version changes only. you will need to reinstall (though you can copy the game files to not need to download it all again) to change major versions
+> - Once the runner is selected and install has begun, do not change major versions because it can corrupt the prefix on lutris (ie, wine to proton, or 9.x to 10.x). Minor version changes are fine.
+> - You will need to reinstall to change major versions (you can copy the games files to skip the download).
 
-- 2: by [website](https://lutris.net/games/dcs-world/) or lutris app, browse for add a game, 'DCS World', then select the '```wine``` **DoL Community Choice (Latest)**' version and press install.
+- 2: using the [website](https://lutris.net/games/dcs-world/) or lutris app, browse for adding a game, ``DCS World``, then select the ``DoL Community Choice (Latest)`` version and press install.
 <img alt="lutris install game instructions" src="https://github.com/user-attachments/assets/e6a76fbe-7c05-4651-9099-20636fa3fb8a" />
 
-- 3: set your path here in the lutris menu, and absolutely nowhere else. DCS installer will ask if you want to change it later, you will leave the value as default.
+> [!note]
+> Lutris staff need to authorize each update. In the event that lutris is slow to update, you can select ``install from a local install script`` and use the  ``lutris-installer.yaml`` file in this repo as an alternative to step 2.
+
+- 3: set your desired filepath for dcs in the lutris menu.
 <img alt="image" src="https://github.com/user-attachments/assets/85ab9027-ec4f-4738-8063-4e04500553c1" />
 
-> [!caution]
-> set your install path in the lutris window. DO NOT CHANGE THE PATH in the dcs installer window, leave that default!
+- 4: follow installer prompts carefully. do NOT change the default filepath here. You may opt to disable the desktop icon, or change the terrain modules to install.
 
-- 4: follow installer prompts carefully if any are presented
+> [!caution]
+> The DCS installer will ask if you want to change filepath, you will leave the value as default (``C:\Program Files\Eagle Dynamics\DCS World``). Changing it during the installer can break things.
 
 > [!note]
-> If the game is not launching to main menu now, check your runner from step 1, or proceed to [Troubleshooting](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting)
+> If the installer is not appearing by the end of install, or the game is not launching to main menu once it is complete, restart from step 1 and check your runner is known to work, or proceed to [Troubleshooting](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting)
 
-- 5: close your game client if you tested it, and go to [Finalizing install](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#finalizing-install), you are now nearly done!
+- 5: if planning to use VR, we highly recommend you disable the launcher fully. launch the game in non-vr mode and go to settings, misc, and disable ``Launcher on start``. there is a [bug](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#2024711---force-enable-vr-and---force-disable-vr-clobber---no-launcher) in the launch args for vr that make this mandatory, as the [launcher doesnt work well](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20240712-game-launches-to-a-white-window) on linux.
+
+- 6: close your game client and go to [Finalizing install](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#finalizing-install), you are now nearly done!
 
 
 

@@ -9,7 +9,7 @@
 #
 ## changing game branch
 - on steam, just use the 'game > properties > betas > beta participation' dropdown menu
-- for all other install types, launch the updater like so: ``DCS_updater.exe update @openbeta`` where @openbeta is the branch you want to change your install to. This can be any arbitrary string, and if your account has access to a branch of that name, it will install it, if not, it will default to stable. This means you could use ``DCS_updater.exe update @linux`` and your savedgames folder would now be ``DCS.linux`` and your game files would be ``DCS World linux``, but run the stable, windows, branch of the game due to no branch existing named 'linux'.
+- for all other install types, launch the updater like so: ``DCS_updater.exe update @openbeta`` where @openbeta is the branch you want to change your install to. This can be any arbitrary string, and if your account has access to a branch of that name, it will install it, if not, it will default to stable. For example, this means you could use ``DCS_updater.exe update @linux`` and your savedgames folder would now be ``DCS.linux`` and your game files would be ``DCS World linux``, but run the stable, windows, branch of the game due to no branch existing named ``linux``.
 > [!note]
 > - doing this will change your clients binaries filepaths, so you will need to update this for lutris and wine installs. 
 > - [incomplete, testing needed] for lutris, we use multiple launch params, which can't all be modified with the gui. ``~/.local/share/lutris/games/DoL-Community-Choice-(Latest)-##########.yml`` may contain some of the values you need to change to fix this
@@ -24,6 +24,8 @@
 ### IC (integrity check)
 ### ED (eagle dynamics, developer of the game)
 ### SRS (Simple Radio Standalone, by Ciribob)
+### options.lua
+this is the file on disk that contains the in-game settings, at ``$PREFIX/drive_c/users/chaos/Saved Games/DCS/Config/options.lua``. often mentioned when referring to disabling the launcher
 
 # Linux terms:
 ### case-folding (case-insensitivity for file systems)
@@ -40,6 +42,9 @@ in linux distros, long term support means less updates and staying on major vers
 # Wine terms:
 ### Prefix
 refers to the containing directory for a wine software/game install. in an example path of ``~/games/dcs-world/drive_c/Program Files/Eagle Dynamics/DCS World/bin/DCS.exe`` the prefix is ``dcs-world``. The easy way to tell is it has the subdirectories of ``drive_c`` or ``dosdevices`` directory inside it.
+
+### Runner
+refers to the binary you will be using to run the game executables/binaries. This is wine or proton itself, with a specific version number attached to it. For example, ``Proton GE 9.27`` is a runner, and so is ``Wine 11.2``.
 
 # Proton terms:
 > [!note]

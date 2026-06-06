@@ -1,4 +1,4 @@
-# DCS on Linux Joystick Udev Rules
+# DCS on Linux Joystick Udev Rules, turtle beach
 
 # turtle beach pedals
 ACTION=="add", \

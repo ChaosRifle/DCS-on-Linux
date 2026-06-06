@@ -180,9 +180,9 @@ Run-Type switches (mutually exclusive, only the first will function unless other
       w) export DISPLAY= ; ;;
 
       s) $(launch_srs) & ;; #run in subshell and continue execution
-      l) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS.exe" ;;
+      l) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS.exe" ;; #--force-disable-VR
       n) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS.exe" "--no-launcher" ;;
-      v) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS.exe" "--force_enable_VR --force_OpenXR --no-launcher";;
+      v) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS.exe" "--no-launcher --force_enable_VR --force_OpenXR";;
 
       r) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS_updater.exe" "repair" ;;
       u) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS_updater.exe" "update" ;;

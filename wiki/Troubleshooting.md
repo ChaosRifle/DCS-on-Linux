@@ -23,15 +23,18 @@
 
 ## known working runners:
 #### Lutris / Wine
-- Proton 9.27 GE
+- proton 11.0 for VR and flatscreen via lutris
+- Proton 9.27 GE for flatscreen via lutris
 - wine 9.0 - 10.2 Stable or Staging
 - wine 10.3 - 11.4 Staging
+- wine 11.8 - 11.10 Stable or Staging
 #### Steam
 - Proton Experimental (2025/07/27)
 
 ## known broken runners:
 - wine 10.3 - 11.4 Stable ([debugger issue](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20250121-fails-to-launch-the-updater-with-a-debugger-has-been-found-running-in-your-system-please-unload-it-from-memory-and-restart-your-program))
 - wine 11.5 Stable and Staging ([debugger issue](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20250121-fails-to-launch-the-updater-with-a-debugger-has-been-found-running-in-your-system-please-unload-it-from-memory-and-restart-your-program))
+- most of proton 10 ([debugger issue](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20250121-fails-to-launch-the-updater-with-a-debugger-has-been-found-running-in-your-system-please-unload-it-from-memory-and-restart-your-program))
 
 
 ## current required launch arguments
@@ -40,11 +43,12 @@
 
 ## Logs
 - dcs: ``drive_c/users/$USERNAME/Saved Games/DCS World/Logs/dcs.log``
+- helper script: ``~/.local/state/dcs-on-linux``
 - proton: set env vars ``PROTON_LOG=1`` and ``PROTON_LOG_DIR=$path-to-desired-directory/`` to dump to said location
 
 
 # Troubleshooting resources
-### a list of all the recommended information currently available (@ chaos or make a PR if you find something useful!)
+### a list of all the recommended information currently available (notify a maintainer or make a PR if you find something useful!)
 If something is missing, it is probably deliberately left out.
 - live chat [matrix](https://matrix.to/#/#dcs-on-linux:matrix.org) community for questions or help
 - Budderpards [guide](https://github.com/budderpard/DCS_Standalone_on_linux/tree/master?tab=readme-ov-file)
@@ -104,6 +108,26 @@ old resources that contain older, less useful, or duplicate information, but may
 > - open Wine Control Panel > Game Controllers > in joystick tab, click the 'override' button to move the devices from 'xinput' to 'connected'. it should now register in the DInput tab. to open this on the steam version ```protontricks -c "wine control" 223750```, on lutris open the ```Wine Control Panel```
 > - if this happens to you, please also run ```lsusb``` and give the results for that device as well as the devices name and brand to a maintainer so we can be fix it for you and other users in future versions of Wine.
 
+> [!important]
+> #### (date unknown) **pedals dont work**
+> - most likely cause: if you have older pedals running on libusb UDEV rules (documentation [here](https://www.man7.org/linux/man-pages/man7/udev.7.html) and guide with examples [here](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#udev-rules)), SDL does not like devices with zero buttons. 
+> - workaround: switching your UDEV rule to hidraw if your pedals suport it. Alternatively, using tools like input remapper to add a phantom button to a cloned virtual device (such that all axis and a fake button are seen) if your pedals cant be used as hidraw.
+> - possible alternative cause: often times pedals get tagged as a gyroscope or accelerometer because of having 3 axis and no buttons. ensure your udev rule assigns the joystick tag.
+
+> [!important]
+> #### (date unknown) **input devices not showing up in DCS, even though it shows in game controller testing applications?**
+> - UDEV rules, documentation [here](https://www.man7.org/linux/man-pages/man7/udev.7.html) and guide [here](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#udev-rules)
+
+> [!important]
+> #### (date unknown) **input devices not working at all on linux, but functions on other machines**
+> - UDEV rules, documentation [here](https://www.man7.org/linux/man-pages/man7/udev.7.html) and guide [here](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#udev-rules)
+
+> [!important]
+> #### (date unknown) **input devices drop keystrokes if logical button number is over 80**
+> - cause: Linux kernel support for HID's limits to 80 buttons and 8 axis, and is in need of patching to support more. Many distros fix this themselves so it is not always required.
+> - workaround: follow a [guide](https://axel.hajslunddamgaard.dk/2026/03/28/128-buttons.html) to increasing the button limit
+
+
 # Headtracking issues
 > [!important]
 > #### (date unknown) **Opentrack requires the game be installed to your home-folder drive**
@@ -126,14 +150,6 @@ old resources that contain older, less useful, or duplicate information, but may
 > - this can cause bugs or crashes the moment you modify your game files. Windows games expect only one file of a given name to exist, however when you paste files in a directory, sometimes a user didnt use an identical capitalization. This means the game gets both, and can run the wrong file, or, crash. 
 
 > [!important]
-> #### (date unknown) **input devices not showing up in DCS, even though it shows in game controller testing applications?**
-> - UDEV rules, documentation [here](https://www.man7.org/linux/man-pages/man7/udev.7.html) and guide [here](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#udev-rules)
-
-> [!important]
-> #### (date unknown) **input devices working at all on linux, but functions on other machines**
-> - UDEV rules, documentation [here](https://www.man7.org/linux/man-pages/man7/udev.7.html) and guide [here](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#udev-rules)
-
-> [!important]
 > #### (1970/01/01) **applications stored on specific drive will not launch**
 > - fstab mount is missing ``exec`` or ``defaults`` which would enable the exec flag. linux defaults to not allowing execution when mounted.
 
@@ -151,7 +167,11 @@ old resources that contain older, less useful, or duplicate information, but may
 
 > [!important]
 > #### (2024/07/12) **game launches to a black window**
-> - this is the launcher, it doesn't render properly. use launch parameter '--no-launcher' or an options.lua 
+> - this is the launcher, it doesn't render properly. use launch parameter '--no-launcher' or an (options.lua)[https://github.com/ChaosRifle/DCS-on-Linux/wiki/Knowledge-Base#optionslua] to disable it. options.lua will completely stop this from happening even when the launch parameter is not retained (say, from the updater relaunching the game)
+
+> [!important]
+> #### (2024/07/12) **game launches to a white window**
+> - this is the launcher, it doesn't render properly. use launch parameter '--no-launcher' or an (options.lua)[https://github.com/ChaosRifle/DCS-on-Linux/wiki/Knowledge-Base#optionslua] to disable it. options.lua will completely stop this from happening even when the launch parameter is not retained (say, from the updater relaunching the game)
 
 > [!important]
 > #### (date unknown) **game launches to a black screen entirely or multiplayer crashes on connect, dcs.log cites voice chat related things**
@@ -217,6 +237,11 @@ old resources that contain older, less useful, or duplicate information, but may
 > [!important]
 > #### (2026/3/24) **Wayland scaling breaks HBUI.exe and some icons**
 > - possible workaround: run in gamescope
+
+> [!important]
+> #### (2024/7/11) **--force-enable-VR and --force-disable-VR clobber --no-launcher**
+> - use of either of the vr launch args will break use of the no-launcher argument. 
+> - workaround: edit your (options.lua)[https://github.com/ChaosRifle/DCS-on-Linux/wiki/Knowledge-Base#optionslua] or game settings to disable the launcher. in game: main menu > settings > misc > ``Launcher on start``. for the file, under ``[]"miscellaneous"] = {`` edit the existing entry for ``["launcher"] = false,`` to be false. if it doesn't exist, add it.
 
 
 # AMD issues

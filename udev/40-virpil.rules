@@ -1,5 +1,6 @@
-# DCS on Linux Joystick Udev Rules
+# DCS on Linux Joystick Udev Rules, Virpil
 
+#catchall for all virpil assets, should be hidraw for everything virpil
 KERNEL=="hidraw*", ATTRS{idVendor}=="3344", ATTRS{idProduct}=="*", MODE="0664", TAG+="uaccess"
 
 # Virpil Throttle
