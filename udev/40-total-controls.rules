@@ -1,8 +1,4 @@
-# DCS on Linux, Total Controls Apache KU (Microchip vendor 04d8)
-#
-# 04d8 is a generic Microchip ID, so match the exact product. The if03 interface
-# is a clean gamepad HID (usage 0001:0005, 51 buttons on the Button page); with
-# the rw ACL + PROTON_ENABLE_HIDRAW="0x04D8/0xE570" wine exposes all 51 buttons.
+# DCS on Linux Joystick Udev Rules, Total Controls
 
-KERNEL=="hidraw*", ATTRS{idVendor}=="04d8", ATTRS{idProduct}=="e570", MODE="0664", TAG+="uaccess"
-ACTION=="add", ATTRS{idVendor}=="04d8", ATTRS{idProduct}=="e570", MODE="0664", TAG+="uaccess"
+#apache keyboard unit
+KERNEL=="hidraw*", ATTRS{idVendor}=="04d8", ATTRS{idProduct}=="e570", MODE="0664", TAG+="uaccess" 
