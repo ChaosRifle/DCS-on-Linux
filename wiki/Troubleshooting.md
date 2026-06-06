@@ -104,6 +104,16 @@ old resources that contain older, less useful, or duplicate information, but may
 > - open Wine Control Panel > Game Controllers > in joystick tab, click the 'override' button to move the devices from 'xinput' to 'connected'. it should now register in the DInput tab. to open this on the steam version ```protontricks -c "wine control" 223750```, on lutris open the ```Wine Control Panel```
 > - if this happens to you, please also run ```lsusb``` and give the results for that device as well as the devices name and brand to a maintainer so we can be fix it for you and other users in future versions of Wine.
 
+> [!important]
+> #### (2026/06/06) **button box / panel shows in DCS with too few buttons, or not at all (yet works in a Linux joystick tester)**
+> - cause: many button boxes and panels (e.g. Thrustmaster Cougar MFDs, Total Controls Apache KU) present a HID joystick/gamepad usage. Proton's ``winebus`` ignores the ``hidraw`` interface for these and routes them through SDL, which can truncate the button count or drop the device entirely. the device is fine at the Linux level, but DCS sees a reduced or missing controller.
+> - fix: force the device onto Proton's ``hidraw`` backend by setting the ``PROTON_ENABLE_HIDRAW`` environment variable, so wine reads the device's full native HID report descriptor. list each device as ``0xVID/0xPID`` (hex, comma-separated; format matches Proton's ``user_settings.sample.py``):
+> ```
+> PROTON_ENABLE_HIDRAW="0x044F/0xB351,0x044F/0xB352,0x044F/0xB353,0x04D8/0xE570"
+> ```
+> get each ``VID:PID`` from ``lsusb`` (the example is three Thrustmaster F16 MFDs + a Total Controls Apache KU). set the variable wherever your launcher takes environment variables, e.g. steam ``Properties > General > Launch Options`` as ```PROTON_ENABLE_HIDRAW="..." %command%```, or lutris under ``Configure > System options > Environment variables``.
+> - this also requires a working ``hidraw`` ``uaccess`` udev rule for the device, since wine opens the ``hidraw`` node read/write.
+
 # Headtracking issues
 > [!important]
 > #### (date unknown) **Opentrack requires the game be installed to your home-folder drive**
