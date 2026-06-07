@@ -1,4 +1,11 @@
 # DCS on Linux Joystick Udev Rules, Thrustmaster hidraw
 
-# pending rewrite as TM products are all over the place for needing hidraw vs libusb
-#KERNEL=="hidraw*", ATTRS{idVendor}=="044f", ATTRS{idProduct}=="*", MODE="0664", TAG+="uaccess"
+
+# T-Rudder
+KERNEL=="hidraw*", ATTRS{idVendor}=="044f", ATTRS{idProduct}=="b679", MODE="0664", TAG+="uaccess"
+
+# TWCS Throttle
+KERNEL=="hidraw*", ATTRS{idVendor}=="044f", ATTRS{idProduct}=="b687", MODE="0664", TAG+="uaccess"
+
+#T.16000M Joystick
+KERNEL=="hidraw*", ATTRS{idVendor}=="044f", ATTRS{idProduct}=="b10a", MODE="0664", TAG+="uaccess"
