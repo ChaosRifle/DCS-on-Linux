@@ -27,6 +27,9 @@
 > [!note]
 > for non-VR users, we strongly recommend you use the [helper script](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation/#Wine) in this repo instead, you can add the launch command to lutris and have all the advantages of lutris with none of the drawbacks
 
+> [!caution]
+> Lutris staff need to authorize each update. At time of writing (26/06/11) lutris has yet to pull our changes. In the interim, you can select ``install from a local install script`` and use the  ``lutris-installer.yaml`` file in this repo as an alternative to step 2.
+
 - 1: you ***must*** select a lutris default [runner](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Knowledge-Base#runner) before installation. the default 8.26 has several issues and degraded or broken functionality/performance. Open 'Lutris Settings' [1] > ``preferences`` [2] > ``Runners`` [3] > ``Wine Options`` [4] > set ``wine version`` to a [known working runner](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#known-working-runners) [5] (For VR, you must use proton, we suggest vanilla proton from steam like proton 11) > ``save`` [6]. Unfortunately, lutris' YAML will not allow us to do this for you because the versions included in their API are not suitable for DCS.
 <img alt="lutris runner swap" src="https://github.com/user-attachments/assets/0388f8be-028b-4881-90cb-f6fe54a4a8ca" />
 
@@ -40,9 +43,6 @@
 
 - 2: using the [website](https://lutris.net/games/dcs-world/) or lutris app, browse for adding a game, ``DCS World``, then select the ``DoL Community Choice (Latest)`` version and press install.
 <img alt="lutris install game instructions" src="https://github.com/user-attachments/assets/e6a76fbe-7c05-4651-9099-20636fa3fb8a" />
-
-> [!note]
-> Lutris staff need to authorize each update. In the event that lutris is slow to update, you can select ``install from a local install script`` and use the  ``lutris-installer.yaml`` file in this repo as an alternative to step 2.
 
 - 3: set your desired filepath for dcs in the lutris menu.
 <img alt="image" src="https://github.com/user-attachments/assets/85ab9027-ec4f-4738-8063-4e04500553c1" />
