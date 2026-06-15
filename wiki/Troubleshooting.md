@@ -33,7 +33,7 @@
 
 ## known broken runners:
 - wine 10.3 - 11.4 Stable ([debugger issue](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20250121-fails-to-launch-the-updater-with-a-debugger-has-been-found-running-in-your-system-please-unload-it-from-memory-and-restart-your-program))
-- wine 11.5 Stable and Staging ([debugger issue](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20250121-fails-to-launch-the-updater-with-a-debugger-has-been-found-running-in-your-system-please-unload-it-from-memory-and-restart-your-program))
+- wine 11.5 - 11.7 Stable and Staging ([debugger issue](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20250121-fails-to-launch-the-updater-with-a-debugger-has-been-found-running-in-your-system-please-unload-it-from-memory-and-restart-your-program))
 - most of proton 10 ([debugger issue](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20250121-fails-to-launch-the-updater-with-a-debugger-has-been-found-running-in-your-system-please-unload-it-from-memory-and-restart-your-program))
 
 
