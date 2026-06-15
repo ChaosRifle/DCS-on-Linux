@@ -41,6 +41,14 @@
 - ``WINE_SIMULATE_WRITECOPY=1`` for F4's ``hbui.exe`` to work correctly
 - ``WINEDLLOVERRIDES='wbemprox=n'`` for .. some reason. If you remember, ping chaos or open a PR/git issue.
 
+## current required dependencies
+- ``corefonts``
+- ``xact_x64``
+- ``d3dcompiler_47``
+- ``vcrun2022``
+- ``vcrun2015`` for mig-29 FF
+- ``dxvk``
+
 ## Logs
 - dcs: ``drive_c/users/$USERNAME/Saved Games/DCS World/Logs/dcs.log``
 - helper script: ``~/.local/state/dcs-on-linux``
@@ -156,9 +164,13 @@ old resources that contain older, less useful, or duplicate information, but may
 
 # DCS issues
 > [!important]
+> #### (2026/06/12) **edCefRenderProcess.exe crashes and hbui doesnt work**
+> - unclear the cause, but can be fixed by switching to wine staging patchset. wine 10.10/10.11 from kron4ek is affected
+
+> [!important]
 > #### (2025/01/21) **fails to launch the updater with "a debugger has been found running in your system. please, unload it from memory and restart your program."**
-> - this is an issue using using wine 10.x+ stable, you must use wine staging. [according to Alexandre Julliard (wine lead dev)](https://bugs.winehq.org/show_bug.cgi?id=58043) this is due to it using a new code path.
-> - switching to staging will fix this issue entirely.
+> - this is an issue using using wine 10.3 to 11.7 stable or 10.5 to 10.7 staging. [according to Alexandre Julliard (wine lead dev)](https://bugs.winehq.org/show_bug.cgi?id=58043) this is due to it using a new code path.
+> - switching wine runner will fix this entirely
 
 > [!important]
 > #### (date unknown) **most things are green**
