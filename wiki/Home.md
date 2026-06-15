@@ -24,4 +24,4 @@ Join the [matrix](https://matrix.to/#/#dcs-on-linux:matrix.org) server for more 
 > none
 
 ### General News
-> none
+> AuR had a security incident, a bunch of malware. more [here](https://lists.archlinux.org/archives/list/aur-general@lists.archlinux.org/thread/FGXPCB3ZVCJIV7FX323SBAX2JHYB7ZS4/). notably, ALVR was affected.
