@@ -1,4 +1,6 @@
 #!/bin/bash
+ver='1.0.1'
+
 # edit the following path to your DCS core game directory.
 PREFIX="/run/media/$USER/SN850X 2TB/games/dcs-world"
 DCS_INSTALL_PATH="drive_c/Program Files/Eagle Dynamics/DCS World"
@@ -25,6 +27,10 @@ if grep -q '	voice_chat.onPeerConnect(connectData)' "$DCS_INSTALL/MissionEditor/
   sed -i 's|voice_chat.onPeerConnect(connectData)|-- REMOVED BY DoL SCRIPT --voice_chat.onPeerConnect(connectData)|' "$DCS_INSTALL/MissionEditor/modules/mul_voicechat.lua"
 fi
 
+if grep -q '			voice_chat.changeSlot(playerInfo.side, unitId)' "$DCS_INSTALL/MissionEditor/modules/mul_voicechat.lua"; then # the leading space is to ensure no double-run
+  sed -i 's|voice_chat.changeSlot(playerInfo.side, unitId)|-- REMOVED BY DoL SCRIPT --voice_chat.changeSlot(playerInfo.side, unitId)|' "$DCS_INSTALL/MissionEditor/modules/mul_voicechat.lua"
+fi
 
-
-# voice_chat.onPeerConnect(connectData)
+if [[ -f "$DCS_INSTALL/CoreMods/services/VoiceChat/bin/VoiceChat.dll" ]]; then
+  mv "$DCS_INSTALL/CoreMods/services/VoiceChat/bin/VoiceChat.dll" "$DCS_INSTALL/CoreMods/services/VoiceChat/bin/VoiceChat-DISABLED.dll"
+fi
