@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.9.2'
+ver='0.9.3'
 
 ###################################################################################################
 #block root use, keep this as the FIRST lines of code in the script
@@ -1090,7 +1090,7 @@ fixerscript_vanilla_voip_crash(){
   log 'c' "$@"
   if confirm "This will edit game files to disable the vanilla voip system in the event it prevents gameplay. This can be undone with 'launch-dcs.sh -r' to repair the files, though you should uninstall your mods before repairing
 
-https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#date-unknown-game-launches-to-a-black-screen-entirely-or-multiplayer-crashes-on-connect-dcslog-cites-voice-chat-related-things"; then
+https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#date-unknown-voip-bug-dcslog-cites-voip-related-stuff-game-broken-in-various-ways"; then
     "$dir_self/vanillavoipfixer.sh" "$dir_prefix"
   fi
 }

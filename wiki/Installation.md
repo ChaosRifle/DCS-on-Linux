@@ -166,7 +166,7 @@ We recommend [Limo](https://github.com/limo-app/limo). The flatpak will work jus
 > if you would like to know more about the scripts, they have documentation inside them. Best practice is to read scripts you download before executing them
 
 > [!note]
-> if using the ``helper-dcs.sh`` script from this repo, execution of all scripts can be done by entering the ``troubleshooting`` menu
+> if using the ``helper-dcs.sh`` script from this repo, execution of all scripts can be done by entering the ``troubleshooting`` menu, skipping steps 1 & 2 if executed from that menu
 
 - 1: Under this repo's /tools folder, you will find the above scripts/fonts. download them or git clone the repo
 - 2: ***edit the scripts*** to use your game paths

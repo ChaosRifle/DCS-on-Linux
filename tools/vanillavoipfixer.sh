@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='1.0.1'
+ver='1.0.2'
 
 # edit the following path to your DCS core game directory.
 PREFIX="/run/media/$USER/SN850X 2TB/games/dcs-world"
@@ -9,6 +9,7 @@ DCS_INSTALL_PATH="drive_c/Program Files/Eagle Dynamics/DCS World"
 # documentation/explanation
 
 # vanillavoipfixer comments out lines in dcs code to disable the vanilla voip, thus ensuring it doesnt crash on boot, mp lobby, or on connect to server.
+# this is to fix the 'voip bug' at https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#date-unknown-voip-bug-dcslog-cites-voip-related-stuff-game-broken-in-various-ways
 
 # If you want to undo this script, uninstall your mods and
 # repair the game files, then reinstall your mods. ( launch-dcs.sh -r )

@@ -18,8 +18,12 @@
 
 
 # Troubleshooting steps
-> [!note]
+> [!important]
 > search this page for known issues and their workarounds/resolutions
+> confirm you are within the requirements listed below
+> check your dcs.log (and other log files), it can often be helpful if an issue is 100% repeatable
+> if your issue isnt listed in this page, and you ask for help in the [matrix](https://matrix.to/#/#dcs-on-linux:matrix.org) or git issues, please provide your install method (helper, lutris, steam etc) and a dcs.log file with a description of your problem, you will be asked for it if not provided, as they are the usual things we must know to be able to help at all
+
 
 ## known working runners:
 #### Lutris / Wine
@@ -186,12 +190,15 @@ old resources that contain older, less useful, or duplicate information, but may
 > - this is the launcher, it doesn't render properly. use launch parameter '--no-launcher' or an (options.lua)[https://github.com/ChaosRifle/DCS-on-Linux/wiki/Knowledge-Base#optionslua] to disable it. options.lua will completely stop this from happening even when the launch parameter is not retained (say, from the updater relaunching the game)
 
 > [!important]
-> #### (date unknown) **game launches to a black screen entirely or multiplayer crashes on connect, dcs.log cites voice chat related things**
-> - this is the native voice chat. uncommon issue, fix must be reapplied every time the file(not the game) gets an update. this will disable your vanilla voip entirely, but its bad and everyone uses SRS instead so its no real loss. One user was able to fix this issue by reinstalling, with a possible change to runner or other supporting tool fixing it. The cause of the spurius fix is still unclear but trusted, if you figure it out PLEASE notify a maintainer or open a github issue, thank you. 
+> #### (date unknown) **voip bug, dcs.log cites voip related stuff, game broken in various ways**
+> - this is the native voice chat. uncommon issue, fix must be reapplied every time the file(not the game) gets an update. this will disable your vanilla voip entirely, but ED's voip is bad and everyone uses SRS instead so its no real loss.
 > - These line numbers are not always exact, updates change them. The text itself should be the same and in a roughly similar area of the files. If these line numbers change, please notify a maintainer with the new line numbers.
-> - we have a script in this repos files, at ``tools/vanillavoipfixer.sh``. edit the path in the script to your install, and execute it, or, follow the below instructions to perform the fix manually.
-> - comment out ``../drive_c/Program Files/Eagle Dynamics/DCS World/MissionEditor/modules/mul_voicechat.lua`` line 2440 (``voice_chat.onPeerConnect(connectData)``)
+> - we have a script in this repos files, at ``tools/vanillavoipfixer.sh``. edit the path in the script to your install, and execute it, or, follow the below instructions to perform the fix manually. If you installed using the helper script it can run this for you without needing to specify the filepath, under its troubleshooting menu
+> - 1: comment out ``../drive_c/Program Files/Eagle Dynamics/DCS World/MissionEditor/modules/mul_voicechat.lua`` line 2440 (``voice_chat.onPeerConnect(connectData)``)
 > <img alt="voip bug 3" src="https://github.com/user-attachments/assets/114949a1-2069-4892-9ed6-60452ded3a73" />
+>
+> - 2: comment out ``../drive_c/Program Files/Eagle Dynamics/DCS World/MissionEditor/modules/mul_voicechat.lua`` line 2939 (``voice_chat.changeSlot(playerInfo.side, unitId)``)
+> - 3: rename or delete ``../drive_c/Program Files/Eagle Dynamics/DCS World/CoreMods/services/VoiceChat/bin/VoiceChat.dll``
 >
 > - IF this does NOT fix the issue, you can also try the following lines, which have worked in the past, however you should be done and working now. Some users report issues with the following lines.
 > - attempt to comment out ``../drive_c/Program Files/Eagle Dynamics/DCS World/MissionEditor/modules/Options/optionsDb.lua`` lines 118-131 (``local function getVoiceChatDevices``) and line 457 (``sound('voice_chat'):setValue(true):checkbox()``).
@@ -200,7 +207,7 @@ old resources that contain older, less useful, or duplicate information, but may
 > <img alt="voip bug 1" src="https://github.com/user-attachments/assets/450e4fe8-4b64-42eb-a099-a117cc646aa6" />
 > <img alt="voip bug 2" src="https://github.com/user-attachments/assets/2a3fae47-9dfd-415d-8229-3b995a627164" />
 > <img alt="voip bug 4" src="https://github.com/user-attachments/assets/18eaf4ca-74bd-4703-b87f-5bb5a7ac5a13" />
-> NOTES FOR FIX HUNTING: dll override ``msdmo=n`` has shown to prevent crashes on mp connect, however inputs are dropped (cant slot in) despite the game continuing to run. suspected ths is one requirement for a true fix to this bug.
+> NOTES FOR FIX HUNTING: dll override ``msdmo=n`` has shown to prevent crashes on mp connect, however inputs are dropped (cant slot in) despite the game continuing to run. suspected ths is one requirement for a true fix to this bug. One user was able to fix this issue by reinstalling, with a possible change to runner or other supporting tool fixing it. The cause of the spurius fix is still unclear but trusted, if you figure it out PLEASE notify a maintainer or open a github issue, thank you. Nobody else has been able to replicate this fix, normally users afflicted will stay afflicted forever, and unafflicted sometimes become afflicted with dcs updates. UPDATE: ``voice_chat.changeSlot(playerInfo.side, unitId)`` at the last line of ``../MissionEditor/modules/mul_voicechat.lua`` is responsible for the slotting not working - this is due to no voip functioning. 
 
 > [!important]
 > #### (2024/05/21) **jester ui and other heatblur functions are broken (hbui.exe)**
