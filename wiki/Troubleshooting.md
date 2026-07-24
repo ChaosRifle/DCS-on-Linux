@@ -19,10 +19,10 @@
 
 # Troubleshooting steps
 > [!important]
-> search this page for known issues and their workarounds/resolutions
-> confirm you are within the requirements listed below
-> check your dcs.log (and other log files), it can often be helpful if an issue is 100% repeatable
-> if your issue isnt listed in this page, and you ask for help in the [matrix](https://matrix.to/#/#dcs-on-linux:matrix.org) or git issues, please provide your install method (helper, lutris, steam etc) and a dcs.log file with a description of your problem, you will be asked for it if not provided, as they are the usual things we must know to be able to help at all
+> - search this page for known issues and their workarounds/resolutions
+> - confirm you are within the requirements listed below
+> - check your dcs.log (and other log files), it can often be helpful if an issue is 100% repeatable
+> - if your issue isnt listed in this page, and you ask for help in the [matrix](https://matrix.to/#/#dcs-on-linux:matrix.org) or git issues, please provide your install method (helper, lutris, steam etc) and a dcs.log file with a description of your problem, you will be asked for it if not provided, as they are the usual things we must know to be able to help at all
 
 
 ## known working runners:
