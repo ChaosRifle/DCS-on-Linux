@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.9.3'
+ver='0.9.4'
 
 ###################################################################################################
 #block root use, keep this as the FIRST lines of code in the script
@@ -221,6 +221,10 @@ check_dependency(){
   if [ ! "$(command -v grep)" ]; then selftest='fail'; log 'x' 'ERROR: grep missing'; fi
   if [ ! -x "$(command -v sed)" ]; then selftest='fail'; log 'x' 'ERROR: sed missing'; fi
   if [ ! -x "$(command -v cut)" ]; then selftest='fail'; log 'x' 'ERROR: cut missing'; fi
+  if [ ! -x "$(command -v find)" ]; then selftest='fail'; log 'x' 'ERROR: find missing'; fi
+  if [ ! -x "$(command -v mv)" ]; then selftest='fail'; log 'x' 'ERROR: mv missing'; fi
+  if [ ! -x "$(command -v ls)" ]; then selftest='fail'; log 'x' 'ERROR: ls missing'; fi
+  if [ ! -x "$(command -v rm)" ]; then selftest='fail'; log 'x' 'ERROR: rm missing'; fi
 
   # find a solution to check for globbing being enabled, ex: x=(*/) TODO
   # find a solution to check stdbuf can use fflush() TODO
@@ -470,7 +474,7 @@ WARNING: consume-type installers will move, not copy, the game files into the ne
         return
       fi
     else
-      notify "an exiting prefix (dcs-world) was detected, without savedgames AND core files. It is not be possible to install a prefix here without sacrifice of the existing prefix, and we are unable to sacrifice this prefix without detecting the game files. Please choose a different install path or remove/rename the existing prefix '$dir_prefix'. If you think this is wrong, ensure the existing prefix is on stable branch (we do not detect ob/cb installs) and has a savedgames folder, as well as being installed to the default path of 'C/program files/Eagle Dynamics/DCS World'. exiting"
+      notify "an exiting prefix (dcs-world) was detected, without savedgames AND core files. We do not want to risk loss of a savedgames folder, so will not act without both directories. This can happen if you installed DCS but have yet to launch the game, or an error occurred. It is not be possible to install a prefix in this directory without sacrifice of the existing prefix. Please choose a different install path or remove/rename the existing prefix '$dir_prefix'. If you think this is wrong, ensure the existing prefix is on stable branch (we do not detect ob/cb installs) and has a savedgames folder, as well as being installed to the default path of 'C/program files/Eagle Dynamics/DCS World'. exiting"
       return
     fi
   fi
@@ -642,18 +646,80 @@ install_srs_latest(){
   log 'd' "srs install path: $dir_srs_install"
   log 'd' "srs install prefix: $dir_srs_prefix"
 
+  #runtype detection 0=fresh clean install, 1=file install, 2=prefix reinstall
+  unset runtype
+  if [ -d "$dir_srs_install/temp-srs-configs" ]; then
+    notify "'temp-srs-configs' folder has been detected. A previous execution did not fully clean things up, it would be unsafe for the script to perform any actions. Check your logs for previous executions warning about this. exiting"
+    return
+  fi
+  if [ -d "$dir_srs_prefix" ]; then
+    if [ -d "$dir_srs_prefix/drive_c/srs" ]; then
+      if confirm "'srs-latest' prefix detected, continue with consume-existing-prefix install? (will reuse your existing configs to reinstall srs)"; then
+        runtype=2
+        dir_sacrificial_prefix="$dir_srs_prefix"
+        mkdir "$dir_srs_install/temp-srs-configs"
+        log 'd' "sacrificial path: $dir_sacrificial_prefix/drive_c/srs/"
+        log 'd' "temp path: $dir_srs_install/temp-srs-configs"
+        mv "$dir_sacrificial_prefix"/drive_c/srs/*.cfg "$dir_srs_install/temp-srs-configs"
+        mv "$dir_sacrificial_prefix"/drive_c/srs/*.csv "$dir_srs_install/temp-srs-configs"
+        if ! [[ ( -n $(find "$dir_sacrificial_prefix/drive_c/srs/" -maxdepth 1 -type f -name "*.csv") ) ]] && ! [[ ( -n $(find "$dir_sacrificial_prefix/drive_c/srs/" -maxdepth 1 -type f -name "*.cfg") ) ]]; then
+          log 'd' "backed up srs configs to '$dir_srs_install/temp-srs-configs', removing old prefix"
+          log 'd' "files backed up: $(ls -l "$dir_srs_install/temp-srs-configs")"
+          rm -rf "$dir_sacrificial_prefix"
+          unset dir_sacrificial_prefix
+        else
+          mv "$dir_srs_install"/temp-srs-configs/*.cfg "$dir_sacrificial_prefix/drive_c/srs"
+          mv "$dir_srs_install"/temp-srs-configs/*.csv "$dir_sacrificial_prefix/drive_c/srs"
+          rm -d "$dir_srs_install/temp-srs-configs"
+          if [ ! -d "$dir_srs_install/temp-srs-configs" ]; then
+            log 'd' "sucessfully undid config relocation due to a detected error"
+            notify "files were unable to be properly moved and the actions taken have been undone. exiting"
+          else
+            log 'x' "check files at '$dir_srs_install/temp-srs-configs' and '$dir_sacrificial_prefix/drive_c/srs', the files were not able to be moved back properly. Please report this occurance with your log files, this should never happen"
+            notify "files were unable to be properly moved and attempting to undo this error has failed.
+Please report this with your log files, this should not happen.
+
+Your files may be split between '$dir_srs_install/temp-srs-configs' and '$dir_sacrificial_prefix/drive_c/srs'.
+
+exiting"
+          fi
+          unset dir_sacrificial_prefix
+          unset runtype
+          return
+        fi
+      else
+        notify "It will not be possible to install a prefix here without sacrifice of the existing prefix. Please choose a different install path or remove/rename the existing prefix '$dir_srs_prefix'. exiting"
+        return
+      fi
+    else
+      notify "an exiting prefix (srs-latest) was detected, without drive_c/srs. We do not want to risk loss of configs, so will not act. It is not be possible to install a prefix in this directory without sacrifice of the existing prefix. Please choose a different install path or remove/rename the existing prefix '$dir_srs_prefix'. If you think this is wrong, ensure the existing prefix has srs installed to '../drive_c/srs'. exiting"
+      return
+    fi
+  fi
   echo "$dir_srs_prefix" > "$dir_cfg/$cfg_dir_srs_prefix"
 
-  if [ -d "$dir_srs_prefix" ]; then
-    notify 'srs prefix already exits, terminating'
-    exit
-  else
+  if [ ! -d "$dir_srs_prefix" ]; then
     mkdir -p "$dir_srs_prefix/cache" "$dir_srs_prefix/runners" "$dir_srs_prefix/files/hook-srs/Scripts" "$dir_srs_prefix/files/hook-srs/Mods/Services" "$dir_srs_prefix/drive_c/srs"
 
     cd "$dir_srs_prefix/drive_c/srs"
     wget "$url_srs_latest" #--force-progress
     unzip "$archive_srs_latest"
+    if [ "$runtype" -eq 2 ]; then
+      mv -f "$dir_srs_install"/temp-srs-configs/*.cfg "$dir_srs_prefix/drive_c/srs"
+      mv -f "$dir_srs_install"/temp-srs-configs/*.csv "$dir_srs_prefix/drive_c/srs"
+      mkdir -p "$dir_srs_prefix/drive_c/srs/DoL-script-failed-filetransfer"
+      mv -f "$dir_srs_install"/temp-srs-configs/* "$dir_srs_prefix/drive_c/srs/DoL-script-failed-filetransfer"
+      rm -d "$dir_srs_prefix/drive_c/srs/DoL-script-failed-filetransfer"
+      rm -rf "$dir_srs_install/temp-srs-configs"
+      if [ -d "$dir_srs_prefix/drive_c/srs/DoL-script-failed-filetransfer" ]; then
+        notify "some files were not properly handled, but were retained at '$dir_srs_prefix/drive_c/srs/DoL-script-failed-filetransfer'
+files retained:
+$(ls -l "$dir_srs_prefix/drive_c/srs/DoL-script-failed-filetransfer")
 
+continuing with installation"
+      fi
+      unset runtype
+    fi
     cp -r "$dir_srs_prefix/drive_c/srs/Scripts/DCS-SRS" "$dir_srs_prefix/files/hook-srs/Mods/Services"
     cp -r "$dir_srs_prefix/drive_c/srs/Scripts/Hooks" "$dir_srs_prefix/files/hook-srs/Scripts"
     cp -r "$dir_srs_prefix/drive_c/srs/Scripts/Export.lua" "$dir_srs_prefix/files/hook-srs/Scripts"
@@ -677,6 +743,10 @@ We have generated the srs hooks for you at '$dir_srs_prefix/files/hook-srs'"
 
     install_prefix_runner 'srs' "$url_wine_11_staging" #    $1_dcs_or_srs   $2_url_forced_selection_runner
     preferred_dir_wine="$(cat "$dir_srs_prefix/runners/$cfg_preferred_dir_wine")"
+    PATH_WINE_SRS="$dir_srs_prefix/runners/$preferred_dir_wine/bin"
+
+    export WINEPREFIX="$dir_srs_prefix"
+    "$PATH_WINE_SRS/wine" reg add 'HKEY_CURRENT_USER\SOFTWARE\DCS-SR-Standalone' /v "SRPathStandalone" /t REG_SZ /d "C:\srs" /f
 
     cd "$dir_srs_prefix"
     export WINEPREFIX="$dir_srs_prefix"
@@ -697,6 +767,10 @@ We have generated the srs hooks for you at '$dir_srs_prefix/files/hook-srs'"
     cd "$anchor_dir"
     send_to_screen "SRS installed"
   fi
+
+  # export WINEPREFIX="$dir_srs_prefix"
+  # "$dir_srs_prefix/runners/$(cat "$dir_srs_prefix/runners/$cfg_preferred_dir_wine")/bin/regedit"
+
 }
 
 install_srs_2.3.4.0(){
@@ -1714,7 +1788,7 @@ if [ ! -d "$dir_cfg" ]; then # load or create configs
 else
   if [ -f "$dir_cfg/$cfg_dir_prefix" ]; then #prefix
     dir_prefix="$(cat "$dir_cfg/$cfg_dir_prefix")"
-    PATH_WINE_DCS="$dir_prefix/runners/$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")/bin/"
+    PATH_WINE_DCS="$dir_prefix/runners/$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")/bin"
   else
     echo "$dir_prefix" > "$dir_cfg/$cfg_dir_prefix"
     send_to_screen "config file $cfg_dir_prefix missing, regenerated"
@@ -1728,6 +1802,7 @@ else
   fi
   if [ -f "$dir_cfg/$cfg_dir_srs_prefix" ]; then #prefix
     dir_srs_prefix="$(cat "$dir_cfg/$cfg_dir_srs_prefix")"
+    PATH_WINE_SRS="$dir_srs_prefix/runners/$(cat "$dir_srs_prefix/runners/$cfg_preferred_dir_wine")/bin"
   else
     echo "$dir_srs_prefix" > "$dir_cfg/$cfg_dir_srs_prefix"
     send_to_screen "config file $cfg_dir_srs_prefix missing, regenerated"
