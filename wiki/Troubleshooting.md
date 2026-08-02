@@ -192,8 +192,9 @@ old resources that contain older, less useful, or duplicate information, but may
 > [!important]
 > #### (date unknown) **voip bug, dcs.log cites voip related stuff, game broken in various ways**
 > - this is the native voice chat. uncommon issue, fix must be reapplied every time the file(not the game) gets an update. this will disable your vanilla voip entirely, but ED's voip is bad and everyone uses SRS instead so its no real loss.
+> - we have a script in this repos files, at ``tools/vanillavoipfixer.sh``. If you installed via the ``helper-dcs.sh`` script, just run the ``helper-dcs.sh`` > ``troubleshooting`` > ``fix vanilla voip crash`` and you are done now. 
+> - If you installed some other way than the helper script, download and edit the filepath in the script to your install, and execute it, or, follow the below instructions to perform the fix manually.
 > - These line numbers are not always exact, updates change them. The text itself should be the same and in a roughly similar area of the files. If these line numbers change, please notify a maintainer with the new line numbers.
-> - we have a script in this repos files, at ``tools/vanillavoipfixer.sh``. edit the path in the script to your install, and execute it, or, follow the below instructions to perform the fix manually. If you installed using the helper script it can run this for you without needing to specify the filepath, under its troubleshooting menu
 > - 1: comment out ``../drive_c/Program Files/Eagle Dynamics/DCS World/MissionEditor/modules/mul_voicechat.lua`` line 2440 (``voice_chat.onPeerConnect(connectData)``)
 > <img alt="voip bug 3" src="https://github.com/user-attachments/assets/114949a1-2069-4892-9ed6-60452ded3a73" />
 >
