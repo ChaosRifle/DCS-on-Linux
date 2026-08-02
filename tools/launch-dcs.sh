@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.2.0'
+ver='0.2.1'
 
 
 ###################################################################################################
@@ -29,19 +29,19 @@ default_arguments="-san"
 ###################################################################################################
 load_dcs_wine_config() { #in function so it can be modified by switches
   if [ ! -d "$dir_cfg" ]; then # load configs
-    echo "config not found, please run the helper script." | tee -a ${active_tty}
+    echo "DoL config not found, please run the helper script." | tee -a ${active_tty}
     exit 1
   else
     if [ -f "$dir_cfg/$cfg_dir_prefix" ]; then
       dir_prefix="$(cat "$dir_cfg/$cfg_dir_prefix")"
     else
-      echo "config file $cfg_dir_prefix missing, exiting." | tee -a ${active_tty}
+      echo "DoL dcs config file $cfg_dir_prefix missing, exiting." | tee -a ${active_tty}
       exit 1
     fi
     if [ -f "$dir_prefix/runners/$cfg_preferred_dir_wine" ]; then
       dir_wine="$dir_prefix/runners/$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")/bin"
     else
-      echo "config file $cfg_preferred_dir_wine missing, exiting." | tee -a ${active_tty}
+      echo "dcs runner config file $cfg_preferred_dir_wine missing, exiting." | tee -a ${active_tty}
       exit 1
     fi
   fi
@@ -72,20 +72,20 @@ launch_srs(){
   exec > >(stdbuf -oL awk '{ print strftime("%F-%T :"), $0; fflush(); }' >> ${file_log_dcs}) 2>&1 #Setup subshell logging, required as long as this function is called as "$(launch_srs) &"
 
   if [ ! -d "$dir_cfg" ]; then # load configs
-    echo "config not found, please run the helper script." | tee -a ${active_tty}
+    echo "DoL config not found, please run the helper script." | tee -a ${active_tty}
     exit 1
   else
     if [ -f "$dir_cfg/$cfg_dir_srs_prefix" ]; then
       dir_srs_prefix="$(cat "$dir_cfg/$cfg_dir_srs_prefix")"
     else
-      echo "config file $cfg_dir_srs_prefix missing, exiting." | tee -a ${active_tty}
+      echo "DoL srs config file $cfg_dir_srs_prefix missing, exiting." | tee -a ${active_tty}
       exit 1
     fi
     if [ -f "$dir_srs_prefix/runners/$cfg_preferred_dir_wine" ]; then
       active_runner_srs=$(cat "$dir_srs_prefix/runners/$cfg_preferred_dir_wine")
       dir_srs_wine="$dir_srs_prefix/runners/$active_runner_srs/bin"
     else
-      echo "config file $cfg_preferred_dir_wine missing, exiting." | tee -a ${active_tty}
+      echo "srs runner config file $cfg_preferred_dir_wine missing, exiting." | tee -a ${active_tty}
       exit 1
     fi
   fi
