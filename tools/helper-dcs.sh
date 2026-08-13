@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.9.5'
+ver='0.9.6'
 
 ###################################################################################################
 #block root use, keep this as the FIRST lines of code in the script
@@ -190,11 +190,11 @@ check_dependency(){
   temp_report_occurance='Either this check is broken or your version of bash is very weird. Please report your bash version and distro to a maintainer, thank you!'
 
   # optional for functionality or modularly disabled when failed
-  if [ ! -x "$(command -v wine)" ]; then log 'x' 'WARNING: wine missing. Possibly not needed.'; fi # possibly not needed, unclear if winetricks or standalone wine would ref system wine binaries/libraries
   if [ ! -x "$(command -v pkexec)" ]; then log 'x' 'WARNING: pkexec missing, you will be unable to auto-install pre-made udev rules'; fi # TODO add flag for has-polkit(pkexec) that will be used to disable udev rule auto installer.
   if ! grep -q "avx" /proc/cpuinfo; then log 'x' 'WARNING: your cpu does not support avx - some or multiple dcs modules will not work'; fi
 
   #required for function
+  if [ ! -x "$(command -v wine)" ]; then selftest='fail'; log 'x' 'WARNING: wine missing.'; fi # not directly needed, but it shares dependencies with standalone wine, so its the fastest way to install them all and depcheck them all
   if [ ! -x "$(command -v winetricks)" ]; then selftest='fail'; log 'x' 'ERROR: winetricks missing'; fi
   if [ ! -x "$(command -v git)" ]; then selftest='fail'; log 'x' 'ERROR: git missing'; fi
   if [ ! -x "$(command -v wget)" ]; then selftest='fail'; log 'x' 'ERROR: wget missing'; fi
@@ -1538,7 +1538,7 @@ install_prefix_runner(){ #    $1_dcs_or_srs   $2_url_forced_selection_runner
       e) exit 0;;
       m) menu_main; break;;
       *?) log 'x' "option '$input' is not available, please try again";;
-      "$nil") lox 'x' 'ERROR: please enter a value that is not nil';;
+      "$nil") log 'x' 'ERROR: please enter a value that is not nil';;
     esac
     unset value
     unset version_to_download
