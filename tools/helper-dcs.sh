@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.9.4'
+ver='0.9.5'
 
 ###################################################################################################
 #block root use, keep this as the FIRST lines of code in the script
@@ -960,16 +960,17 @@ menu_troubleshooting(){
     menu=(
       [0]="winetricks"
       [1]="wine control panel"
-      [2]="wine configuration"
-      [3]="wine regedit"
-      [4]="wineboot -u (update_prefix)"
-      [5]="fix textures"
-      [6]="fix vanilla voip crash"
-      [7]="fix apache font crash"
-      [8]="delete shaders"
-      [9]="kill wineserver"
-      [10]="install udev rules"
-      [11]="install vr registry entries"
+      [2]="wine cmd"
+      [3]="wine configuration"
+      [4]="wine regedit"
+      [5]="wineboot -u (update_prefix)"
+      [6]="fix textures"
+      [7]="fix vanilla voip crash"
+      [8]="fix apache font crash"
+      [9]="delete shaders"
+      [10]="kill wineserver"
+      [11]="install udev rules"
+      [12]="install vr registry entries"
     )
 
     menu_text_zenity="<a href='${url_troubleshooting}'>Troubleshooting resources</a>
@@ -991,16 +992,17 @@ dcs logs: ${dir_prefix}/drive_c/users/$USER/Saved Games/DCS/Logs"
     case "$input" in
       0) run_winetricks;;
       1) run_wine_control_panel;;
-      2) run_wine_configuration;;
-      3) run_wine_regedit;;
-      4) run_wine_wineboot_update;;
-      5) fixerscript_textures;;
-      6) fixerscript_vanilla_voip_crash;;
-      7) fixerscript_apache_font_crash;;
-      8) fixerscript_delete_shaders;;
-      9) kill_wineserver;;
-      10) install_udev_rules;;
-      11) install_vr_registry_edits;;
+      2) run_wine_cmd;;
+      3) run_wine_configuration;;
+      4) run_wine_regedit;;
+      5) run_wine_wineboot_update;;
+      6) fixerscript_textures;;
+      7) fixerscript_vanilla_voip_crash;;
+      8) fixerscript_apache_font_crash;;
+      9) fixerscript_delete_shaders;;
+      10) kill_wineserver;;
+      11) install_udev_rules;;
+      12) install_vr_registry_edits;;
       q) exit 0;;
       exit) exit 0;;
       m) menu_main; break;;
@@ -1125,6 +1127,12 @@ run_wine_control_panel(){
   log 'c' "$@"
   export WINEPREFIX="$dir_prefix"
   "$dir_prefix/runners/$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")/bin/wine" control
+}
+
+run_wine_cmd(){
+  log 'c' "$@"
+  export WINEPREFIX="$dir_prefix"
+  "$dir_prefix/runners/$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")/bin/wineconsole"
 }
 
 run_wine_configuration(){
