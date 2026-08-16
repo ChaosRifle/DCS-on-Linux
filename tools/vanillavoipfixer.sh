@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='1.0.3'
+ver='1.0.4'
 
 # edit the following path to your DCS core game directory.
 PREFIX="/run/media/$USER/SN850X 2TB/games/dcs-world"
@@ -43,4 +43,10 @@ if [[ -f "$DCS_INSTALL/CoreMods/services/VoiceChat/bin/VoiceChat.dll" ]]; then
   echo "vanillavoipfixer.sh renamed 'VoiceChat.dll' to 'VoiceChat-DISABLED.dll'"
 fi
 
-echo "vanillavoipfixer.sh has performed $TASKS_COMPLETED/3 tasks, done executing"
+if grep -q '				sound.updateVoiceChatSettings{ \[name\] = value }' "$DCS_INSTALL/Scripts/UI/GameMenu.lua"; then # the leading space is to ensure no double-run
+sed -i 's|sound.updateVoiceChatSettings{ \[name\] = value }|-- REMOVED BY DoL SCRIPT --sound.updateVoiceChatSettings{ \[name\] = value }|' "$DCS_INSTALL/Scripts/UI/GameMenu.lua"
+  TASKS_COMPLETED="$(($TASKS_COMPLETED + 1))"
+  echo "vanillavoipfixer.sh removed 'updateVoiceChatsettings' line from GameMenu.lua"
+fi
+
+echo "vanillavoipfixer.sh has performed $TASKS_COMPLETED/4 tasks, done executing"
