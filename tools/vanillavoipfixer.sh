@@ -9,7 +9,7 @@ DCS_INSTALL_PATH="drive_c/Program Files/Eagle Dynamics/DCS World"
 # documentation/explanation
 
 # vanillavoipfixer comments out lines in dcs code and renames a dll to disable the vanilla voip, thus ensuring it doesnt crash on boot, mp lobby, on connect to server, or when slotting into an aircraft.
-# this is to fix the 'voip bug' at https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#date-unknown-voip-bug-dcslog-cites-voip-related-stuff-game-broken-in-various-ways
+# this is to fix the 'voip bug' at https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20231129-voip-bug-dcslog-cites-voip-related-stuff-game-broken-in-various-ways
 
 # If you want to undo this script, uninstall your mods and
 # repair the game files, then reinstall your mods. ( launch-dcs.sh -r )
