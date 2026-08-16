@@ -22,7 +22,10 @@
 > - search this page for known issues and their workarounds/resolutions
 > - confirm you are within the requirements listed below
 > - check your dcs.log (and other log files), it can often be helpful if an issue is 100% repeatable
-> - if your issue isnt listed in this page, and you ask for help in the [matrix](https://matrix.to/#/#dcs-on-linux:matrix.org) or git issues, please provide your install method (helper, lutris, steam etc) and a dcs.log file with a description of your problem, you will be asked for it if not provided, as they are the usual things we must know to be able to help at all
+> - ensure your fstab mount uses ``defaults`` for the drive you are installing to, several issues can be avoided by properly mounting your drive
+> - ensure your settings match requirements below: use a known working runner, check for required launch args and required dependencies
+> - check this page for issues that seem similar or identical to yours 
+> - if your issue isnt listed in this page and you ask for help in the [matrix](https://matrix.to/#/#dcs-on-linux:matrix.org) or git issues, please provide your install method (helper, lutris, steam, etc) and the respective log files with a description of your problem. 
 
 
 ## known working runners:
@@ -55,7 +58,8 @@
 
 ## Logs
 - dcs: ``drive_c/users/$USERNAME/Saved Games/DCS World/Logs/dcs.log``
-- helper script: ``~/.local/state/dcs-on-linux``
+- dcs updater: ``drive_c/Program Files/Eagle Dynamics/DCS World/autoupdate_log.txt``
+- helper scripts: ``~/.local/state/dcs-on-linux``
 - proton: set env vars ``PROTON_LOG=1`` and ``PROTON_LOG_DIR=$path-to-desired-directory/`` to dump to said location
 
 
@@ -157,13 +161,17 @@ old resources that contain older, less useful, or duplicate information, but may
 
 # Linux issues
 > [!important]
-> #### (1970/01/01) **[case-folding](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Terminology#case-folding-case-insensitivity-for-file-systems)**
+> #### (1970/01/01) **[case-folding](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Knowledge-Base/#case-folding-case-insensitivity-for-file-systems)**
 > - use of a mod manager or case-folding filesystem/directory can help avoid crashes and bugs when you modify your files. Troubleshooting this is next to impossible, so preventative action like use of a mod manager or specialized filesystem is critical. 
 > - this can cause bugs or crashes the moment you modify your game files. Windows games expect only one file of a given name to exist, however when you paste files in a directory, sometimes a user didnt use an identical capitalization. This means the game gets both, and can run the wrong file, or, crash. 
 
 > [!important]
 > #### (1970/01/01) **applications stored on specific drive will not launch**
-> - fstab mount is missing ``exec`` or ``defaults`` which would enable the exec flag. linux defaults to not allowing execution when mounted.
+> - [fstab](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Knowledge-Base/#fstab) mount is missing ``exec`` or ``defaults`` which would enable the exec flag, allowing execution of files on that drive
+
+> [!important]
+> #### (1970/01/01) **wine fails to create files or folders with certain characters**
+> - [fstab](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Knowledge-Base/#fstab) mount is missing something, mounting the drive with ``defaults`` will enable the required permissions
 
 
 # DCS issues
@@ -190,25 +198,26 @@ old resources that contain older, less useful, or duplicate information, but may
 > - this is the launcher, it doesn't render properly. use launch parameter '--no-launcher' or an (options.lua)[https://github.com/ChaosRifle/DCS-on-Linux/wiki/Knowledge-Base#optionslua] to disable it. options.lua will completely stop this from happening even when the launch parameter is not retained (say, from the updater relaunching the game)
 
 > [!important]
-> #### (date unknown) **voip bug, dcs.log cites voip related stuff, game broken in various ways**
-> - this is the native voice chat. uncommon issue, fix must be reapplied every time the file(not the game) gets an update. this will disable your vanilla voip entirely, but ED's voip is bad and everyone uses SRS instead so its no real loss.
-> - we have a script in this repos files, at ``tools/vanillavoipfixer.sh``. If you installed via the ``helper-dcs.sh`` script, just run the ``helper-dcs.sh`` > ``troubleshooting`` > ``fix vanilla voip crash`` and you are done now. 
-> - If you installed some other way than the helper script, download and edit the filepath in the script to your install, and execute it, or, follow the below instructions to perform the fix manually.
-> - These line numbers are not always exact, updates change them. The text itself should be the same and in a roughly similar area of the files. If these line numbers change, please notify a maintainer with the new line numbers.
-> - 1: comment out ``../drive_c/Program Files/Eagle Dynamics/DCS World/MissionEditor/modules/mul_voicechat.lua`` line 2440 (``voice_chat.onPeerConnect(connectData)``)
-> <img alt="voip bug 3" src="https://github.com/user-attachments/assets/114949a1-2069-4892-9ed6-60452ded3a73" />
+> #### (2023/11/29) **voip bug, dcs.log cites voip related stuff, game broken in various ways**
+> - this is the native voice chat. fix must be reapplied every time the file(not the game) gets an update. this will unfortunately disable your vanilla voip entirely, but ED's voip is bad and everyone uses SRS instead. If you know how to fix this issue without the workaround provided, **PLEASE notify a maintainer**.
+> - If you installed via the ``tools/helper-dcs.sh`` script, just run ``helper-dcs.sh`` > ``troubleshooting`` > ``fix vanilla voip crash`` and you are done now. 
+> - If you installed some other way, we have a script in this repo (``tools/vanillavoipfixer.sh``), edit the filepath in the script to your install and execute it. Alternatively you can follow the instructions below to perform the fix manually if you dont want to run scripts.
 >
+> - These line numbers are not always exact, updates change them. The text itself should be the same and in a similar area of the files. 
+> - 0: lua comments are done by adding ``--`` at the beginning of the line
+> - 1: comment out ``../drive_c/Program Files/Eagle Dynamics/DCS World/MissionEditor/modules/mul_voicechat.lua`` line 2440 (``voice_chat.onPeerConnect(connectData)``)
 > - 2: comment out ``../drive_c/Program Files/Eagle Dynamics/DCS World/MissionEditor/modules/mul_voicechat.lua`` line 2939 (``voice_chat.changeSlot(playerInfo.side, unitId)``)
 > - 3: rename or delete ``../drive_c/Program Files/Eagle Dynamics/DCS World/CoreMods/services/VoiceChat/bin/VoiceChat.dll``
+> - 4: comment out ``../drive_c/Program Files/Eagle Dynamics/DCS World/Scripts/UI/GameMenu.lua`` line 442 (``sound.updateVoiceChatSettings{ [name] = value }``)
 >
-> - IF this does NOT fix the issue, you can also try the following lines, which have worked in the past, however you should be done and working now. Some users report issues with the following lines.
-> - attempt to comment out ``../drive_c/Program Files/Eagle Dynamics/DCS World/MissionEditor/modules/Options/optionsDb.lua`` lines 118-131 (``local function getVoiceChatDevices``) and line 457 (``sound('voice_chat'):setValue(true):checkbox()``).
-> - attempt to comment out ``../drive_c/Program Files/Eagle Dynamics/DCS World/MissionEditor/modules/mul_voicechat.lua`` line 2933 (``voice_chat.changeSlot(playerInfo.side, unitId)``)
-> - please note this information was derived itteratively with two different bugs on an uncommon issue that cant be intentionally reproduced, some of the commenting steps may be unnessisary for your specific case.
-> <img alt="voip bug 1" src="https://github.com/user-attachments/assets/450e4fe8-4b64-42eb-a099-a117cc646aa6" />
-> <img alt="voip bug 2" src="https://github.com/user-attachments/assets/2a3fae47-9dfd-415d-8229-3b995a627164" />
-> <img alt="voip bug 4" src="https://github.com/user-attachments/assets/18eaf4ca-74bd-4703-b87f-5bb5a7ac5a13" />
-> NOTES FOR FIX HUNTING: dll override ``msdmo=n`` has shown to prevent crashes on mp connect, however inputs are dropped (cant slot in) despite the game continuing to run. suspected ths is one requirement for a true fix to this bug. One user was able to fix this issue by reinstalling, with a possible change to runner or other supporting tool fixing it. The cause of the spurius fix is still unclear but trusted, if you figure it out PLEASE notify a maintainer or open a github issue, thank you. Nobody else has been able to replicate this fix, normally users afflicted will stay afflicted forever, and unafflicted sometimes become afflicted with dcs updates. UPDATE: ``voice_chat.changeSlot(playerInfo.side, unitId)`` at the last line of ``../MissionEditor/modules/mul_voicechat.lua`` is responsible for the slotting not working - this is due to no voip functioning. 
+>
+> - You should be done and working now.*IF* this does *NOT* fix the issue, check your dcs.log as an update may have changed things. Usually the fix is as simple as reading what file crashed the game at which line of code, and commenting that out too. you can also try the following, which have worked in the past but should no longer be required. Some users report issues with the following lines.
+> - attempt to comment out ``../drive_c/Program Files/Eagle Dynamics/DCS World/MissionEditor/modules/Options/optionsDb.lua`` lines 119-132 (the entire function, starting at ``local function getVoiceChatDevices``) and line 457 (``sound('voice_chat'):setValue(true):checkbox()``).
+> <img alt="voip bug additional 1" src="https://github.com/user-attachments/assets/450e4fe8-4b64-42eb-a099-a117cc646aa6" />
+> <img alt="voip bug additional 2" src="https://github.com/user-attachments/assets/2a3fae47-9dfd-415d-8229-3b995a627164" />
+>
+> - please note this information was derived itteratively with two different bugs on an uncommon issue that cant be intentionally reproduced, some of the steps may be unnessisary for your specific case.
+> NOTES FOR FIX HUNTING: dll override ``msdmo=n`` has shown to prevent crashes on mp connect, however inputs are dropped (cant slot in) despite the game continuing to run. suspected ths is one requirement for a true fix to this bug. One user was able to fix this issue by reinstalling, with a possible change to runner or other supporting tool fixing it. The cause of the spurius fix is still unclear however trusted - if you figure it out **PLEASE notify a maintainer or open a github issue, thank you**. Nobody else has been able to replicate this fix, normally users afflicted will stay afflicted forever, and unafflicted sometimes become afflicted with future dcs updates. UPDATE: ``voice_chat.changeSlot(playerInfo.side, unitId)`` and ``voice_chat.onPeerConnect(connectData)`` in ``../MissionEditor/modules/mul_voicechat.lua`` is responsible for the slotting not working - this is due to no voip functioning
 
 > [!important]
 > #### (2024/05/21) **jester ui and other heatblur functions are broken (hbui.exe)**

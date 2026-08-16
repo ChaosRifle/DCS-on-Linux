@@ -35,6 +35,10 @@ See [Troubleshooting](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troublesho
 ### LTS (Long Term Support)
 in linux distros, long term support means less updates and staying on major versions longer, but more support from the distro maintainers or less likely to need to update packages to keep your software working. This also means you will not even have newer packages most of the time, so you may just not be able to run things relying on new package updates.
 
+### fstab
+``/etc/fstab`` is a file used to mount your drives and partitions automatically. It configures permissions, mount point, drive folder name, format, and automated tasks to perform when mounting.
+example fstab entry we recommend: ``UUID=8b56ae12-4bdb-496c-a550-8624754d0e57 /run/media/chaos/storage btrfs defaults 0 0`` where UUID, the filepath, and format should match your drive.
+
 # Limo terms:
 
 # Lutris terms:
@@ -48,6 +52,7 @@ refers to the binary you will be using to run the game executables/binaries. Thi
 
 # Proton terms:
 > [!note]
-> proton **IS** wine, modified. everything from wine mirrored in proton. 
+> proton **IS** wine, modified. everything from wine is mirrored in proton, including terminology.
+> protons changes make it different from wine, and not nessisarily always better than wine. These changes are intended to make it better, but may not be perfect for every situation. Much of the changes made are for better portability in steam, and defaulting to dxvk/vkd3d 
 ### UMU (standalone proton)
 umu proton is just proton bundled up with the steam runtime (sniper at time of writing) so it can run standalone without steam itself. basically just proton when run on a non-steam game
