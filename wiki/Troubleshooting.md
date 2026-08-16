@@ -211,7 +211,7 @@ old resources that contain older, less useful, or duplicate information, but may
 > - 4: comment out ``../drive_c/Program Files/Eagle Dynamics/DCS World/Scripts/UI/GameMenu.lua`` line 442 (``sound.updateVoiceChatSettings{ [name] = value }``)
 >
 >
-> - You should be done and working now.*IF* this does *NOT* fix the issue, check your dcs.log as an update may have changed things. Usually the fix is as simple as reading what file crashed the game at which line of code, and commenting that out too. you can also try the following, which have worked in the past but should no longer be required. Some users report issues with the following lines.
+> - You should be done and working now. *IF* this does *NOT* fix the issue, check your dcs.log as an update may have changed things. Usually the fix is as simple as reading what file crashed the game at which line of code, and commenting that out too. you can also try the following, which have worked in the past but should no longer be required. Some users report issues with the following lines.
 > - attempt to comment out ``../drive_c/Program Files/Eagle Dynamics/DCS World/MissionEditor/modules/Options/optionsDb.lua`` lines 119-132 (the entire function, starting at ``local function getVoiceChatDevices``) and line 457 (``sound('voice_chat'):setValue(true):checkbox()``).
 > <img alt="voip bug additional 1" src="https://github.com/user-attachments/assets/450e4fe8-4b64-42eb-a099-a117cc646aa6" />
 > <img alt="voip bug additional 2" src="https://github.com/user-attachments/assets/2a3fae47-9dfd-415d-8229-3b995a627164" />
