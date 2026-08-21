@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.9.6'
+ver='0.9.7'
 
 ###################################################################################################
 #block root use, keep this as the FIRST lines of code in the script
@@ -40,6 +40,7 @@ url_matrix='https://matrix.to/#/#dcs-on-linux:matrix.org'
 
 url_wine_sclug="https://api.github.com/repos/starcitizen-lug/lug-wine/releases?per_page=100"
 url_wine_Kron4ek="https://api.github.com/repos/Kron4ek/Wine-Builds/releases?per_page=100"
+url_proton_ge="https://api.github.com/repos/GloriousEggroll/proton-ge-custom/releases?per_page=100"
 
 
 
@@ -179,6 +180,8 @@ array_bad_runners_lugwine_tkg_staging=(
   "11.9"
   "11.10"
 )
+
+array_bad_runners_protonge=()
 
 
 ###################################################################################################
@@ -1481,7 +1484,8 @@ install_prefix_runner(){ #    $1_dcs_or_srs   $2_url_forced_selection_runner
       [0]="Kron4ek amd64 runner"
       [1]="Kron4ek amd64 runner - Staging"
       # [2]="scLuG runner (experimental! openXR for VR, must tinker!)" #disabled due to no valid runner working
-      [2]="scLuG runner - Staging (experimental! openXR for VR, must tinker!)"
+      [2]="scLuG runner - Staging (experimental! openXR for VR)"
+      [3]="protonge runner (highly experimental! has openXR for VR)"
       # [4]="Kron4ek amd64 TKG runner - Staging"
     )
 
@@ -1535,6 +1539,14 @@ install_prefix_runner(){ #    $1_dcs_or_srs   $2_url_forced_selection_runner
           temp_download_list="$(grep -v "git-$value-" <<< "$temp_download_list")" # NOTE BUG seems to be if your search starts with '-' then it breaks, but 'wine-' works fine
         done
       ;;
+      3) #x86 proton ge
+        url_selected_runner="$url_proton_ge"
+        version_to_download='.tar'
+        temp_download_list="$(curl -s "$url_selected_runner" | grep "browser_download_url" | grep "$version_to_download" | grep -v 'aarch64' | cut -d '"' -f4)"
+        for value in "${array_bad_runners_protonge[@]}"; do
+          temp_download_list="$(grep -v "Proton-$value" <<< "$temp_download_list")" # NOTE BUG seems to be if your search starts with '-' then it breaks, but 'wine-' works fine
+        done
+      ;;
       e) exit 0;;
       m) menu_main; break;;
       *?) log 'x' "option '$input' is not available, please try again";;
@@ -1584,6 +1596,10 @@ downloading from: ${temp_url_pretty}"
     wget "$url_runner_download" #--force-progress
     tar -xvf "$archive_wine_download"
     rm -rf "$archive_wine_download"
+    if [ -d "$dir_working_prefix/runners/$dir_runner_download/files" ]; then # for proton, restructure to match wine to minimize overhead, seems safe so far
+      mv "$dir_working_prefix/runners/$dir_runner_download/files/"* "$dir_working_prefix/runners/$dir_runner_download"
+      rm "$dir_working_prefix/runners/$dir_runner_download/files"
+    fi
     if [ ! -f "$dir_working_prefix/runners/$cfg_preferred_dir_wine" ]; then
       echo "$dir_runner_download" > "$dir_working_prefix/runners/$cfg_preferred_dir_wine"
     fi
