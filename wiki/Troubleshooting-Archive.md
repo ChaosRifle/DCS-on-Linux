@@ -30,6 +30,10 @@ where all good bugs go to rest... hopefully forever.
 
 
 # Linux issues
+> [!important]
+> #### (2026/08/19)-(2026/08/23) **dcs takes several minutes to get the first splash screen open**
+> - on nobara, dcs could take 5-10 minutes to open the initial splash screen under wine. It was beleived to be a dependency issue on a system package, which was resolved after weekly update
+
 # DCS issues
 
 > [!important]
