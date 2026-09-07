@@ -22,7 +22,8 @@ Join the [matrix](https://matrix.to/#/#dcs-on-linux:matrix.org) server for more 
 
 ## News
 ### Game Updates
-> DCS [voip bug](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20231129-voip-bug-dcslog-cites-voip-related-stuff-game-broken-in-various-ways) has evolved to break at the launch splash screen, with dcs.log citing VoiceChat.dll being the issue now. 
+> DCS [starthere bug](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20260826-start-here-popup-wont-load-thus-prevents-main-menu-interaction) prevents main menu interaction when opened.
+> DCS [voip bug](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20231129-voip-bug-dcslog-cites-voip-related-stuff-game-broken-in-various-ways) has evolved to break at the launch splash screen, with dcs.log citing VoiceChat.dll just above the crash now. 
 
 ### General News
 > AuR had a security incident, a bunch of malware. more [here](https://lists.archlinux.org/archives/list/aur-general@lists.archlinux.org/thread/FGXPCB3ZVCJIV7FX323SBAX2JHYB7ZS4/). notably, ALVR was affected.
