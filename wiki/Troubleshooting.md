@@ -46,7 +46,7 @@
 
 ## current required launch arguments
 - ``WINE_SIMULATE_WRITECOPY=1`` for F4's ``hbui.exe`` to work correctly
-- ``WINEDLLOVERRIDES='wbemprox=n'`` for .. some reason. If you remember, ping chaos or open a PR/git issue.
+- ``WINEDLLOVERRIDES='wbemprox=n'`` for .. some reason. [ED claims](https://www.digitalcombatsimulator.com/en/support/faq/SteamDeck/) this is required. If you know why, ping a maintainer or open a PR/git issue.
 
 ## current required dependencies
 - ``corefonts``
@@ -217,7 +217,10 @@ old resources that contain older, less useful, or duplicate information, but may
 > <img alt="voip bug additional 2" src="https://github.com/user-attachments/assets/2a3fae47-9dfd-415d-8229-3b995a627164" />
 >
 > - please note this information was derived itteratively with two different bugs on an uncommon issue that cant be intentionally reproduced, some of the steps may be unnessisary for your specific case.
-> NOTES FOR FIX HUNTING: dll override ``msdmo=n`` has shown to prevent crashes on mp connect, however inputs are dropped (cant slot in) despite the game continuing to run. suspected ths is one requirement for a true fix to this bug. One user was able to fix this issue by reinstalling, with a possible change to runner or other supporting tool fixing it. The cause of the spurius fix is still unclear however trusted - if you figure it out **PLEASE notify a maintainer or open a github issue, thank you**. Nobody else has been able to replicate this fix, normally users afflicted will stay afflicted forever, and unafflicted sometimes become afflicted with future dcs updates. UPDATE: ``voice_chat.changeSlot(playerInfo.side, unitId)`` and ``voice_chat.onPeerConnect(connectData)`` in ``../MissionEditor/modules/mul_voicechat.lua`` is responsible for the slotting not working - this is due to no voip functioning
+>
+> - secondary hacky fix: if you absolutely MUST have vanilla voip working you can change the runner to protonge(possibly also regular proton) and run the client, swapping back to wine will keep the fix. This is very hacky, using the same prefix for major version swaps or wine/proton swaps is not suggested, and may have severe side-effects.
+>
+> NOTES FOR FIX HUNTING: dll override ``msdmo=n`` has shown to prevent crashes from the dll by not loading it, however any lua calls requiring it will still crash the game. UPDATE 26/08/23: a nobara user has discovered that lutris install on protonGE 9.27 does not have voip bug, while their helper install with wine 11.11 Staging does have the bug. UPDATE 26/08/24: changing the runner (helper install) to protonge and then back to wine retains the fixed functionality of protonge, so something protonge (outside its container with no umu) reconfigures the prefix such that it functions. Presumably a registry/dependency change.
 
 > [!important]
 > #### (2024/05/21) **jester ui and other heatblur functions are broken (hbui.exe)**
@@ -271,6 +274,10 @@ old resources that contain older, less useful, or duplicate information, but may
 > #### (2024/7/11) **--force-enable-VR and --force-disable-VR clobber --no-launcher**
 > - use of either of the vr launch args will break use of the no-launcher argument. 
 > - workaround: edit your (options.lua)[https://github.com/ChaosRifle/DCS-on-Linux/wiki/Knowledge-Base#optionslua] or game settings to disable the launcher. in game: main menu > settings > misc > ``Launcher on start``. for the file, under ``[]"miscellaneous"] = {`` edit the existing entry for ``["launcher"] = false,`` to be false. if it doesn't exist, add it.
+
+> [!important]
+> #### (2026/08/26) **start here popup wont load thus prevents main menu interaction**
+> - this all uses a separate .exe running an overlay, see [currently required launch args](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#current-required-launch-arguments).
 
 
 # AMD issues
