@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.2.1'
+ver='0.2.2'
 
 
 ###################################################################################################
@@ -29,27 +29,27 @@ default_arguments="-san"
 ###################################################################################################
 load_dcs_wine_config() { #in function so it can be modified by switches
   if [ ! -d "$dir_cfg" ]; then # load configs
-    echo "DoL config not found, please run the helper script." | tee -a ${active_tty}
+    echo "DoL config not found, please run the helper script." | tee -a "${active_tty}"
     exit 1
   else
     if [ -f "$dir_cfg/$cfg_dir_prefix" ]; then
       dir_prefix="$(cat "$dir_cfg/$cfg_dir_prefix")"
     else
-      echo "DoL dcs config file $cfg_dir_prefix missing, exiting." | tee -a ${active_tty}
+      echo "DoL dcs config file $cfg_dir_prefix missing, exiting." | tee -a "${active_tty}"
       exit 1
     fi
     if [ -f "$dir_prefix/runners/$cfg_preferred_dir_wine" ]; then
       dir_wine="$dir_prefix/runners/$(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")/bin"
     else
-      echo "dcs runner config file $cfg_preferred_dir_wine missing, exiting." | tee -a ${active_tty}
+      echo "dcs runner config file $cfg_preferred_dir_wine missing, exiting." | tee -a "${active_tty}"
       exit 1
     fi
   fi
-  echo "dcs prefix: $dir_prefix" | tee -a ${active_tty}
-  echo "dcs runner: $(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")" | tee -a ${active_tty}
+  echo "dcs prefix: $dir_prefix" | tee -a "${active_tty}"
+  echo "dcs runner: $(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")" | tee -a "${active_tty}"
 
   export WINEPREFIX="$dir_prefix"
-  export WINEDLLOVERRIDES='wbemprox=n' #;dbghelp=n'
+  export WINEDLLOVERRIDES='wbemprox=n' #wbemprox=n;msdmo=n;dbghelp=n;xaudio2_7=b' ';' separates commands, ',' creates a list ex: 'wbemprox,msdmo=n,b' sets both to use n then b if n fails
 
   export WINE_SIMULATE_WRITECOPY="1" # mandatory for F4 phantom hbui.exe, and probably F14 eventually when jesterV2 is released
   export MESA_SHADER_CACHE_DIR="$dir_prefix/cache/mesa"
@@ -72,26 +72,26 @@ launch_srs(){
   exec > >(stdbuf -oL awk '{ print strftime("%F-%T :"), $0; fflush(); }' >> ${file_log_dcs}) 2>&1 #Setup subshell logging, required as long as this function is called as "$(launch_srs) &"
 
   if [ ! -d "$dir_cfg" ]; then # load configs
-    echo "DoL config not found, please run the helper script." | tee -a ${active_tty}
+    echo "DoL config not found, please run the helper script." | tee -a "${active_tty}"
     exit 1
   else
     if [ -f "$dir_cfg/$cfg_dir_srs_prefix" ]; then
       dir_srs_prefix="$(cat "$dir_cfg/$cfg_dir_srs_prefix")"
     else
-      echo "DoL srs config file $cfg_dir_srs_prefix missing, exiting." | tee -a ${active_tty}
+      echo "DoL srs config file $cfg_dir_srs_prefix missing, exiting." | tee -a "${active_tty}"
       exit 1
     fi
     if [ -f "$dir_srs_prefix/runners/$cfg_preferred_dir_wine" ]; then
       active_runner_srs=$(cat "$dir_srs_prefix/runners/$cfg_preferred_dir_wine")
       dir_srs_wine="$dir_srs_prefix/runners/$active_runner_srs/bin"
     else
-      echo "srs runner config file $cfg_preferred_dir_wine missing, exiting." | tee -a ${active_tty}
+      echo "srs runner config file $cfg_preferred_dir_wine missing, exiting." | tee -a "${active_tty}"
       exit 1
     fi
   fi
 
-  echo "srs prefix: $dir_srs_prefix" | tee -a ${active_tty}
-  echo "srs runner: $active_runner_srs" | tee -a ${active_tty}
+  echo "srs prefix: $dir_srs_prefix" | tee -a "${active_tty}"
+  echo "srs runner: $active_runner_srs" | tee -a "${active_tty}"
 
   cd "$dir_srs_prefix/drive_c/srs"
 
@@ -126,8 +126,8 @@ exec > >(stdbuf -oL awk '{ print strftime("%F-%T :"), $0; fflush(); }' >> ${file
 trap 'echo "Error on line $LINENO"' ERR
 active_tty="$(tty)"
 if ! [ "$#" -eq 0 ]; then #only run on execution with args, as default run will re-run the script with args
-  echo "version: $ver" | tee -a ${active_tty}
-  echo "execution: $0 $@" | tee -a ${active_tty}
+  echo "version: $ver" | tee -a "${active_tty}"
+  echo "execution: $0 $@" | tee -a "${active_tty}"
 fi
 
 
@@ -164,19 +164,19 @@ Run-Type switches (mutually exclusive, only the first will function unless other
   [-i] CLI install specified module                   - must provide the string (ED's system), ex: './launch-dcs.sh -i SYRIA_terrain'
 
 
-" >> ${active_tty};;
+" >> "${active_tty}";;
       d) sanitized_user_input_default_arguments=$(sed 's|[^-hadilnoprsuvw]||g' <<< "$2")
          sed -i "s|default_arguments=\".*\"|default_arguments=\"$sanitized_user_input_default_arguments\"|" "$0"
          if [ "$2" != "$sanitized_user_input_default_arguments" ]; then
-           echo "ERROR: User input contained invalid characters that were stripped out" | tee -a ${active_tty}
+           echo "ERROR: User input contained invalid characters that were stripped out" | tee -a "${active_tty}"
          fi
-         echo "Set default run arguments to $sanitized_user_input_default_arguments" | tee -a ${active_tty}
+         echo "Set default run arguments to $sanitized_user_input_default_arguments" | tee -a "${active_tty}"
          unset sanitized_user_input_default_arguments
          exit 0 ;;
 
       a) export DXVK_ASYNC='1' ;;
       o) use_hud='1' ;;
-      p) echo "error: arg '$arg' is not implemented!" | tee -a ${active_tty};;
+      p) echo "error: arg '$arg' is not implemented!" | tee -a "${active_tty}";;
       w) export DISPLAY= ; ;;
 
       s) $(launch_srs) & ;; #run in subshell and continue execution
@@ -188,7 +188,7 @@ Run-Type switches (mutually exclusive, only the first will function unless other
       u) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS_updater.exe" "update" ;;
       i) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS_updater.exe" 'install' "$2" ;;
 
-      *?) echo "error: option -$OPTARG is not implemented, use -h to see available swithes" | tee -a ${active_tty}; exit 1 ;;
+      *?) echo "error: option -$OPTARG is not implemented, use -h to see available swithes" | tee -a "${active_tty}"; exit 1 ;;
     esac
   done
 fi
