@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.9.7'
+ver='0.9.8'
 
 ###################################################################################################
 #block root use, keep this as the FIRST lines of code in the script
@@ -215,12 +215,12 @@ check_dependency(){
   if [ ! -x "$(command -v awk)" ]; then selftest='fail'; log 'x' 'ERROR: awk missing'; fi
   if [ ! -x "$(command -v cat)" ]; then selftest='fail'; log 'x' 'ERROR: cat missing'; fi
   if [ ! -x "$(command -v date)" ]; then selftest='fail'; log 'x' 'ERROR: date missing'; fi
-  if [ ! -x "$(command -v tee)" ]; then selftest='fail'; temp_err="$(${time_stamp}) : (ERROR / WARNING): ${FUNCNAME[0]}() - 'ERROR: tee missing'"; echo "$temp_err" >> ${file_log_control}; echo "$temp_err" >> ${file_log_full}; echo "$temp_err" >> ${active_tty}; unset temp_err; fi
+  if [ ! -x "$(command -v tee)" ]; then selftest='fail'; temp_err="$(${time_stamp}) : (ERROR / WARNING): ${FUNCNAME[0]}() - 'ERROR: tee missing'"; echo "$temp_err" >> ${file_log_control}; echo "$temp_err" >> ${file_log_full}; echo "$temp_err" >> "${active_tty}"; unset temp_err; fi
   if [ ! "$(command -v exec)" ]; then log 'x' "ERROR: exec unsupported? $temp_report_occurance"; fi
   if [ ! "$(command -v mapfile)" ]; then log 'x' "ERROR: mapfile unsupported? $temp_report_occurance"; fi
-  if [ ! "$(command -v shift)" ]; then echo "$(${time_stamp}) : (ERROR / WARNING): ${FUNCNAME[0]}() - 'ERROR: shift unsupported? $temp_report_occurance'" | tee -a ${file_log_control} ${file_log_full} >> ${active_tty}; fi
+  if [ ! "$(command -v shift)" ]; then echo "$(${time_stamp}) : (ERROR / WARNING): ${FUNCNAME[0]}() - 'ERROR: shift unsupported? $temp_report_occurance'" | tee -a ${file_log_control} ${file_log_full} >> "${active_tty}"; fi
   if [ ! "$(command -v trap)" ]; then log 'x' "ERROR: trap unsupported? $temp_report_occurance"; fi
-  if [ ! "$(command -v echo)" ]; then cat <<< "$(${time_stamp}) : (ERROR / WARNING): ${FUNCNAME[0]}() - 'ERROR: echo unsupported? $temp_report_occurance'" | tee -a ${file_log_control} ${file_log_full} >> ${active_tty}; fi
+  if [ ! "$(command -v echo)" ]; then cat <<< "$(${time_stamp}) : (ERROR / WARNING): ${FUNCNAME[0]}() - 'ERROR: echo unsupported? $temp_report_occurance'" | tee -a ${file_log_control} ${file_log_full} >> "${active_tty}"; fi
   if [ ! "$(command -v grep)" ]; then selftest='fail'; log 'x' 'ERROR: grep missing'; fi
   if [ ! -x "$(command -v sed)" ]; then selftest='fail'; log 'x' 'ERROR: sed missing'; fi
   if [ ! -x "$(command -v cut)" ]; then selftest='fail'; log 'x' 'ERROR: cut missing'; fi
@@ -970,10 +970,11 @@ menu_troubleshooting(){
       [6]="fix textures"
       [7]="fix vanilla voip crash"
       [8]="fix apache font crash"
-      [9]="delete shaders"
-      [10]="kill wineserver"
-      [11]="install udev rules"
-      [12]="install vr registry entries"
+      [9]="fix starthere breaking main menu"
+      [10]="delete shaders"
+      [11]="kill wineserver"
+      [12]="install udev rules"
+      [13]="install vr registry entries"
     )
 
     menu_text_zenity="<a href='${url_troubleshooting}'>Troubleshooting resources</a>
@@ -1002,10 +1003,11 @@ dcs logs: ${dir_prefix}/drive_c/users/$USER/Saved Games/DCS/Logs"
       6) fixerscript_textures;;
       7) fixerscript_vanilla_voip_crash;;
       8) fixerscript_apache_font_crash;;
-      9) fixerscript_delete_shaders;;
-      10) kill_wineserver;;
-      11) install_udev_rules;;
-      12) install_vr_registry_edits;;
+      9) fixerscript_starthere_popup;;
+      10) fixerscript_delete_shaders;;
+      11) kill_wineserver;;
+      12) install_udev_rules;;
+      13) install_vr_registry_edits;;
       q) exit 0;;
       exit) exit 0;;
       m) menu_main; break;;
@@ -1023,7 +1025,6 @@ menu_runners(){
       [0]="install a runner"
       [1]="change active runner from installed runners"
       [2]="remove an installed runner"
-      # [3]="install a proton GE runner (not yet implemented!)"
     )
 
     menu_text_zenity="active DCS prefix: <a href='file://${dir_prefix}'>${dir_prefix}</a>"
@@ -1175,9 +1176,18 @@ fixerscript_vanilla_voip_crash(){
   log 'c' "$@"
   if confirm "This will edit game files to disable the vanilla voip system in the event it prevents gameplay. This can be undone with 'launch-dcs.sh -r' to repair the files, though you should uninstall your mods before repairing
 
-https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#date-unknown-voip-bug-dcslog-cites-voip-related-stuff-game-broken-in-various-ways"; then
+https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20231129-voip-bug-dcslog-cites-voip-related-stuff-game-broken-in-various-ways"; then
     "$dir_self/vanillavoipfixer.sh" "$dir_prefix"
   fi
+}
+
+fixerscript_starthere_popup(){
+  log 'c' "$@"
+#   if notify "options.lua has been modified to disable on-boot starthere popup
+#
+# https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#20260826-start-here-popup-wont-load-thus-prevents-main-menu-interaction"; then
+  "$dir_self/startherefixer.sh" "$dir_prefix"
+  # fi
 }
 
 fixerscript_delete_shaders(){
@@ -1437,7 +1447,7 @@ log(){ #     $1_mode_of_logging    $2_data_to_log
 
     x) #error or critical warning, logged and sent to terminal. NOT intended to be used to notify users, use notify() for that
       shift
-      echo "$(${time_stamp}) : (ERROR / WARNING): ${FUNCNAME[1]}() - '$@'" | tee -a ${file_log_control} ${file_log_full} >> ${active_tty}
+      echo "$(${time_stamp}) : (ERROR / WARNING): ${FUNCNAME[1]}() - '$@'" | tee -a ${file_log_control} ${file_log_full} >> "${active_tty}"
     ;;
 
     *?)
@@ -1452,10 +1462,10 @@ log(){ #     $1_mode_of_logging    $2_data_to_log
 send_to_screen(){ #     $1_thing_to_send_to_screen
   if [[ -p /dev/stdin ]]; then # Handle piped input
     line="$(cat)"
-    echo "${line}" >> ${active_tty}
+    echo "${line}" >> "${active_tty}"
     log 's' ${line}
   else # Handle argument input
-    echo "$@" >> ${active_tty}
+    echo "$@" >> "${active_tty}"
     log 's' "$@"
   fi
 }
