@@ -55,4 +55,8 @@ refers to the binary you will be using to run the game executables/binaries. Thi
 > proton **IS** wine, modified. everything from wine is mirrored in proton, including terminology.
 > protons changes make it different from wine, and not nessisarily always better than wine. These changes are intended to make it better, but may not be perfect for every situation. Much of the changes made are for better portability in steam, and defaulting to dxvk/vkd3d 
 ### UMU (standalone proton)
-umu proton is just proton bundled up with the steam runtime (sniper at time of writing) so it can run standalone without steam itself. basically just proton when run on a non-steam game
+[umu](https://github.com/Open-Wine-Components/umu-launcher) proton is just standalone (without steam) proton bundled up with the [Steam Linux Runtime](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Knowledge-Base#steam-linux-runtime) (sniper, scout, etc) so it can run using the steam runtime without steam itself. While umu is a software itself, it is often used to refer to running proton while using the steam runtime environment, outside of steam. Note that it is possible to run proton without the steam runtime environment (outside steam), however is unsupported and may have problems. See [Steam Linux Runtime](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Knowledge-Base#steam-linux-runtime) for info.
+
+### Steam Linux Runtime
+Steam Linux Runtime provides a standardized set of libraries and environment configuration for proton, with the aim being that a standardized environment means all linux installations will work identically.
+Without Steam Linux Runtime, proton would use system libraries which will be different or even missing, depending on your distro. With a library of a different version or missing entirely, functionality may change or not exist and thus could see any number of things break. 
