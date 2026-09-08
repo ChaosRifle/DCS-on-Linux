@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.9.8'
+ver='0.9.9'
 
 ###################################################################################################
 #block root use, keep this as the FIRST lines of code in the script
@@ -35,6 +35,7 @@ url_dcs='https://www.digitalcombatsimulator.com/upload/iblock/959/d33ul8g3arxnzc
 file_dcs='DCS_World_web.exe'
 
 url_dol='https://github.com/ChaosRifle/DCS-on-Linux'
+URL_DOL_RAW='https://raw.githubusercontent.com/ChaosRifle/DCS-on-Linux/refs/heads/main' #for direct downloads as fallback for user only retaining/downloading scripts folder
 url_troubleshooting='https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting'
 url_matrix='https://matrix.to/#/#dcs-on-linux:matrix.org'
 
@@ -228,6 +229,7 @@ check_dependency(){
   if [ ! -x "$(command -v mv)" ]; then selftest='fail'; log 'x' 'ERROR: mv missing'; fi
   if [ ! -x "$(command -v ls)" ]; then selftest='fail'; log 'x' 'ERROR: ls missing'; fi
   if [ ! -x "$(command -v rm)" ]; then selftest='fail'; log 'x' 'ERROR: rm missing'; fi
+  if [ ! -x "$(command -v cp)" ]; then selftest='fail'; log 'x' 'ERROR: cp missing'; fi
 
   # find a solution to check for globbing being enabled, ex: x=(*/) TODO
   # find a solution to check stdbuf can use fflush() TODO
@@ -607,7 +609,19 @@ you may opt to disable the desktop icon";;
 #"$dir_prefix/runners/$preferred_dir_wine/bin/wineserver" -k
   case "$runtype" in # 0=fresh clean install, 1=file install, 2=prefix reinstall
   # NOTE unclear if dcs installer does anything besides files on disk, like registry edits, so to be safe, we run this after the installer, as the installer refuses to run if the files are detected. Done out of caution, not knowledge
-    0) ;;
+    0) if [ ! -d "$dir_prefix/$subdir_dcs_savedgames/Config" ]; then
+        mkdir -p "$dir_prefix/$subdir_dcs_savedgames/Config"
+      fi
+      if [ ! -f "$dir_prefix/$subdir_dcs_savedgames/Config/options.lua" ]; then
+        if [ -f "$dir_self/../mods/dcs preset files/minimal options.lua/options.lua" ]; then
+          cp "$dir_self/../mods/dcs preset files/minimal options.lua/options.lua" "$dir_prefix/files/options.lua"
+        else
+          wget "$URL_DOL_RAW/mods/dcs preset files/minimal options.lua/options.lua" -P "$dir_prefix/files/"
+        fi
+
+        mv "$dir_prefix/files/options.lua" "$dir_prefix/$subdir_dcs_savedgames/Config/options.lua"
+      fi
+    ;;
     1) if [ -d "$dir_install/dcs-files/DCS" ] && [ -d "$dir_install/dcs-files/DCS World" ]; then
         rm -rf "$dir_prefix/$subdir_dcs_corefiles"
         mkdir -p "$dir_prefix/$subdir_dcs_corefiles" "$dir_prefix/$subdir_dcs_savedgames"
@@ -1495,7 +1509,7 @@ install_prefix_runner(){ #    $1_dcs_or_srs   $2_url_forced_selection_runner
       [1]="Kron4ek amd64 runner - Staging"
       # [2]="scLuG runner (experimental! openXR for VR, must tinker!)" #disabled due to no valid runner working
       [2]="scLuG runner - Staging (experimental! openXR for VR)"
-      [3]="protonge runner (highly experimental! has openXR for VR)"
+      [3]="protonge runner (highly experimental! breaks some automation! has openXR for VR)"
       # [4]="Kron4ek amd64 TKG runner - Staging"
     )
 
