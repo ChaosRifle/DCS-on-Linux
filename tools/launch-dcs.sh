@@ -25,6 +25,12 @@ default_arguments="-san"
 
 
 ###################################################################################################
+#constants
+###################################################################################################
+DIR_SELF="$(dirname $(readlink -f $0))"
+
+
+###################################################################################################
 #functions
 ###################################################################################################
 load_dcs_wine_config() { #in function so it can be modified by switches
@@ -47,6 +53,8 @@ load_dcs_wine_config() { #in function so it can be modified by switches
   fi
   echo "dcs prefix: $dir_prefix" | tee -a "${active_tty}"
   echo "dcs runner: $(cat "$dir_prefix/runners/$cfg_preferred_dir_wine")" | tee -a "${active_tty}"
+
+  "$DIR_SELF/startherefixer.sh" "$dir_prefix"
 
   export WINEPREFIX="$dir_prefix"
   export WINEDLLOVERRIDES='wbemprox=n' #wbemprox=n;msdmo=n;dbghelp=n;xaudio2_7=b' ';' separates commands, ',' creates a list ex: 'wbemprox,msdmo=n,b' sets both to use n then b if n fails
