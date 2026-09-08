@@ -273,11 +273,12 @@ old resources that contain older, less useful, or duplicate information, but may
 > [!important]
 > #### (2024/7/11) **--force-enable-VR and --force-disable-VR clobber --no-launcher**
 > - use of either of the vr launch args will break use of the no-launcher argument. 
-> - workaround: edit your (options.lua)[https://github.com/ChaosRifle/DCS-on-Linux/wiki/Knowledge-Base#optionslua] or game settings to disable the launcher. in game: main menu > settings > misc > ``Launcher on start``. for the file, under ``[]"miscellaneous"] = {`` edit the existing entry for ``["launcher"] = false,`` to be false. if it doesn't exist, add it.
+> - workaround: edit your (options.lua)[https://github.com/ChaosRifle/DCS-on-Linux/wiki/Knowledge-Base#optionslua] or game settings to disable the launcher. in game: main menu > settings > misc > ``Launcher on start``. for the file, under ``["miscellaneous"] = {`` edit the existing entry for ``["launcher"] = false,`` to be false. if it doesn't exist, add it.
 
 > [!important]
 > #### (2026/08/26) **start here popup wont load thus prevents main menu interaction**
-> - this all uses a separate .exe running an overlay, see [currently required launch args](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Troubleshooting#current-required-launch-arguments).
+> - seems to have several causes - wine stable will crash the component, and wine staging can be severely delayed in the popup sometimes. Both times will result in a black horizontal line on the lower third of the screen.
+> - solution: run the ``startherefixer.sh``(``helper`` > ``troubleshooting`` > ``fix starthere breaking main menu``), or disable the on-boot popup manually in (``options.lua``)[https://github.com/ChaosRifle/DCS-on-Linux/wiki/Knowledge-Base#optionslua], under ``["miscellaneous"] = {``, edit ``["push_starthere"] = false,`` to ``false``
 
 
 # AMD issues
