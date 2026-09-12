@@ -190,12 +190,11 @@ old resources that contain older, less useful, or duplicate information, but may
 > - installing and using dxvk instead of wineD3D should fix this
 
 > [!important]
-> #### (2024/07/12) **game launches to a black window**
-> - this is the launcher, it doesn't render properly. use launch parameter '--no-launcher' or an [options.lua](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Knowledge-Base#optionslua) to disable it. options.lua will completely stop this from happening even when the launch parameter is not retained (say, from the updater relaunching the game)
+> #### (2024/07/12) **game launches to a white or black window**
+> - this is the ED launcher, it doesn't render properly.
+> - Workaround: use launch parameter '--no-launcher' or an [options.lua](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Knowledge-Base#optionslua) to disable it. options.lua will completely stop this from happening even when the launch parameter is not retained (say, from the updater relaunching the game)
+> - Workaround 2: the launcher is an electron app, and seems to be fixed by ``--in-process-gpu --disable-gpu``
 
-> [!important]
-> #### (2024/07/12) **game launches to a white window**
-> - this is the launcher, it doesn't render properly. use launch parameter '--no-launcher' or an [options.lua](https://github.com/ChaosRifle/DCS-on-Linux/wiki/Knowledge-Base#optionslua) to disable it. options.lua will completely stop this from happening even when the launch parameter is not retained (say, from the updater relaunching the game)
 
 > [!important]
 > #### (2023/11/29) **voip bug, dcs.log cites voip related stuff, game broken in various ways**
