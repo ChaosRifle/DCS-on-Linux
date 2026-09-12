@@ -188,9 +188,9 @@ Run-Type switches (mutually exclusive, only the first will function unless other
       w) export DISPLAY= ; ;;
 
       s) $(launch_srs) & ;; #run in subshell and continue execution
-      l) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS.exe" ;; #--force-disable-VR
+      l) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS.exe" --in-process-gpu --disable-gpu ;; #--force-disable-VR //  ""--in-process-gpu --disable-gpu"" are electron-app commands to fix white/black launcher
       n) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS.exe" "--no-launcher" ;;
-      v) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS.exe" "--no-launcher --force_enable_VR --force_OpenXR";;
+      v) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS.exe" --in-process-gpu --disable-gpu "--no-launcher --force_enable_VR --force_OpenXR";; #added electron launcher args here because --froce_enable_VR clobbers --no-launcher.. waiting on ED to fix to remove this, or, write a patch that changes options.lua to fix it ourselves
 
       r) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS_updater.exe" "repair" ;;
       u) load_dcs_wine_config; "$dir_wine/wine" "$dir_prefix/$dir_dcs/DCS_updater.exe" "update" ;;
