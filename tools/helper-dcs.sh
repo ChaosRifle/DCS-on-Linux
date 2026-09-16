@@ -567,7 +567,10 @@ WARNING: this will only work for a stable-release install of dcs - openbeta and 
       runtype=1
     ;; #from here on it is a file-based install path
   esac
-  mkdir -p "$dir_prefix/cache" "$dir_prefix/runners" "$dir_prefix/files"
+  if ! mkdir -p "$dir_prefix/cache" "$dir_prefix/runners" "$dir_prefix/files"; then
+    notify "ERROR: could not create '$dir_prefix' (permission denied?). Check that you have write access to '$dir_install' (e.g. 'sudo chown \$USER \"$dir_install\"' if it's a freshly mounted/formatted drive), then try again. exiting" # added basic error checking against a drive which may be owned by root and not the $USER, common issue.
+    return
+  fi
   if [ ! -f "/files/$file_dcs" ]; then #dcs installer
     cd "$dir_prefix/files"
     wget "$url_dcs" #--force-progress
@@ -635,6 +638,11 @@ you may opt to disable the desktop icon";;
   esac
   unset $runtype
   cd "$anchor_dir"
+
+  if [ ! -d "$dir_prefix/$subdir_dcs_corefiles" ]; then
+    notify "ERROR: install did not complete successfully - '$dir_prefix/$subdir_dcs_corefiles' was not created. Check '$dir_logs_helper/$(basename "$file_log_full")' for the actual error. exiting"
+    return
+  fi # Again a bit more error checking since to me it was not obvious at first what went wrong with the script. 
 
   notify "DCS install is now complete.
 
