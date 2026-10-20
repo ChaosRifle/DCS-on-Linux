@@ -1,5 +1,5 @@
 #!/bin/bash
-ver='0.9.9'
+ver='0.9.10'
 
 ###################################################################################################
 #block root use, keep this as the FIRST lines of code in the script
@@ -747,8 +747,8 @@ We have generated the hooks for you at '$dir_srs_prefix/files/hook-srs'
 WARNING: Due to case folding and dcs jank, we STRONGLY recommend using a mod manager to avoid problems.
 ( https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#mod-manager )"
       if ! confirm "$temp_srs_warning"; then
-        cp "$dir_srs_prefix/files/hook-srs/Mods" "$dir_prefix/$subdir_dcs_savedgames"
-        cp "$dir_srs_prefix/files/hook-srs/Scripts" "$dir_prefix/$subdir_dcs_savedgames"
+        cp -r "$dir_srs_prefix/files/hook-srs/Mods" "$dir_prefix/$subdir_dcs_savedgames"
+        cp -r "$dir_srs_prefix/files/hook-srs/Scripts" "$dir_prefix/$subdir_dcs_savedgames"
         echo 'srs hook installed via raw copy... hope it doesnt break later.'
       fi
       unset $temp_srs_warning
@@ -826,8 +826,8 @@ We have generated the hooks for you at '$dir_srs_prefix/files/hook-srs'
 WARNING: Due to case folding and dcs jank, we STRONGLY recommend using a mod manager to avoid problems.
 ( https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#mod-manager )"
       if ! confirm "$temp_srs_warning"; then
-        cp "$dir_srs_prefix/files/hook-srs/Mods" "$dir_prefix/$subdir_dcs_savedgames"
-        cp "$dir_srs_prefix/files/hook-srs/Scripts" "$dir_prefix/$subdir_dcs_savedgames"
+        cp -r "$dir_srs_prefix/files/hook-srs/Mods" "$dir_prefix/$subdir_dcs_savedgames"
+        cp -r "$dir_srs_prefix/files/hook-srs/Scripts" "$dir_prefix/$subdir_dcs_savedgames"
         echo 'srs hook installed via raw copy... hope it doesnt break later.'
       fi
       unset $temp_srs_warning
@@ -892,8 +892,8 @@ We have generated the hooks for you at '$dir_srs_prefix/files/hook-srs'
 WARNING: Due to case folding and dcs jank, we STRONGLY recommend using a mod manager to avoid problems.
 ( https://github.com/ChaosRifle/DCS-on-Linux/wiki/Installation#mod-manager )"
       if ! confirm "$temp_srs_warning"; then
-        cp "$dir_srs_prefix/files/hook-srs-v2.1.1.0/Mods" "$dir_prefix/$subdir_dcs_savedgames"
-        cp "$dir_srs_prefix/files/hook-srs-v2.1.1.0/Scripts" "$dir_prefix/$subdir_dcs_savedgames"
+        cp -r "$dir_srs_prefix/files/hook-srs-v2.1.1.0/Mods" "$dir_prefix/$subdir_dcs_savedgames"
+        cp -r "$dir_srs_prefix/files/hook-srs-v2.1.1.0/Scripts" "$dir_prefix/$subdir_dcs_savedgames"
         echo 'srs hook installed via raw copy... hope it doesnt break later.'
       fi
       unset $temp_srs_warning
